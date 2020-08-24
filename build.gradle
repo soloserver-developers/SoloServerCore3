@@ -1,0 +1,62 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '6.0.0'
+}
+
+group = 'page.nafuchoco'
+version = '3.0.0'
+
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
+shadowJar {
+    archiveName = "${rootProject.name}.${extension}"
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        name = 'spigotmc-repo'
+        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+    }
+    maven {
+        name = 'sonatype'
+        url = 'https://oss.sonatype.org/content/groups/public/'
+    }
+    maven {
+        url = 'https://maven.enginehub.org/repo/'
+    }
+    maven {
+        url = 'https://repo.dmulloy2.net/nexus/repository/public/'
+    }
+    maven {
+        url = 'http://maven.playpro.com/'
+    }
+    maven {
+        url = 'https://repo.onarandombox.com/content/repositories/multiverse/'
+    }
+}
+
+dependencies {
+    implementation 'org.jetbrains:annotations:16.0.2'
+
+    compileOnly 'org.spigotmc:spigot-api:1.15.2-R0.1-SNAPSHOT'
+    compileOnly 'com.sk89q.worldedit:worldedit-bukkit:7.1.0'
+    compileOnly 'net.coreprotect:coreprotect:19.1'
+    compileOnly 'com.comphenix.protocol:ProtocolLib:4.5.1'
+
+    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'org.apache.commons:commons-lang3:3.9'
+
+    implementation 'com.zaxxer:HikariCP:3.4.5'
+    implementation 'mysql:mysql-connector-java:8.0.21'
+    implementation 'org.mariadb.jdbc:mariadb-java-client:2.6.2'
+}
+
+processResources {
+    from(sourceSets.main.resources.srcDirs) {
+        filter ReplaceTokens, tokens: [version: version]
+    }
+}

@@ -1,0 +1,10 @@
+name: SoloServerCore
+version: @version@
+main: page.nafuchoco.soloservercore.SoloServerCore
+api-version: 1.15
+prefix: SSC
+depend: [ProtocolLib, CoreProtect]
+softdepend: [Multiverse-Core]
+authors: [NAFU_at]
+description: A single-player experience, even though it's multiplayer, is now available for you.
+website: https://nafuchoco.page/

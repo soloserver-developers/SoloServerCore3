@@ -1,0 +1,22 @@
+###########################################
+#  SoloServerCore 3 Configuration File!!  #
+#             Author: NAFU_at             #
+#            Version: 3.0                 #
+###########################################
+
+# This configuration is necessary to use this plugin.
+initialization:
+  #This is an SQL setting to store data for this plugin.
+  database:
+    type: MARIADB # MYSQL or MARIADB
+    address: localhost
+    port: 3306
+    database: soloservercore
+    username: soloservercore
+    password: SoLoSeRvERcOrE
+    tablePrefix: ssc3_
+
+  spawn:
+    spawnWorlds: [world]
+    generateLocationRange: 10000
+
