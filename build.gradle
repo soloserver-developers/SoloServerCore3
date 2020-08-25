@@ -37,6 +37,9 @@ repositories {
     maven {
         url = 'https://repo.onarandombox.com/content/repositories/multiverse/'
     }
+    maven {
+        url = 'https://maven.aura-dev.team/repository/auradev-releases/'
+    }
 }
 
 dependencies {
@@ -50,6 +53,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'org.apache.commons:commons-lang3:3.9'
 
+    implementation 'team.aura_dev.lib.slf4j-plugin.spigot:slf4j-plugin-spigot:1.2.0.39:1.7.25'
     implementation 'com.zaxxer:HikariCP:3.4.5'
     implementation 'mysql:mysql-connector-java:8.0.21'
     implementation 'org.mariadb.jdbc:mariadb-java-client:2.6.2'
