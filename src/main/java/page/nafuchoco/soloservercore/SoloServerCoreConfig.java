@@ -23,6 +23,7 @@ import java.util.List;
 public class SoloServerCoreConfig {
     private static final SoloServerCore instance = SoloServerCore.getInstance();
     private InitConfig initConfig;
+    private boolean debug;
 
     public void reloadConfig() {
         instance.reloadConfig();
@@ -39,11 +40,16 @@ public class SoloServerCoreConfig {
             List<String> spawnWorlds = config.getStringList("initialization.spawn.spawnWorlds");
             int generateLocationRange = config.getInt("initialization.spawn.generateLocationRange");
             initConfig = new InitConfig(databaseType, address, port, database, username, password, tablePrefix, spawnWorlds, generateLocationRange);
+            debug = config.getBoolean("debug");
         }
     }
 
     public InitConfig getInitConfig() {
         return initConfig;
+    }
+
+    public boolean isDebug() {
+        return debug;
     }
 
     public static class InitConfig {

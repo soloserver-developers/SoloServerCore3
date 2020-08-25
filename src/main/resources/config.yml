@@ -20,3 +20,4 @@ initialization:
     spawnWorlds: [world]
     generateLocationRange: 10000
 
+debug: false
