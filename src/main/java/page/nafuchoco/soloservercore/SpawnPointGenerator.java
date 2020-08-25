@@ -55,6 +55,8 @@ public class SpawnPointGenerator {
                 x = secureRandom.nextInt(generateRange * 2) - generateRange;
                 z = secureRandom.nextInt(generateRange * 2) - generateRange;
 
+                if (SoloServerCore.getCoreConfig().isDebug())
+                    SoloServerCore.getInstance().getLogger().info("[Debug] Start Search: " + world.getName() + ", " + x + ", " + z);
                 Location location = SpawnPointGenerator.this.searchSafeLocation(world, x, y, z);
                 if (location != null) {
                     loader.addSpawnLocation(location);
@@ -70,14 +72,21 @@ public class SpawnPointGenerator {
             Location point1 = new Location(world, x, y, z);
             point1.getChunk().load(true);
 
-            if (!world.getBlockAt(point1).getType().equals(Material.AIR)) {
+            if (SoloServerCore.getCoreConfig().isDebug())
+                SoloServerCore.getInstance().getLogger().info("[Debug] Searching Y: " + y);
+            if (!(world.getBlockAt(point1).getType().equals(Material.AIR) ||
+                    world.getBlockAt(point1).getType().equals(Material.WATER) ||
+                    world.getBlockAt(point1).getType().equals(Material.LAVA))) {
                 Location point2 = new Location(world, x, y + 2, z);
                 if (world.getBlockAt(point2).getType().equals(Material.AIR))
                     return new Location(world, x, y + 1, z);
-            } else {
-                y--;
-                if (y <= 5)
-                    return null;
+            }
+            
+            y--;
+            if (y <= 5) {
+                if (SoloServerCore.getCoreConfig().isDebug())
+                    SoloServerCore.getInstance().getLogger().info("[Debug] Safe location were not found.");
+                return null;
             }
         } while (true);
     }
