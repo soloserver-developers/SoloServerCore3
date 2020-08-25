@@ -8,3 +8,7 @@ softdepend: [Multiverse-Core]
 authors: [NAFU_at]
 description: A single-player experience, even though it's multiplayer, is now available for you.
 website: https://nafuchoco.page/
+
+commands:
+  team:
+    description: Manage Players Team.
