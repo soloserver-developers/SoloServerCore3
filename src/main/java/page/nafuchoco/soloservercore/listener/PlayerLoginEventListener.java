@@ -41,8 +41,10 @@ public class PlayerLoginEventListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerLoginEvent(PlayerLoginEvent event) {
-        if (!loader.isDone())
-            event.disallow(PlayerLoginEvent.Result.ALLOWED, "System is in preparation.");
+        if (!loader.isDone()) {
+            event.disallow(PlayerLoginEvent.Result.KICK_OTHER, "System is in preparation.");
+            return;
+        }
 
         if (!event.getPlayer().hasPlayedBefore() || playersTable.getPlayerData(event.getPlayer()) == null) {
             Location location = loader.getNewLocation();
@@ -56,7 +58,7 @@ public class PlayerLoginEventListener implements Listener {
             } catch (SQLException throwables) {
                 SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to save the player data.\n" +
                         "New data will be regenerated next time.", throwables);
-                event.disallow(PlayerLoginEvent.Result.ALLOWED, "The login process was interrupted due to a system problem.");
+                event.disallow(PlayerLoginEvent.Result.KICK_OTHER, "The login process was interrupted due to a system problem.");
             }
             event.getPlayer().teleport(location);
         } else {

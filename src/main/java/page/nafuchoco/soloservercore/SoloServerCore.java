@@ -27,6 +27,8 @@ import page.nafuchoco.soloservercore.command.TeamCommand;
 import page.nafuchoco.soloservercore.database.*;
 import page.nafuchoco.soloservercore.listener.BlockEventListener;
 import page.nafuchoco.soloservercore.listener.PlayerBedEnterEventListener;
+import page.nafuchoco.soloservercore.listener.PlayerJoinEventListener;
+import page.nafuchoco.soloservercore.listener.PlayerLoginEventListener;
 import page.nafuchoco.soloservercore.listener.internal.PlayersTeamEventListener;
 import page.nafuchoco.soloservercore.packet.ServerInfoPacketEventListener;
 
@@ -45,6 +47,7 @@ public final class SoloServerCore extends JavaPlugin {
 
     private static PluginSettingsManager pluginSettingsManager;
     private static PlayerAndTeamsBridge playerAndTeamsBridge;
+    private static SpawnPointLoader spawnPointLoader;
     private static ProtocolManager protocolManager;
     private static DatabaseConnector connector;
     private static CoreProtectAPI coreProtectAPI;
@@ -85,7 +88,7 @@ public final class SoloServerCore extends JavaPlugin {
             if (world != null)
                 worlds.add(world);
         }
-        SpawnPointLoader spawnPointLoader = new SpawnPointLoader(playersTable,
+        spawnPointLoader = new SpawnPointLoader(playersTable,
                 playerAndTeamsBridge,
                 pluginSettingsManager,
                 new SpawnPointGenerator(worlds, config.getInitConfig().getGenerateLocationRange()));
@@ -105,6 +108,8 @@ public final class SoloServerCore extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(new PlayersTeamEventListener(playersTable, playersTeamsTable), this);
         getServer().getPluginManager().registerEvents(new PlayerBedEnterEventListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerLoginEventListener(playersTable, spawnPointLoader), this);
+        getServer().getPluginManager().registerEvents(new PlayerJoinEventListener(playerAndTeamsBridge), this);
 
         // Command Register
         getCommand("team").setExecutor(new TeamCommand(playersTable, playersTeamsTable));
