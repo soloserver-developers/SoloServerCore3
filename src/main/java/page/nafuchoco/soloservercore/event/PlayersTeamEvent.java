@@ -24,7 +24,6 @@ import page.nafuchoco.soloservercore.team.PlayersTeam;
 
 public abstract class PlayersTeamEvent extends Event {
     private static final HandlerList handlers = new HandlerList();
-    private boolean cancelled;
 
     private final PlayersTeam playersTeam;
     private final Player player;

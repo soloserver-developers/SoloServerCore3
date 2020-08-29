@@ -23,6 +23,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import page.nafuchoco.soloservercore.SoloServerCore;
 import page.nafuchoco.soloservercore.database.PlayerAndTeamsBridge;
+import page.nafuchoco.soloservercore.database.PlayerData;
+import page.nafuchoco.soloservercore.database.PlayersTable;
 import page.nafuchoco.soloservercore.database.TeamsPlayerData;
 
 import java.util.ArrayList;
@@ -30,14 +32,21 @@ import java.util.List;
 import java.util.UUID;
 
 public class PlayerJoinEventListener implements Listener {
+    private final PlayersTable playersTable;
     private final PlayerAndTeamsBridge playerAndTeamsBridge;
 
-    public PlayerJoinEventListener(PlayerAndTeamsBridge playerAndTeamsBridge) {
+    public PlayerJoinEventListener(PlayersTable playersTable, PlayerAndTeamsBridge playerAndTeamsBridge) {
+        this.playersTable = playersTable;
         this.playerAndTeamsBridge = playerAndTeamsBridge;
     }
 
     @EventHandler
     public void onPlayerJoinEvent(PlayerJoinEvent event) {
+        if (!event.getPlayer().hasPlayedBefore()) {
+            PlayerData playerData = playersTable.getPlayerData(event.getPlayer());
+            event.getPlayer().teleport(playerData.getSpawnLocationLocation());
+        }
+
         TeamsPlayerData teamsPlayerData = playerAndTeamsBridge.getPlayerData(event.getPlayer());
         List<UUID> bypass;
         if (teamsPlayerData != null)

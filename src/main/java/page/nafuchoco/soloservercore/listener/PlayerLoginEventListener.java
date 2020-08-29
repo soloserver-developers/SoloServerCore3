@@ -60,7 +60,6 @@ public class PlayerLoginEventListener implements Listener {
                         "New data will be regenerated next time.", throwables);
                 event.disallow(PlayerLoginEvent.Result.KICK_OTHER, "The login process was interrupted due to a system problem.");
             }
-            event.getPlayer().teleport(location);
         } else {
             try {
                 playersTable.updateJoinedDate(event.getPlayer().getUniqueId(), new Date());
