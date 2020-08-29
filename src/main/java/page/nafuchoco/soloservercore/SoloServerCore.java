@@ -20,15 +20,16 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import net.coreprotect.CoreProtect;
 import net.coreprotect.CoreProtectAPI;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 import page.nafuchoco.soloservercore.command.TeamCommand;
 import page.nafuchoco.soloservercore.database.*;
-import page.nafuchoco.soloservercore.listener.BlockEventListener;
-import page.nafuchoco.soloservercore.listener.PlayerBedEnterEventListener;
-import page.nafuchoco.soloservercore.listener.PlayerJoinEventListener;
-import page.nafuchoco.soloservercore.listener.PlayerLoginEventListener;
+import page.nafuchoco.soloservercore.listener.*;
 import page.nafuchoco.soloservercore.listener.internal.PlayersTeamEventListener;
 import page.nafuchoco.soloservercore.packet.ServerInfoPacketEventListener;
 
@@ -92,7 +93,7 @@ public final class SoloServerCore extends JavaPlugin {
                 playerAndTeamsBridge,
                 pluginSettingsManager,
                 new SpawnPointGenerator(worlds, config.getInitConfig().getGenerateLocationRange()));
-        spawnPointLoader.initPoint();
+        spawnPointLoader.initPoint(true);
     }
 
     protected void init() {
@@ -108,6 +109,7 @@ public final class SoloServerCore extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(new PlayersTeamEventListener(playersTable, playersTeamsTable), this);
         getServer().getPluginManager().registerEvents(new PlayerBedEnterEventListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerRespawnEventListener(spawnPointLoader), this);
         getServer().getPluginManager().registerEvents(new PlayerLoginEventListener(playersTable, spawnPointLoader), this);
         getServer().getPluginManager().registerEvents(new PlayerJoinEventListener(playersTable, playerAndTeamsBridge), this);
 
@@ -120,6 +122,26 @@ public final class SoloServerCore extends JavaPlugin {
         // Plugin shutdown logic
         if (connector != null)
             connector.close();
+    }
+
+    @Override
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        switch (command.getName()) {
+            case "status":
+                sender.sendMessage("Remaining spawn points: " + spawnPointLoader.getPointRemaining());
+                break;
+
+            case "charge":
+                Bukkit.broadcastMessage("[SSC] Start generate spawn points.\n" +
+                        "The server may be stopped while it finishes.");
+                spawnPointLoader.initPoint(false);
+                Bukkit.broadcastMessage("[SSC] The generate spawn point is now complete.");
+                break;
+
+            default:
+                return false;
+        }
+        return true;
     }
 
     public static SoloServerCore getInstance() {

@@ -12,3 +12,9 @@ website: https://nafuchoco.page/
 commands:
   team:
     description: Manage Players Team.
+
+  status:
+    description: Show SoloServerCore Status.
+
+  charge:
+    description: Recharge randon spawn points.

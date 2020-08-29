@@ -21,15 +21,12 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import page.nafuchoco.soloservercore.SpawnPointLoader;
-import page.nafuchoco.soloservercore.database.PluginSettingsManager;
 
 public class PlayerRespawnEventListener implements Listener {
     private final SpawnPointLoader loader;
-    private final PluginSettingsManager settingsManager;
 
-    public PlayerRespawnEventListener(SpawnPointLoader loader, PluginSettingsManager settingsManager) {
+    public PlayerRespawnEventListener(SpawnPointLoader loader) {
         this.loader = loader;
-        this.settingsManager = settingsManager;
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

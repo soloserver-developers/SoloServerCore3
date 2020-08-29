@@ -42,18 +42,18 @@ public class SpawnPointLoader {
         points = new ArrayList<>();
     }
 
-    public void initPoint() {
+    public void initPoint(boolean init) {
         done = false;
         Bukkit.getScheduler().runTask(SoloServerCore.getInstance(), () -> {
             if (points.size() < 100) {
                 SoloServerCore.getInstance().getLogger().info("Generating Spawn Point... [" + (points.size() + 1) + "/100]");
-                generator.generatePoint(this);
+                generator.generatePoint(this, init);
             } else {
                 done = true;
                 SoloServerCore.getInstance().getLogger().info("Generate Completed!");
             }
 
-            if (done) {
+            if (init && done) {
                 // Plugin Init on Main Thread.
                 Bukkit.getScheduler().callSyncMethod(SoloServerCore.getInstance(), () -> {
                     SoloServerCore.getInstance().init();
@@ -89,5 +89,9 @@ public class SpawnPointLoader {
         // いずれでもない場合プレイヤーデータのスポーンロケーションにテレポートさせる。
         PlayerData playerData = playersTable.getPlayerData(player);
         return playerData.getSpawnLocationLocation();
+    }
+
+    public int getPointRemaining() {
+        return points.size();
     }
 }

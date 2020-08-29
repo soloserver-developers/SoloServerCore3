@@ -43,7 +43,7 @@ public class SpawnPointGenerator {
         worlds.add(world);
     }
 
-    public void generatePoint(SpawnPointLoader loader) {
+    public void generatePoint(SpawnPointLoader loader, boolean init) {
         Bukkit.getScheduler().runTask(SoloServerCore.getInstance(), () -> {
             SecureRandom secureRandom = new SecureRandom();
             World world = worlds.get(secureRandom.nextInt(worlds.size()));
@@ -60,7 +60,7 @@ public class SpawnPointGenerator {
                 Location location = SpawnPointGenerator.this.searchSafeLocation(world, x, y, z);
                 if (location != null) {
                     loader.addSpawnLocation(location);
-                    loader.initPoint();
+                    loader.initPoint(init);
                     break;
                 }
             } while (true);
