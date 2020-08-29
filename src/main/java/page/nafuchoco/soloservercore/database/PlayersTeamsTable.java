@@ -41,13 +41,13 @@ public class PlayersTeamsTable extends DatabaseTable {
     }
 
     public void createTable() throws SQLException {
-        super.createTable("id BINARY(16) PRIMARY KEY, owner BINARY(16) NOT NULL, members LONGTEXT");
+        super.createTable("id VARCHAR(36) PRIMARY KEY, owner VARCHAR(36) NOT NULL, members LONGTEXT");
     }
 
     public UUID searchTeamFromOwner(@NotNull UUID owner) {
         try (Connection connection = getConnector().getConnection();
              PreparedStatement ps = connection.prepareStatement(
-                     "SELECT BIN_TO_UUID(id) FROM " + getTablename() + " WHERE owner = UUID_TO_BIN(?)"
+                     "SELECT id FROM " + getTablename() + " WHERE owner = ?"
              )) {
             ps.setString(1, owner.toString());
             try (ResultSet resultSet = ps.executeQuery()) {
@@ -64,7 +64,7 @@ public class PlayersTeamsTable extends DatabaseTable {
     public PlayersTeam getPlayersTeam(@NotNull UUID id) {
         try (Connection connection = getConnector().getConnection();
              PreparedStatement ps = connection.prepareStatement(
-                     "SELECT *, BIN_TO_UUID(owner) FROM " + getTablename() + " WHERE id = UUID_TO_BIN(?)"
+                     "SELECT * FROM " + getTablename() + " WHERE id = ?"
              )) {
             ps.setString(1, id.toString());
             try (ResultSet resultSet = ps.executeQuery()) {
@@ -87,7 +87,7 @@ public class PlayersTeamsTable extends DatabaseTable {
     public void registerTeam(@NotNull final UUID id, @NotNull final UUID owner, @Nullable List<UUID> members) throws SQLException {
         try (Connection connection = getConnector().getConnection();
              PreparedStatement ps = connection.prepareStatement(
-                     "INSERT INTO " + getTablename() + " id, owner, members VALUES (UUID_TO_BIN(?), UUID_TO_BIN(?), ?)"
+                     "INSERT INTO " + getTablename() + " (id, owner, members) VALUES (?, ?, ?)"
              )) {
             ps.setString(1, id.toString());
             ps.setString(2, owner.toString());
@@ -102,7 +102,7 @@ public class PlayersTeamsTable extends DatabaseTable {
     public void updateMembers(@NotNull UUID id, @Nullable List<UUID> members) throws SQLException {
         try (Connection connection = getConnector().getConnection();
              PreparedStatement ps = connection.prepareStatement(
-                     "UPDATE " + getTablename() + " SET members = ? WHERE id = UUID_TO_BIN(?)"
+                     "UPDATE " + getTablename() + " SET members = ? WHERE id = ?"
              )) {
             ps.setString(1, gson.toJson(members));
             ps.setString(2, id.toString());
@@ -113,7 +113,7 @@ public class PlayersTeamsTable extends DatabaseTable {
     public void deleteTeam(@NotNull UUID id) throws SQLException {
         try (Connection connection = getConnector().getConnection();
              PreparedStatement ps = connection.prepareStatement(
-                     "DELETE FROM " + getTablename() + " WHERE id = UUID_TO_BIN(?)"
+                     "DELETE FROM " + getTablename() + " WHERE id = ?"
              )) {
             ps.setString(1, id.toString());
             ps.execute();

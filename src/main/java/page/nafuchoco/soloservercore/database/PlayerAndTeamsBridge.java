@@ -50,7 +50,7 @@ public class PlayerAndTeamsBridge {
              PreparedStatement ps = connection.prepareStatement(
                      "SELECT * FROM " + playersTable.getTablename() + " INNER JOIN " + teamsTable.getTablename() +
                              " ON " + playersTable.getTablename() + ".joined_team = " + teamsTable.getTablename() + ".id" +
-                             " WHERE " + playersTable.getTablename() + ".id = UUID_TO_BIN(?)"
+                             " WHERE " + playersTable.getTablename() + ".id = ?"
              )) {
             ps.setString(1, player.getUniqueId().toString());
             try (ResultSet resultSet = ps.executeQuery()) {

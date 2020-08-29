@@ -33,14 +33,14 @@ public class PlayersTable extends DatabaseTable {
     }
 
     public void createTable() throws SQLException {
-        super.createTable("id BINARY(16) PRIMARY KEY, player_name VARCHAR(16) NOT NULL, " +
-                "spawn_location TEXT NOT NULL, last_joined TIMESTAMP, joined_team BINARY(16)");
+        super.createTable("id VARCHAR(36) PRIMARY KEY, player_name VARCHAR(16) NOT NULL, " +
+                "spawn_location TEXT NOT NULL, last_joined TIMESTAMP, joined_team VARCHAR(36)");
     }
 
     public UUID searchPlayerFromName(@NotNull String playerName) {
         try (Connection connection = getConnector().getConnection();
              PreparedStatement ps = connection.prepareStatement(
-                     "SELECT BIN_TO_UUID(id) FROM " + getTablename() + " WHERE player_name = ?"
+                     "SELECT id FROM " + getTablename() + " WHERE player_name = ?"
              )) {
             ps.setString(1, playerName);
             try (ResultSet resultSet = ps.executeQuery()) {
@@ -61,7 +61,7 @@ public class PlayersTable extends DatabaseTable {
     public PlayerData getPlayerData(@NotNull UUID uuid) {
         try (Connection connection = getConnector().getConnection();
              PreparedStatement ps = connection.prepareStatement(
-                     "SELECT *, BIN_TO_UUID(joined_team) FROM " + getTablename() + " WHERE id = UUID_TO_BIN(?)"
+                     "SELECT * FROM " + getTablename() + " WHERE id = ?"
              )) {
             ps.setString(1, uuid.toString());
             try (ResultSet resultSet = ps.executeQuery()) {
@@ -85,8 +85,8 @@ public class PlayersTable extends DatabaseTable {
     public void registerPlayer(@NotNull PlayerData playerData) throws SQLException {
         try (Connection connection = getConnector().getConnection();
              PreparedStatement ps = connection.prepareStatement(
-                     "INSERT INTO " + getTablename() + "id, player_name, spawn_location, last_joined, joined_team " +
-                             "VALUES (UUID_TO_BIN(?), ?, ?, ?, UUID_TO_BIN(?))"
+                     "INSERT INTO " + getTablename() + " (id, player_name, spawn_location, last_joined, joined_team) " +
+                             "VALUES (?, ?, ?, ?, ?)"
              )) {
             ps.setString(1, playerData.getId().toString());
             ps.setString(2, playerData.getPlayerName());
@@ -103,7 +103,7 @@ public class PlayersTable extends DatabaseTable {
     public void updatePlayerName(@NotNull UUID uuid, @NotNull String playerName) throws SQLException {
         try (Connection connection = getConnector().getConnection();
              PreparedStatement ps = connection.prepareStatement(
-                     "UPDATE " + getTablename() + " SET player_name = ? WHERE id = UUID_TO_BIN(?)"
+                     "UPDATE " + getTablename() + " SET player_name = ? WHERE id = ?"
              )) {
             ps.setString(1, playerName);
             ps.setString(2, uuid.toString());
@@ -114,7 +114,7 @@ public class PlayersTable extends DatabaseTable {
     public void updateJoinedDate(@NotNull UUID uuid, @NotNull Date lastJoined) throws SQLException {
         try (Connection connection = getConnector().getConnection();
              PreparedStatement ps = connection.prepareStatement(
-                     "UPDATE " + getTablename() + " SET last_joined = ? WHERE id = UUID_TO_BIN(?)"
+                     "UPDATE " + getTablename() + " SET last_joined = ? WHERE id = ?"
              )) {
             ps.setTimestamp(1, new Timestamp(lastJoined.getTime()));
             ps.setString(2, uuid.toString());
@@ -125,7 +125,7 @@ public class PlayersTable extends DatabaseTable {
     public void updateJoinedTeam(@NotNull UUID uuid, @Nullable UUID joinedTeam) throws SQLException {
         try (Connection connection = getConnector().getConnection();
              PreparedStatement ps = connection.prepareStatement(
-                     "UPDATE " + getTablename() + " SET joined_team = UUID_TO_BIN(?) WHERE id = UUID_TO_BIN(?)"
+                     "UPDATE " + getTablename() + " SET joined_team = ? WHERE id = ?"
              )) {
             ps.setString(1, joinedTeam.toString());
             if (joinedTeam != null)

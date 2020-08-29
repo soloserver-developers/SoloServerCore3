@@ -21,7 +21,7 @@ SoloServerCoreはマルチプレイなのにシングルプレイのようなあ
 
 ## 動作要項
 - Spigot 1.15.x
-- MySQL 8.x or MariaDB 10.x
+- MySQL or MariaDB 5.x ~
 
 ### 前提プラグイン
 - ProtocolLib 4.5.x ~
