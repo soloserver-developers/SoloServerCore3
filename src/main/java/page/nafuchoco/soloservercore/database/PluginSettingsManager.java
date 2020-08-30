@@ -16,6 +16,10 @@
 
 package page.nafuchoco.soloservercore.database;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.sql.SQLException;
+
 public class PluginSettingsManager {
     private final PluginSettingsTable settingsTable;
 
@@ -60,4 +64,21 @@ public class PluginSettingsManager {
         else
             return Integer.parseInt(value);
     }
+
+    public void setCheckBlock(@NotNull boolean checkBlock) throws SQLException {
+        settingsTable.setPluginSetting("checkBlock", String.valueOf(checkBlock));
+    }
+
+    public void setProtectionPeriod(@NotNull int protectionPeriod) throws SQLException {
+        settingsTable.setPluginSetting("protectionPeriod", String.valueOf(protectionPeriod));
+    }
+
+    public void setTeamSpawnCollect(@NotNull boolean teamSpawnCollect) throws SQLException {
+        settingsTable.setPluginSetting("teamSpawnCollect", String.valueOf(teamSpawnCollect));
+    }
+
+    public void setStockSpawnPoint(@NotNull int stockSpawnPoint) throws SQLException {
+        settingsTable.setPluginSetting("stockSpawnPoint", String.valueOf(stockSpawnPoint));
+    }
+
 }

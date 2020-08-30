@@ -10,6 +10,9 @@ description: A single-player experience, even though it's multiplayer, is now av
 website: https://nafuchoco.page/
 
 commands:
+  settings:
+    description: Manage Plugin Settings.
+
   team:
     description: Manage Players Team.
 

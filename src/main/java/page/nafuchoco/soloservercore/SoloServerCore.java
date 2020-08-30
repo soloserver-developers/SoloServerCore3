@@ -26,6 +26,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+import page.nafuchoco.soloservercore.command.SettingsCommand;
 import page.nafuchoco.soloservercore.command.TeamCommand;
 import page.nafuchoco.soloservercore.database.*;
 import page.nafuchoco.soloservercore.listener.*;
@@ -123,9 +124,15 @@ public final class SoloServerCore extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerRespawnEventListener(spawnPointLoader), this);
         getServer().getPluginManager().registerEvents(new PlayerLoginEventListener(playersTable, spawnPointLoader), this);
         getServer().getPluginManager().registerEvents(new PlayerJoinEventListener(playersTable, playerAndTeamsBridge), this);
+        getServer().getPluginManager().registerEvents(new AsyncPlayerChatEventListener(playerAndTeamsBridge), this);
 
         // Command Register
-        getCommand("team").setExecutor(new TeamCommand(playersTable, playersTeamsTable));
+        SettingsCommand settingsCommand = new SettingsCommand(pluginSettingsManager);
+        TeamCommand teamCommand = new TeamCommand(playersTable, playersTeamsTable);
+        getCommand("settings").setExecutor(settingsCommand);
+        getCommand("settings").setTabCompleter(settingsCommand);
+        getCommand("team").setExecutor(teamCommand);
+        getCommand("team").setTabCompleter(teamCommand);
     }
 
     @Override

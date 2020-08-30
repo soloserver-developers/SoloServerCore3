@@ -21,8 +21,10 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import page.nafuchoco.soloservercore.SoloServerCore;
 import page.nafuchoco.soloservercore.database.PlayerData;
 import page.nafuchoco.soloservercore.database.PlayersTable;
@@ -30,13 +32,10 @@ import page.nafuchoco.soloservercore.database.PlayersTeamsTable;
 import page.nafuchoco.soloservercore.team.PlayersTeam;
 
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Level;
 
-public class TeamCommand implements CommandExecutor {
+public class TeamCommand implements CommandExecutor, TabCompleter {
     private final PlayersTable playersTable;
     private final PlayersTeamsTable teamsTable;
 
@@ -114,5 +113,12 @@ public class TeamCommand implements CommandExecutor {
             Bukkit.getLogger().info("This command must be executed in-game.");
         }
         return true;
+    }
+
+    @Override
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+        if (args.length == 1)
+            return Arrays.asList(new String[]{"create", "invite", "accept", "leave"});
+        return null;
     }
 }
