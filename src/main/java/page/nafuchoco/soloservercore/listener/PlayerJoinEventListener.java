@@ -42,6 +42,8 @@ public class PlayerJoinEventListener implements Listener {
 
     @EventHandler
     public void onPlayerJoinEvent(PlayerJoinEvent event) {
+        event.setJoinMessage("");
+
         if (!event.getPlayer().hasPlayedBefore()) {
             PlayerData playerData = playersTable.getPlayerData(event.getPlayer());
             event.getPlayer().teleport(playerData.getSpawnLocationLocation());

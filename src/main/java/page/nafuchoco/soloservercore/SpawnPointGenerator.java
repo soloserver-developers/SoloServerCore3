@@ -81,7 +81,7 @@ public class SpawnPointGenerator {
                 if (world.getBlockAt(point2).getType().equals(Material.AIR))
                     return new Location(world, x, y + 1, z);
             }
-            
+
             y--;
             if (y <= 5) {
                 if (SoloServerCore.getCoreConfig().isDebug())

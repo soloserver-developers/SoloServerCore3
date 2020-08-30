@@ -30,10 +30,9 @@ public class SpawnPointLoader {
     private final PlayerAndTeamsBridge playerAndTeamsBridge;
     private final PluginSettingsManager settingsManager;
     private final SpawnPointGenerator generator;
-
+    private final List<Location> points;
     private boolean done;
     private int stockSpawnPoint;
-    private final List<Location> points;
 
     public SpawnPointLoader(PlayersTable playersTable, PlayerAndTeamsBridge playerAndTeamsBridge, PluginSettingsManager settingsManager, SpawnPointGenerator generator) {
         this.playersTable = playersTable;
@@ -76,7 +75,7 @@ public class SpawnPointLoader {
 
     public Location getNewLocation() {
         Random random = new Random();
-        Location location = points.get(random.nextInt(points.size()) - 1);
+        Location location = points.get(random.nextInt(points.size() + 1) - 1);
         points.remove(location);
         return location;
     }

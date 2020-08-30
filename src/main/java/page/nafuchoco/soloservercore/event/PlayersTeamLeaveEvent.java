@@ -30,6 +30,10 @@ public class PlayersTeamLeaveEvent extends PlayersTeamEvent implements Cancellab
         super(playersTeam, player);
     }
 
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
     @Override
     public boolean isCancelled() {
         return cancelled;
@@ -42,10 +46,6 @@ public class PlayersTeamLeaveEvent extends PlayersTeamEvent implements Cancellab
 
     @Override
     public @NotNull HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

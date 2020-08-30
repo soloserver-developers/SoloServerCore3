@@ -20,7 +20,6 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import net.coreprotect.CoreProtect;
 import net.coreprotect.CoreProtectAPI;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -52,6 +51,18 @@ public final class SoloServerCore extends JavaPlugin {
     private static ProtocolManager protocolManager;
     private static DatabaseConnector connector;
     private static CoreProtectAPI coreProtectAPI;
+
+    public static SoloServerCore getInstance() {
+        if (instance == null)
+            instance = (SoloServerCore) Bukkit.getServer().getPluginManager().getPlugin("SoloServerCore");
+        return instance;
+    }
+
+    public static SoloServerCoreConfig getCoreConfig() {
+        if (config == null)
+            config = new SoloServerCoreConfig();
+        return config;
+    }
 
     @Override
     public void onEnable() {
@@ -142,17 +153,5 @@ public final class SoloServerCore extends JavaPlugin {
                 return false;
         }
         return true;
-    }
-
-    public static SoloServerCore getInstance() {
-        if (instance == null)
-            instance = (SoloServerCore) Bukkit.getServer().getPluginManager().getPlugin("SoloServerCore");
-        return instance;
-    }
-
-    public static SoloServerCoreConfig getCoreConfig() {
-        if (config == null)
-            config = new SoloServerCoreConfig();
-        return config;
     }
 }

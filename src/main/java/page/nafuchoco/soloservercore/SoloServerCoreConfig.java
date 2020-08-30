@@ -52,6 +52,27 @@ public class SoloServerCoreConfig {
         return debug;
     }
 
+    public enum DatabaseType {
+        MARIADB("org.mariadb.jdbc.Driver", "jdbc:mariadb://"),
+        MYSQL("com.mysql.jdbc.Driver", "jdbc:mysql://");
+
+        private final String jdbcClass;
+        private final String addressPrefix;
+
+        DatabaseType(String jdbcClass, String addressPrefix) {
+            this.jdbcClass = jdbcClass;
+            this.addressPrefix = addressPrefix;
+        }
+
+        public String getJdbcClass() {
+            return jdbcClass;
+        }
+
+        public String getAddressPrefix() {
+            return addressPrefix;
+        }
+    }
+
     public static class InitConfig {
         private DatabaseType databaseType;
         private String address;
@@ -110,27 +131,6 @@ public class SoloServerCoreConfig {
 
         public int getGenerateLocationRange() {
             return generateLocationRange;
-        }
-    }
-
-    public enum DatabaseType {
-        MARIADB("org.mariadb.jdbc.Driver", "jdbc:mariadb://"),
-        MYSQL("com.mysql.jdbc.Driver", "jdbc:mysql://");
-
-        private final String jdbcClass;
-        private final String addressPrefix;
-
-        DatabaseType(String jdbcClass, String addressPrefix) {
-            this.jdbcClass = jdbcClass;
-            this.addressPrefix = addressPrefix;
-        }
-
-        public String getJdbcClass() {
-            return jdbcClass;
-        }
-
-        public String getAddressPrefix() {
-            return addressPrefix;
         }
     }
 }

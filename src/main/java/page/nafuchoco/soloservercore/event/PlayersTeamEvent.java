@@ -33,6 +33,10 @@ public abstract class PlayersTeamEvent extends Event {
         this.player = player;
     }
 
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
     public PlayersTeam getPlayersTeam() {
         return playersTeam;
     }
@@ -43,10 +47,6 @@ public abstract class PlayersTeamEvent extends Event {
 
     @Override
     public @NotNull HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }
