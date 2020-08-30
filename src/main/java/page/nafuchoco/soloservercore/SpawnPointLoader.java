@@ -32,6 +32,7 @@ public class SpawnPointLoader {
     private final SpawnPointGenerator generator;
 
     private boolean done;
+    private int stockSpawnPoint;
     private final List<Location> points;
 
     public SpawnPointLoader(PlayersTable playersTable, PlayerAndTeamsBridge playerAndTeamsBridge, PluginSettingsManager settingsManager, SpawnPointGenerator generator) {
@@ -40,13 +41,15 @@ public class SpawnPointLoader {
         this.settingsManager = settingsManager;
         this.generator = generator;
         points = new ArrayList<>();
+
+        stockSpawnPoint = settingsManager.getStockSpawnPoint();
     }
 
     public void initPoint(boolean init) {
         done = false;
         Bukkit.getScheduler().runTask(SoloServerCore.getInstance(), () -> {
-            if (points.size() < 100) {
-                SoloServerCore.getInstance().getLogger().info("Generating Spawn Point... [" + (points.size() + 1) + "/100]");
+            if (points.size() < stockSpawnPoint) {
+                SoloServerCore.getInstance().getLogger().info("Generating Spawn Point... [" + (points.size() + 1) + "/" + stockSpawnPoint + "]");
                 generator.generatePoint(this, init);
             } else {
                 done = true;

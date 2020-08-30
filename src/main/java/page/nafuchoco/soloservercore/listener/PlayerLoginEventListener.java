@@ -46,7 +46,7 @@ public class PlayerLoginEventListener implements Listener {
             return;
         }
 
-        if (!event.getPlayer().hasPlayedBefore() || playersTable.getPlayerData(event.getPlayer()) == null) {
+        if (playersTable.getPlayerData(event.getPlayer()) == null) {
             Location location = loader.getNewLocation();
             PlayerData playerData = new PlayerData(event.getPlayer().getUniqueId(),
                     event.getPlayer().getName(),

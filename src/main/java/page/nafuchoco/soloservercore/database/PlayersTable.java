@@ -127,11 +127,11 @@ public class PlayersTable extends DatabaseTable {
              PreparedStatement ps = connection.prepareStatement(
                      "UPDATE " + getTablename() + " SET joined_team = ? WHERE id = ?"
              )) {
-            ps.setString(1, joinedTeam.toString());
+            ps.setString(2, uuid.toString());
             if (joinedTeam != null)
-                ps.setString(2, uuid.toString());
+                ps.setString(1, joinedTeam.toString());
             else
-                ps.setString(2, null);
+                ps.setString(1, null);
             ps.execute();
         }
     }
