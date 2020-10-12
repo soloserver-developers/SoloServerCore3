@@ -17,6 +17,7 @@
 package page.nafuchoco.soloservercore.listener;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -50,14 +51,18 @@ public class BlockEventListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOW)
     public void onBlockDamageEvent(BlockDamageEvent event) {
-        if (!checkEditRights(event.getBlock(), event.getPlayer()))
+        if (!checkEditRights(event.getBlock(), event.getPlayer())) {
+            event.getPlayer().sendMessage(ChatColor.GRAY + "どうやら誰かの手によって作られた人工物のようだ...");
             event.setCancelled(true);
+        }
     }
 
     @EventHandler(priority = EventPriority.LOW)
     public void onBlockPlaceEvent(BlockPlaceEvent event) {
-        if (!checkEditRights(event.getBlock(), event.getPlayer()))
+        if (!checkEditRights(event.getBlock(), event.getPlayer())) {
+            event.getPlayer().sendMessage(ChatColor.GRAY + "どうやら誰かの手によって作られた人工物のようだ...");
             event.setCancelled(true);
+        }
     }
 
     private boolean checkEditRights(Block block, Player player) {

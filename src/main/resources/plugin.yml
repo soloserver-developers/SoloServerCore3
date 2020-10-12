@@ -21,3 +21,23 @@ commands:
 
   charge:
     description: Recharge randon spawn points.
+
+permissions:
+  soloservercore.*:
+    description: Grant all permissions for SoloServerCore.
+    children:
+      soloservercore.status: true
+      soloservercore.charge: true
+      soloservercore.team.create: true
+      soloservercore.team.invite: true
+      soloservercore.team.accept: true
+      soloservercore.team.leave: true
+      soloservercore.protect.bypass: true
+
+  soloservercore.team.*:
+    description: Grant all permissions for SoloServerCore team functions.
+    children:
+      soloservercore.team.create: true
+      soloservercore.team.invite: true
+      soloservercore.team.accept: true
+      soloservercore.team.leave: true

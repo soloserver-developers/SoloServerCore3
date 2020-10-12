@@ -21,6 +21,7 @@ import com.comphenix.protocol.ProtocolManager;
 import net.coreprotect.CoreProtect;
 import net.coreprotect.CoreProtectAPI;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -144,7 +145,9 @@ public final class SoloServerCore extends JavaPlugin {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        switch (command.getName()) {
+        if (!sender.hasPermission("soloservercore." + command.getName())) {
+            sender.sendMessage(ChatColor.RED + "You can't run this command because you don't have permission.");
+        } else switch (command.getName()) {
             case "status":
                 sender.sendMessage("Remaining spawn points: " + spawnPointLoader.getPointRemaining());
                 break;

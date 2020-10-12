@@ -52,6 +52,9 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
         if (sender instanceof Player) {
             if (args.length == 0) {
                 // Show Team Status
+            }
+            if (!sender.hasPermission("soloservercore.team." + args[0])) {
+                sender.sendMessage(ChatColor.RED + "You can't run this command because you don't have permission.");
             } else switch (args[0]) {
                 case "create":
                     try {
