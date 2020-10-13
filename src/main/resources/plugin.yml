@@ -33,6 +33,7 @@ permissions:
     children:
       soloservercore.status: true
       soloservercore.charge: true
+      soloservercore.settings: true
       soloservercore.team.create: true
       soloservercore.team.invite: true
       soloservercore.team.accept: true

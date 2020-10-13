@@ -29,7 +29,7 @@ public class PlayerBedEnterEventListener implements Listener {
         if (!event.isCancelled()) {
             event.getPlayer().sendMessage(ChatColor.GRAY + "世界のどこかにいるまだ起きている誰かが眠るのを待っています...");
             Bukkit.getOnlinePlayers().forEach(player -> {
-                if (!player.equals(event.getPlayer()) && !player.isSleeping())
+                if (!player.equals(event.getPlayer()) && event.getPlayer().getWorld().equals(player.getWorld()) && !player.isSleeping())
                     player.sendMessage(ChatColor.GRAY + "世界のどこかにいる誰かが貴方が眠りにつくのを待っています...");
             });
         }

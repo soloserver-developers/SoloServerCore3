@@ -40,41 +40,45 @@ public class SettingsCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        try {
-            if (args.length <= 1) {
-                sender.sendMessage(ChatColor.AQUA + "======== SoloServerCore Settings ========");
-                sender.sendMessage("checkBlock: " + settingsManager.isCheckBlock() + "\n" +
-                        "protectionPeriod: " + settingsManager.getProtectionPeriod() + "\n" +
-                        "teamSpawnCollect: " + settingsManager.isTeamSpawnCollect() + "\n" +
-                        "stockSpawnPoint: " + settingsManager.getStockSpawnPoint());
-            } else switch (args[0]) {
-                case "checkBlock":
-                    settingsManager.setCheckBlock(Boolean.parseBoolean(args[1]));
-                    sender.sendMessage(ChatColor.GREEN + "[SSC] Option updated.");
-                    break;
+        if (!sender.hasPermission("soloservercore.settings")) {
+            sender.sendMessage(ChatColor.RED + "You can't run this command because you don't have permission.");
+        } else {
+            try {
+                if (args.length <= 1) {
+                    sender.sendMessage(ChatColor.AQUA + "======== SoloServerCore Settings ========");
+                    sender.sendMessage("checkBlock: " + settingsManager.isCheckBlock() + "\n" +
+                            "protectionPeriod: " + settingsManager.getProtectionPeriod() + "\n" +
+                            "teamSpawnCollect: " + settingsManager.isTeamSpawnCollect() + "\n" +
+                            "stockSpawnPoint: " + settingsManager.getStockSpawnPoint());
+                } else switch (args[0]) {
+                    case "checkBlock":
+                        settingsManager.setCheckBlock(Boolean.parseBoolean(args[1]));
+                        sender.sendMessage(ChatColor.GREEN + "[SSC] Option updated.");
+                        break;
 
-                case "protectionPeriod":
-                    settingsManager.setProtectionPeriod(Integer.parseInt(args[1]));
-                    sender.sendMessage(ChatColor.GREEN + "[SSC] Option updated.");
-                    break;
+                    case "protectionPeriod":
+                        settingsManager.setProtectionPeriod(Integer.parseInt(args[1]));
+                        sender.sendMessage(ChatColor.GREEN + "[SSC] Option updated.");
+                        break;
 
-                case "teamSpawnCollect":
-                    settingsManager.setTeamSpawnCollect(Boolean.parseBoolean(args[1]));
-                    sender.sendMessage(ChatColor.GREEN + "[SSC] Option updated.");
-                    break;
+                    case "teamSpawnCollect":
+                        settingsManager.setTeamSpawnCollect(Boolean.parseBoolean(args[1]));
+                        sender.sendMessage(ChatColor.GREEN + "[SSC] Option updated.");
+                        break;
 
-                case "stockSpawnPoint":
-                    settingsManager.setStockSpawnPoint(Integer.parseInt(args[1]));
-                    sender.sendMessage(ChatColor.GREEN + "[SSC] Option updated.");
-                    break;
+                    case "stockSpawnPoint":
+                        settingsManager.setStockSpawnPoint(Integer.parseInt(args[1]));
+                        sender.sendMessage(ChatColor.GREEN + "[SSC] Option updated.");
+                        break;
 
-                default:
-                    sender.sendMessage(ChatColor.RED + "[SSC] Unknown option.");
-                    break;
+                    default:
+                        sender.sendMessage(ChatColor.RED + "[SSC] Unknown option.");
+                        break;
+                }
+            } catch (SQLException throwables) {
+                sender.sendMessage(ChatColor.RED + "[SSC] An error occurred while updating the plugin settings.");
+                SoloServerCore.getInstance().getLogger().log(Level.WARNING, "An error occurred while updating the plugin settings.", throwables);
             }
-        } catch (SQLException throwables) {
-            sender.sendMessage(ChatColor.RED + "[SSC] An error occurred while updating the plugin settings.");
-            SoloServerCore.getInstance().getLogger().log(Level.WARNING, "An error occurred while updating the plugin settings.", throwables);
         }
         return true;
     }
