@@ -22,10 +22,10 @@ commands:
     description: Recharge randon spawn points.
 
   spawn:
-    description:
+    description: Teleport to the player's spawn point.
 
     reteleport:
-      description:
+      description: When a new world is ready, you will be moved to the new world.
 
 permissions:
   soloservercore.*:

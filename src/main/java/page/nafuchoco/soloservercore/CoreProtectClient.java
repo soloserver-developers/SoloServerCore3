@@ -30,7 +30,7 @@ public class CoreProtectClient {
 
     public String getAction(Block block, int time) {
         List<String[]> lookup = coreProtectAPI.blockLookup(block, time);
-        if (lookup.size() != 0) {
+        if (!lookup.isEmpty()) {
             CoreProtectAPI.ParseResult result = coreProtectAPI.parseResult(lookup.get(0));
             if (result.getActionId() == 1)
                 return result.getPlayer();

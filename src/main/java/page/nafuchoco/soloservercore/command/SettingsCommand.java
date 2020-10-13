@@ -86,7 +86,7 @@ public class SettingsCommand implements CommandExecutor, TabCompleter {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1)
-            return Arrays.asList(new String[]{"checkBlock", "protectionPeriod", "teamSpawnCollect", "stockSpawnPoint"});
+            return Arrays.asList("checkBlock", "protectionPeriod", "teamSpawnCollect", "stockSpawnPoint");
         return null;
     }
 }

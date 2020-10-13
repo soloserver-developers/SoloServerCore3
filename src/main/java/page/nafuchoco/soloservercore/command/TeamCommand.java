@@ -121,7 +121,7 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1)
-            return Arrays.asList(new String[]{"create", "invite", "accept", "leave"});
+            return Arrays.asList("create", "invite", "accept", "leave");
         return null;
     }
 }

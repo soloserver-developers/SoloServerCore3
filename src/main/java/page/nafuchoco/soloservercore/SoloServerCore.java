@@ -163,8 +163,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
             case "spawn":
                 if (sender instanceof Player) {
                     Player player = (Player) sender;
-                    PlayerData playerData = playersTable.getPlayerData(player);
-                    player.teleport(playerData.getSpawnLocationLocation());
+                    player.teleport(spawnPointLoader.getSpawn(player));
                 } else {
                     Bukkit.getLogger().info("This command must be executed in-game.");
                 }

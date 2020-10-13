@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Random;
 
 public class SpawnPointLoader {
+    private final Random random = new Random();
+    
     private final PlayersTable playersTable;
     private final PlayerAndTeamsBridge playerAndTeamsBridge;
     private final PluginSettingsManager settingsManager;
@@ -74,7 +76,6 @@ public class SpawnPointLoader {
     }
 
     public Location getNewLocation() {
-        Random random = new Random();
         Location location = points.get(random.nextInt(points.size() + 1) - 1);
         points.remove(location);
         return location;

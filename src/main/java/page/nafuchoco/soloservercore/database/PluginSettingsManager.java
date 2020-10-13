@@ -24,10 +24,10 @@ public class PluginSettingsManager {
     private final PluginSettingsTable settingsTable;
 
     // Default Value
-    private final boolean checkBlock = true;
-    private final int protectionPeriod = 259200;
-    private final boolean teamSpawnCollect = true;
-    private final int stockSpawnPoint = 100;
+    private static final boolean CHECK_BLOCK = true;
+    private static final int PROTECTION_PERIOD = 259200;
+    private static final boolean TEAM_SPAWN_COLLECT = true;
+    private static final int STOCK_SPAWN_POINT = 100;
 
     public PluginSettingsManager(PluginSettingsTable settingsTable) {
         this.settingsTable = settingsTable;
@@ -36,7 +36,7 @@ public class PluginSettingsManager {
     public boolean isCheckBlock() {
         String value = settingsTable.getPluginSetting("checkBlock");
         if (value == null)
-            return checkBlock;
+            return CHECK_BLOCK;
         else
             return Boolean.parseBoolean(value);
     }
@@ -44,7 +44,7 @@ public class PluginSettingsManager {
     public int getProtectionPeriod() {
         String value = settingsTable.getPluginSetting("protectionPeriod");
         if (value == null)
-            return protectionPeriod;
+            return PROTECTION_PERIOD;
         else
             return Integer.parseInt(value);
     }
@@ -52,7 +52,7 @@ public class PluginSettingsManager {
     public boolean isTeamSpawnCollect() {
         String value = settingsTable.getPluginSetting("teamSpawnCollect");
         if (value == null)
-            return teamSpawnCollect;
+            return TEAM_SPAWN_COLLECT;
         else
             return Boolean.parseBoolean(value);
     }
@@ -60,7 +60,7 @@ public class PluginSettingsManager {
     public int getStockSpawnPoint() {
         String value = settingsTable.getPluginSetting("stockSpawnPoint");
         if (value == null)
-            return stockSpawnPoint;
+            return STOCK_SPAWN_POINT;
         else
             return Integer.parseInt(value);
     }

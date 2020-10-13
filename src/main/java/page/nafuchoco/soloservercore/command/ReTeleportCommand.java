@@ -32,6 +32,7 @@ import page.nafuchoco.soloservercore.SpawnPointLoader;
 import page.nafuchoco.soloservercore.database.PlayerData;
 import page.nafuchoco.soloservercore.database.PlayersTable;
 import page.nafuchoco.soloservercore.database.PlayersTeamsTable;
+import page.nafuchoco.soloservercore.event.PlayerMoveToNewWorldEvent;
 import page.nafuchoco.soloservercore.team.PlayersTeam;
 
 import java.sql.SQLException;
@@ -107,6 +108,10 @@ public class ReTeleportCommand implements CommandExecutor, TabCompleter {
         // 新規座標への移動
         Location location = loader.getNewLocation();
         player.teleport(location);
+
+        // イベントの発火
+        PlayerMoveToNewWorldEvent moveToNewWorldEvent = new PlayerMoveToNewWorldEvent(player, playerData.getSpawnLocationLocation().getWorld(), location.getWorld());
+        Bukkit.getPluginManager().callEvent(moveToNewWorldEvent);
 
         // ベッドスポーンの上書き
         player.setBedSpawnLocation(null);
