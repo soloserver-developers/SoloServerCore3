@@ -123,6 +123,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new PlayerLoginEventListener(playersTable, spawnPointLoader), this);
         getServer().getPluginManager().registerEvents(new PlayerJoinEventListener(playersTable, playerAndTeamsBridge), this);
         getServer().getPluginManager().registerEvents(new AsyncPlayerChatEventListener(playerAndTeamsBridge), this);
+        getServer().getPluginManager().registerEvents(new PlayerDeathEventListener(), this);
         getServer().getPluginManager().registerEvents(this, this);
 
         // Command Register

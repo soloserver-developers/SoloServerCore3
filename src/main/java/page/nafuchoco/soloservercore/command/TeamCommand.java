@@ -34,6 +34,7 @@ import page.nafuchoco.soloservercore.team.PlayersTeam;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public class TeamCommand implements CommandExecutor, TabCompleter {
     private final PlayersTable playersTable;
@@ -50,35 +51,61 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (sender instanceof Player) {
+            Player player = (Player) sender;
             if (args.length == 0) {
                 // Show Team Status
-            }
-            if (!sender.hasPermission("soloservercore.team." + args[0])) {
+                PlayerData playerData = playersTable.getPlayerData(player);
+                UUID joinedTeam = playerData.getJoinedTeam();
+                if (joinedTeam != null) {
+                    PlayersTeam team = teamsTable.getPlayersTeam(joinedTeam);
+                    sender.sendMessage(ChatColor.AQUA + "======== PlayersTeam Infomation ========");
+                    sender.sendMessage("JoinedTeam: " + team.getId() + "\n" +
+                            "TeamOwner: " + team.getOwner() + "\n" +
+                            "TeamMembers: " + team.getMembers().stream().map(m -> m.toString()).collect(Collectors.joining(",")));
+                } else {
+                    sender.sendMessage(ChatColor.YELLOW + "[Teams] 所属しているチームがありません！");
+                }
+            } else if (!sender.hasPermission("soloservercore.team." + args[0])) {
                 sender.sendMessage(ChatColor.RED + "You can't run this command because you don't have permission.");
             } else switch (args[0]) {
-                case "create":
+                case "create": {
+                    // すでにチームに所属している場合は
+                    PlayerData playerData = playersTable.getPlayerData(player);
+                    UUID joinedTeam = playerData.getJoinedTeam();
+                    if (joinedTeam != null) {
+                        PlayersTeam team = teamsTable.getPlayersTeam(joinedTeam);
+                        if (player.getUniqueId().equals(team.getOwner())) {
+                            sender.sendMessage(ChatColor.RED + "[Teams] 既にあなたがオーナーのチームを持っています！");
+                            break;
+                        } else {
+                            team.leaveTeam(player);
+                            sender.sendMessage(ChatColor.GREEN + "[Teams] これまで入っていたチームから脱退しました。");
+                        }
+                    }
+
                     try {
                         UUID id = UUID.randomUUID();
-                        teamsTable.registerTeam(id, ((Player) sender).getUniqueId(), null);
-                        playersTable.updateJoinedTeam(((Player) sender).getUniqueId(), id);
+                        teamsTable.registerTeam(id, (player).getUniqueId(), null);
+                        playersTable.updateJoinedTeam((player).getUniqueId(), id);
                         sender.sendMessage(ChatColor.GREEN + "[Teams] あなたのチームが作成されました！\n" +
                                 "/team invite [player] で他のプレイヤーを招待しましょう！");
                     } catch (SQLException throwables) {
                         sender.sendMessage(ChatColor.RED + "チームデータの保存に失敗しました。");
                         SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to save the team data.", throwables);
                     }
-                    break;
+                }
+                break;
 
                 case "invite":
                     if (args.length >= 2) {
                         args = Arrays.copyOfRange(args, 1, args.length);
-                        UUID teamId = teamsTable.searchTeamFromOwner(((Player) sender).getUniqueId());
+                        UUID teamId = teamsTable.searchTeamFromOwner((player).getUniqueId());
                         if (teamId != null) {
                             for (String arg : args) {
-                                Player player = Bukkit.getPlayer(arg);
-                                if (player != null) {
-                                    invited.put(player.getUniqueId(), teamId);
-                                    player.sendMessage(ChatColor.GREEN + "[Teams]" + ((Player) sender).getDisplayName() +
+                                Player target = Bukkit.getPlayer(arg);
+                                if (target != null) {
+                                    invited.put(target.getUniqueId(), teamId);
+                                    target.sendMessage(ChatColor.GREEN + "[Teams]" + player.getDisplayName() +
                                             " さんからチームに招待されました。\n" +
                                             "参加するには /team accept を実行してください。");
                                 }
@@ -93,24 +120,33 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                     break;
 
                 case "accept":
-                    UUID id = invited.remove(((Player) sender).getUniqueId());
+                    UUID id = invited.remove((player).getUniqueId());
                     if (id != null) {
+                        // すでにチームに所属している場合は
+                        PlayerData playerData = playersTable.getPlayerData(player);
+                        UUID joinedTeam = playerData.getJoinedTeam();
+                        if (joinedTeam != null) {
+                            teamsTable.getPlayersTeam(joinedTeam).leaveTeam(player);
+                            sender.sendMessage(ChatColor.GREEN + "[Teams] これまで入っていたチームから脱退しました。");
+                        }
+
                         PlayersTeam team = teamsTable.getPlayersTeam(id);
-                        team.joinTeam((Player) sender);
+                        team.joinTeam(player);
                     } else {
                         sender.sendMessage(ChatColor.YELLOW + "[Teams] あなたはまだ招待を受け取っていません！");
                     }
                     break;
 
-                case "leave":
-                    PlayerData playerData = playersTable.getPlayerData((Player) sender);
+                case "leave": {
+                    PlayerData playerData = playersTable.getPlayerData(player);
                     UUID joinedTeam = playerData.getJoinedTeam();
                     if (joinedTeam != null) {
                         PlayersTeam team = teamsTable.getPlayersTeam(joinedTeam);
-                        team.leaveTeam((Player) sender);
+                        team.leaveTeam(player);
                         sender.sendMessage(ChatColor.GREEN + "[Teams] チームから脱退しました。");
                     }
-                    break;
+                }
+                break;
             }
         } else {
             Bukkit.getLogger().info("This command must be executed in-game.");
