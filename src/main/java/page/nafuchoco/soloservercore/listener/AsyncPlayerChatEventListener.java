@@ -40,7 +40,10 @@ public class AsyncPlayerChatEventListener implements Listener {
             String message = event.getPlayer().getDisplayName() + " >> " +
                     ChatColor.translateAlternateColorCodes('&', event.getMessage());
 
-            event.getPlayer().sendMessage(message);
+            Player owner = Bukkit.getPlayer(teamsPlayerData.getTeamOwner());
+            if (owner != null)
+                owner.sendMessage(message);
+
             teamsPlayerData.getMembers().forEach(member -> {
                 Player player = Bukkit.getPlayer(member);
                 if (player != null) {

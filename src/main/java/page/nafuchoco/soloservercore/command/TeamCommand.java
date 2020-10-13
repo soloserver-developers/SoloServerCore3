@@ -60,8 +60,8 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                     PlayersTeam team = teamsTable.getPlayersTeam(joinedTeam);
                     sender.sendMessage(ChatColor.AQUA + "======== PlayersTeam Infomation ========");
                     sender.sendMessage("JoinedTeam: " + team.getId() + "\n" +
-                            "TeamOwner: " + team.getOwner() + "\n" +
-                            "TeamMembers: " + team.getMembers().stream().map(m -> m.toString()).collect(Collectors.joining(",")));
+                            "TeamOwner: " + Bukkit.getOfflinePlayer(team.getOwner()).getName() + "\n" +
+                            "TeamMembers: " + team.getMembers().stream().map(m -> Bukkit.getOfflinePlayer(m).getName()).collect(Collectors.joining(",")));
                 } else {
                     sender.sendMessage(ChatColor.YELLOW + "[Teams] 所属しているチームがありません！");
                 }

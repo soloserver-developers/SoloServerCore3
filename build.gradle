@@ -2,12 +2,11 @@ import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
     id 'java'
-    id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '6.1.0'
 }
 
 group = 'page.nafuchoco'
-version = '3.0.0-BETA.4'
+version = '3.0.0'
 
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
@@ -27,36 +26,6 @@ task javadocJar(type: Jar, dependsOn: 'javadoc') {
 javadoc {
     options.charSet = 'UTF-8'
     options.encoding = 'UTF-8'
-}
-
-publishing {
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/nafu-at/SoloServerCore3")
-            credentials {
-                username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_USER")
-                password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
-            }
-        }
-    }
-    publications {
-        gpr(MavenPublication) {
-            from components.java
-
-            pom {
-                licenses {
-                    license {
-                        name = 'The Apache License, Version 2.0'
-                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-            }
-
-            artifact sourcesJar
-            artifact javadocJar
-        }
-    }
 }
 
 repositories {

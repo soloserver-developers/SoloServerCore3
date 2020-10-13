@@ -52,14 +52,16 @@ public class PlayerJoinEventListener implements Listener {
 
         TeamsPlayerData teamsPlayerData = playerAndTeamsBridge.getPlayerData(event.getPlayer());
         List<UUID> bypass;
-        if (teamsPlayerData != null)
+        if (teamsPlayerData != null) {
             bypass = teamsPlayerData.getMembers();
-        else
+            bypass.add(teamsPlayerData.getTeamOwner());
+        } else {
             bypass = new ArrayList<>();
+        }
 
         List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
         players.forEach(player -> {
-            if (!player.equals(event.getPlayer()) || !bypass.contains(player.getUniqueId())) {
+            if (!player.equals(event.getPlayer()) && !bypass.contains(player.getUniqueId())) {
                 event.getPlayer().hidePlayer(SoloServerCore.getInstance(), player);
                 player.hidePlayer(SoloServerCore.getInstance(), event.getPlayer());
             }
