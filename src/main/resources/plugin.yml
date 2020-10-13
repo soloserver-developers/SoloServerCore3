@@ -24,8 +24,8 @@ commands:
   spawn:
     description: Teleport to the player's spawn point.
 
-    reteleport:
-      description: When a new world is ready, you will be moved to the new world.
+  reteleport:
+    description: When a new world is ready, you will be moved to the new world.
 
 permissions:
   soloservercore.*:
@@ -34,6 +34,7 @@ permissions:
       soloservercore.status: true
       soloservercore.charge: true
       soloservercore.settings: true
+      soloserbercore.spawn: true
       soloservercore.team.create: true
       soloservercore.team.invite: true
       soloservercore.team.accept: true

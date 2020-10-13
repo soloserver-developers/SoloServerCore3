@@ -19,6 +19,7 @@ package page.nafuchoco.soloservercore.listener;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import page.nafuchoco.soloservercore.SoloServerCore;
@@ -40,7 +41,7 @@ public class PlayerJoinEventListener implements Listener {
         this.playerAndTeamsBridge = playerAndTeamsBridge;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerJoinEvent(PlayerJoinEvent event) {
         event.setJoinMessage("");
 
