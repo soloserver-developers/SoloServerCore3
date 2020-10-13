@@ -25,8 +25,13 @@ import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+import page.nafuchoco.soloservercore.command.ReTeleportCommand;
 import page.nafuchoco.soloservercore.command.SettingsCommand;
 import page.nafuchoco.soloservercore.command.TeamCommand;
 import page.nafuchoco.soloservercore.database.*;
@@ -35,11 +40,9 @@ import page.nafuchoco.soloservercore.listener.internal.PlayersTeamEventListener;
 import page.nafuchoco.soloservercore.packet.ServerInfoPacketEventListener;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 
-public final class SoloServerCore extends JavaPlugin {
+public final class SoloServerCore extends JavaPlugin implements Listener {
     private static SoloServerCore instance;
     private static SoloServerCoreConfig config;
 
@@ -95,17 +98,11 @@ public final class SoloServerCore extends JavaPlugin {
         playerAndTeamsBridge = new PlayerAndTeamsBridge(connector, playersTable, playersTeamsTable);
 
         getLogger().info("Pre-generate spawn points. This often seems to freeze the system, but for the most part it is normal.");
-        List<World> worlds = new ArrayList<>();
-        for (String worldName :
-                config.getInitConfig().getSpawnWorlds()) {
-            World world = Bukkit.getWorld(worldName);
-            if (world != null)
-                worlds.add(world);
-        }
+        World world = Bukkit.getWorld(config.getInitConfig().getSpawnWorld());
         spawnPointLoader = new SpawnPointLoader(playersTable,
                 playerAndTeamsBridge,
                 pluginSettingsManager,
-                new SpawnPointGenerator(worlds, config.getInitConfig().getGenerateLocationRange()));
+                new SpawnPointGenerator(world, config.getInitConfig().getGenerateLocationRange()));
         spawnPointLoader.initPoint(true);
     }
 
@@ -126,14 +123,18 @@ public final class SoloServerCore extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerLoginEventListener(playersTable, spawnPointLoader), this);
         getServer().getPluginManager().registerEvents(new PlayerJoinEventListener(playersTable, playerAndTeamsBridge), this);
         getServer().getPluginManager().registerEvents(new AsyncPlayerChatEventListener(playerAndTeamsBridge), this);
+        getServer().getPluginManager().registerEvents(this, this);
 
         // Command Register
         SettingsCommand settingsCommand = new SettingsCommand(pluginSettingsManager);
         TeamCommand teamCommand = new TeamCommand(playersTable, playersTeamsTable);
+        ReTeleportCommand reTeleportCommand = new ReTeleportCommand(playersTable, playersTeamsTable, spawnPointLoader, Bukkit.getWorld(config.getInitConfig().getSpawnWorld()));
         getCommand("settings").setExecutor(settingsCommand);
         getCommand("settings").setTabCompleter(settingsCommand);
         getCommand("team").setExecutor(teamCommand);
         getCommand("team").setTabCompleter(teamCommand);
+        getCommand("reteleport").setExecutor(reTeleportCommand);
+        getCommand("reteleport").setTabCompleter(reTeleportCommand);
     }
 
     @Override
@@ -159,9 +160,27 @@ public final class SoloServerCore extends JavaPlugin {
                 Bukkit.broadcastMessage("[SSC] The generate spawn point is now complete.");
                 break;
 
+            case "spawn":
+                if (sender instanceof Player) {
+                    Player player = (Player) sender;
+                    PlayerData playerData = playersTable.getPlayerData(player);
+                    player.teleport(playerData.getSpawnLocationLocation());
+                } else {
+                    Bukkit.getLogger().info("This command must be executed in-game.");
+                }
+                break;
+
             default:
                 return false;
         }
         return true;
+    }
+
+    @EventHandler
+    public void onPlayerQuitEvent(PlayerQuitEvent event) {
+        event.setQuitMessage("");
+
+        if (Bukkit.getOnlinePlayers().isEmpty())
+            spawnPointLoader.initPoint(false);
     }
 }

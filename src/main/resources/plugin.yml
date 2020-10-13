@@ -4,7 +4,6 @@ main: page.nafuchoco.soloservercore.SoloServerCore
 api-version: 1.15
 prefix: SSC
 depend: [ProtocolLib, CoreProtect]
-softdepend: [Multiverse-Core]
 authors: [NAFU_at]
 description: A single-player experience, even though it's multiplayer, is now available for you.
 website: https://nafuchoco.page/
@@ -22,6 +21,12 @@ commands:
   charge:
     description: Recharge randon spawn points.
 
+  spawn:
+    description:
+
+    reteleport:
+      description:
+
 permissions:
   soloservercore.*:
     description: Grant all permissions for SoloServerCore.
@@ -33,6 +38,7 @@ permissions:
       soloservercore.team.accept: true
       soloservercore.team.leave: true
       soloservercore.protect.bypass: true
+      soloservercore.reteleport: true
 
   soloservercore.team.*:
     description: Grant all permissions for SoloServerCore team functions.

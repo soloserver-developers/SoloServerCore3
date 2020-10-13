@@ -22,31 +22,19 @@ import org.bukkit.Material;
 import org.bukkit.World;
 
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
 
 public class SpawnPointGenerator {
-    private final List<World> worlds;
+    private final World world;
     private final int generateRange;
 
-    public SpawnPointGenerator(List<World> spawnWorlds, int generateRange) {
-        this.worlds = spawnWorlds;
+    public SpawnPointGenerator(World spawnWorld, int generateRange) {
+        this.world = spawnWorld;
         this.generateRange = generateRange;
-    }
-
-    public SpawnPointGenerator(int generateRange) {
-        this.worlds = new ArrayList<>();
-        this.generateRange = generateRange;
-    }
-
-    public void addSpawnWorld(World world) {
-        worlds.add(world);
     }
 
     public void generatePoint(SpawnPointLoader loader, boolean init) {
         Bukkit.getScheduler().runTask(SoloServerCore.getInstance(), () -> {
             SecureRandom secureRandom = new SecureRandom();
-            World world = worlds.get(secureRandom.nextInt(worlds.size()));
             int x;
             int y = 96;
             int z;

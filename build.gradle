@@ -35,9 +35,6 @@ repositories {
         url = 'http://maven.playpro.com/'
     }
     maven {
-        url = 'https://repo.onarandombox.com/content/repositories/multiverse/'
-    }
-    maven {
         url = 'https://maven.aura-dev.team/repository/auradev-releases/'
     }
 }

@@ -18,8 +18,6 @@ package page.nafuchoco.soloservercore;
 
 import org.bukkit.configuration.file.FileConfiguration;
 
-import java.util.List;
-
 public class SoloServerCoreConfig {
     private static final SoloServerCore instance = SoloServerCore.getInstance();
     private InitConfig initConfig;
@@ -37,7 +35,7 @@ public class SoloServerCoreConfig {
             String username = config.getString("initialization.database.username");
             String password = config.getString("initialization.database.password");
             String tablePrefix = config.getString("initialization.database.tablePrefix");
-            List<String> spawnWorlds = config.getStringList("initialization.spawn.spawnWorlds");
+            String spawnWorlds = config.getString("initialization.spawn.spawnWorld");
             int generateLocationRange = config.getInt("initialization.spawn.generateLocationRange");
             initConfig = new InitConfig(databaseType, address, port, database, username, password, tablePrefix, spawnWorlds, generateLocationRange);
             debug = config.getBoolean("debug");
@@ -82,10 +80,10 @@ public class SoloServerCoreConfig {
         private String password;
         private String tablePrefix;
 
-        private List<String> spawnWorlds;
+        private String spawnWorld;
         private int generateLocationRange;
 
-        public InitConfig(DatabaseType databaseType, String address, int port, String database, String username, String password, String tablePrefix, List<String> spawnWorlds, int generateLocationRange) {
+        public InitConfig(DatabaseType databaseType, String address, int port, String database, String username, String password, String tablePrefix, String spawnWorld, int generateLocationRange) {
             this.databaseType = databaseType;
             this.address = address;
             this.port = port;
@@ -93,7 +91,7 @@ public class SoloServerCoreConfig {
             this.username = username;
             this.password = password;
             this.tablePrefix = tablePrefix;
-            this.spawnWorlds = spawnWorlds;
+            this.spawnWorld = spawnWorld;
             this.generateLocationRange = generateLocationRange;
         }
 
@@ -125,8 +123,8 @@ public class SoloServerCoreConfig {
             return tablePrefix;
         }
 
-        public List<String> getSpawnWorlds() {
-            return spawnWorlds;
+        public String getSpawnWorld() {
+            return spawnWorld;
         }
 
         public int getGenerateLocationRange() {

@@ -111,6 +111,17 @@ public class PlayersTable extends DatabaseTable {
         }
     }
 
+    public void updateSpawnLocation(@NotNull PlayerData playerData) throws SQLException {
+        try (Connection connection = getConnector().getConnection();
+             PreparedStatement ps = connection.prepareStatement(
+                     "UPDATE " + getTablename() + " SET spawn_location = ? WHERE id = ?"
+             )) {
+            ps.setString(1, playerData.getSpawnLocation());
+            ps.setString(2, playerData.getId().toString());
+            ps.execute();
+        }
+    }
+
     public void updateJoinedDate(@NotNull UUID uuid, @NotNull Date lastJoined) throws SQLException {
         try (Connection connection = getConnector().getConnection();
              PreparedStatement ps = connection.prepareStatement(

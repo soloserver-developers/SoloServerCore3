@@ -17,7 +17,7 @@ initialization:
     tablePrefix: ssc3_
 
   spawn:
-    spawnWorlds: [world]
+    spawnWorld: world
     generateLocationRange: 10000
 
 debug: false
