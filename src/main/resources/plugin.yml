@@ -37,8 +37,8 @@ permissions:
       soloservercore.status: true
       soloservercore.charge: true
       soloservercore.settings: true
-      soloserbercore.spawn: true
-      soloserbercore.home: true
+      soloservercore.spawn: true
+      soloservercore.home: true
       soloservercore.team.create: true
       soloservercore.team.invite: true
       soloservercore.team.accept: true
