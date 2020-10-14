@@ -26,6 +26,41 @@ SoloServerCoreはマルチプレイなのにシングルプレイのようなあ
 - ProtocolLib 4.5.x ~
 - CoreProtect 19.1 ~
 
+## Develpment [![](https://jitpack.io/v/nafu-at/SoloServerCore3.svg)](https://jitpack.io/#nafu-at/SoloServerCore3)
+
+SoloServerCore3ではカスタムイベントが使用可能になっています。  
+SoloServerCoreを依存関係に追加する場合は以下を使用して下さい。
+
+**maven:**
+```xml
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+
+<dependencies>
+    <dependency>
+	    <groupId>com.github.nafu-at</groupId>
+	    <artifactId>SoloServerCore3</artifactId>
+	    <version>Tag</version>
+	</dependency>
+</dependencies>
+```
+
+**gradle**
+```gradle
+repositories {
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    implementation 'com.github.nafu-at:SoloServerCore3:Tag'
+}
+
+```
+
 ## License
 This plugin is published under Apache License 2.0.
 ```
