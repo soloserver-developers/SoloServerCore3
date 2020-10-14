@@ -71,6 +71,11 @@ public class SettingsCommand implements CommandExecutor, TabCompleter {
                         sender.sendMessage(ChatColor.GREEN + "[SSC] Option updated.");
                         break;
 
+                    case "broadcastBedCount":
+                        settingsManager.setBroadcastBedCount(Boolean.parseBoolean(args[1]));
+                        sender.sendMessage(ChatColor.GREEN + "[SSC] Option updated.");
+                        break;
+
                     default:
                         sender.sendMessage(ChatColor.RED + "[SSC] Unknown option.");
                         break;

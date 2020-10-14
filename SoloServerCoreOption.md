@@ -7,6 +7,7 @@ SoloServerCore3ではゲーム内コマンドでプラグインの設定を変�
 | protectionPeriod | int | ブロックを保護する期間 (分)  | 259200 |
 | teamSpawnCollect | bool | チームメンバーのスポーンポイントを集合します。 | true |
 | stockSpawnPoint | int | 初期生成するランダム座標の数 | 100 |
+| broadcastBedCount | bool | ベッドに寝ていない人の数を告知 | true |
 
 ## Optionの説明
 ### checkBlock
@@ -24,3 +25,6 @@ protectionPeriodの値に基づき保護期間内に他ユーザーによる設�
 
 ### stockSpawnPoint
 起動時に生成するランダムスポーンポイント座標のストック数を指定できます。
+
+### broadcastBedCount
+だれかがベッドに寝ると寝ていない人の数をカウントしてブロードキャストします。

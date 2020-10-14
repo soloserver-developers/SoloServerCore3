@@ -28,6 +28,7 @@ public class PluginSettingsManager {
     private static final int PROTECTION_PERIOD = 259200;
     private static final boolean TEAM_SPAWN_COLLECT = true;
     private static final int STOCK_SPAWN_POINT = 100;
+    private static final boolean BROADCAST_BED_COUNT = true;
 
     public PluginSettingsManager(PluginSettingsTable settingsTable) {
         this.settingsTable = settingsTable;
@@ -65,6 +66,14 @@ public class PluginSettingsManager {
             return Integer.parseInt(value);
     }
 
+    public boolean isBroadcastBedCount() {
+        String value = settingsTable.getPluginSetting("broadcastBedCount");
+        if (value == null)
+            return BROADCAST_BED_COUNT;
+        else
+            return Boolean.parseBoolean(value);
+    }
+
     public void setCheckBlock(@NotNull boolean checkBlock) throws SQLException {
         settingsTable.setPluginSetting("checkBlock", String.valueOf(checkBlock));
     }
@@ -79,6 +88,10 @@ public class PluginSettingsManager {
 
     public void setStockSpawnPoint(@NotNull int stockSpawnPoint) throws SQLException {
         settingsTable.setPluginSetting("stockSpawnPoint", String.valueOf(stockSpawnPoint));
+    }
+
+    public void setBroadcastBedCount(@NotNull boolean broadcastBedCount) throws SQLException {
+        settingsTable.setPluginSetting("broadcastBedCount", String.valueOf(broadcastBedCount));
     }
 
 }

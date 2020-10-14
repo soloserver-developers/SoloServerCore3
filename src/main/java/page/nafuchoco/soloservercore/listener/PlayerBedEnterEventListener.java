@@ -16,22 +16,37 @@
 
 package page.nafuchoco.soloservercore.listener;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBedEnterEvent;
+import page.nafuchoco.soloservercore.database.PluginSettingsManager;
 
 public class PlayerBedEnterEventListener implements Listener {
+    private final PluginSettingsManager settingsManager;
+
+    public PlayerBedEnterEventListener(PluginSettingsManager settingsManager) {
+        this.settingsManager = settingsManager;
+    }
 
     @EventHandler
     public void onPlayerBedEnterEvent(PlayerBedEnterEvent event) {
         if (!event.isCancelled()) {
-            event.getPlayer().sendMessage(ChatColor.GRAY + "世界のどこかにいるまだ起きている誰かが眠るのを待っています...");
-            Bukkit.getOnlinePlayers().forEach(player -> {
+            event.getPlayer().sendMessage(ChatColor.DARK_GRAY + "世界のどこかにいるまだ起きている誰かが眠るのを待っています...");
+            int count = 0;
+            for (Player player : event.getPlayer().getWorld().getPlayers()) {
                 if (!player.equals(event.getPlayer()) && event.getPlayer().getWorld().equals(player.getWorld()) && !player.isSleeping())
-                    player.sendMessage(ChatColor.GRAY + "世界のどこかにいる誰かが貴方が眠りにつくのを待っています...");
-            });
+                    player.sendMessage(ChatColor.DARK_GRAY + "世界のどこかにいる誰かが貴方が眠りにつくのを待っています...");
+                count++;
+            }
+
+            if (settingsManager.isBroadcastBedCount()
+                    && (event.getPlayer().getWorld().getTime() >= 12542 || event.getPlayer().getWorld().hasStorm())) {
+                for (Player player : event.getPlayer().getWorld().getPlayers()) {
+                    player.sendMessage(ChatColor.GRAY + "あと" + count + "人がベッドに入ると朝になります。");
+                }
+            }
         }
     }
 }

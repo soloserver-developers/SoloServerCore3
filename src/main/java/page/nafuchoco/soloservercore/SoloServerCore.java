@@ -118,7 +118,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
             getServer().getPluginManager().registerEvents(new BlockEventListener(new CoreProtectClient(coreProtectAPI), pluginSettingsManager, playerAndTeamsBridge), this);
 
         getServer().getPluginManager().registerEvents(new PlayersTeamEventListener(playersTable, playersTeamsTable), this);
-        getServer().getPluginManager().registerEvents(new PlayerBedEnterEventListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerBedEnterEventListener(pluginSettingsManager), this);
         getServer().getPluginManager().registerEvents(new PlayerRespawnEventListener(spawnPointLoader), this);
         getServer().getPluginManager().registerEvents(new PlayerLoginEventListener(playersTable, spawnPointLoader), this);
         getServer().getPluginManager().registerEvents(new PlayerJoinEventListener(playersTable, playerAndTeamsBridge), this);
