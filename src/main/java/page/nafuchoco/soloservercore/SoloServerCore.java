@@ -22,6 +22,7 @@ import net.coreprotect.CoreProtect;
 import net.coreprotect.CoreProtectAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -165,6 +166,18 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                 if (sender instanceof Player) {
                     Player player = (Player) sender;
                     player.teleport(spawnPointLoader.getSpawn(player));
+                } else {
+                    Bukkit.getLogger().info("This command must be executed in-game.");
+                }
+                break;
+
+            case "home":
+                if (sender instanceof Player) {
+                    Player player = (Player) sender;
+                    Location location = player.getBedLocation();
+                    if (location == null)
+                        location = spawnPointLoader.getSpawn(player);
+                    player.teleport(location);
                 } else {
                     Bukkit.getLogger().info("This command must be executed in-game.");
                 }
