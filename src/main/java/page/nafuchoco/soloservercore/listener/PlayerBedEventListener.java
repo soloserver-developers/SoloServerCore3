@@ -92,7 +92,7 @@ public class PlayerBedEventListener implements Listener {
     private boolean checkCooldown(Player player) {
         Date date = cooldownMap.get(player);
         if (date != null) {
-            boolean cooldown = date.before(new Date());
+            boolean cooldown = date.after(new Date());
             if (!cooldown)
                 cooldownMap.remove(player);
             return cooldown;
