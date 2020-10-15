@@ -17,6 +17,7 @@
 package page.nafuchoco.soloservercore.listener;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -51,20 +52,27 @@ public class PlayerJoinEventListener implements Listener {
         }
 
         TeamsPlayerData teamsPlayerData = playerAndTeamsBridge.getPlayerData(event.getPlayer().getUniqueId());
-        List<UUID> bypass;
+        List<UUID> member;
         if (teamsPlayerData != null) {
-            bypass = teamsPlayerData.getMembers();
-            bypass.add(teamsPlayerData.getTeamOwner());
+            member = new ArrayList<>(teamsPlayerData.getMembers());
+            member.add(teamsPlayerData.getTeamOwner());
         } else {
-            bypass = new ArrayList<>();
+            member = new ArrayList<>();
         }
 
         List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
         players.forEach(player -> {
-            if (!player.equals(event.getPlayer()) && !bypass.contains(player.getUniqueId())) {
+            if (!player.equals(event.getPlayer()) && !member.contains(player.getUniqueId())) {
                 event.getPlayer().hidePlayer(SoloServerCore.getInstance(), player);
                 player.hidePlayer(SoloServerCore.getInstance(), event.getPlayer());
             }
         });
+
+        if (member.contains(event.getPlayer().getUniqueId()))
+            member.forEach(m -> {
+                Player player = Bukkit.getPlayer(m);
+                if (player != null && !player.equals(event.getPlayer()))
+                    player.sendMessage(ChatColor.AQUA + "[Teams]" + event.getPlayer().getDisplayName() + "がログインしました。");
+            });
     }
 }
