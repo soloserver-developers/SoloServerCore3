@@ -119,7 +119,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
             getServer().getPluginManager().registerEvents(new BlockEventListener(new CoreProtectClient(coreProtectAPI), pluginSettingsManager, playerAndTeamsBridge), this);
 
         getServer().getPluginManager().registerEvents(new PlayersTeamEventListener(playersTable, playersTeamsTable), this);
-        getServer().getPluginManager().registerEvents(new PlayerBedEnterEventListener(pluginSettingsManager), this);
+        getServer().getPluginManager().registerEvents(new PlayerBedEventListener(pluginSettingsManager), this);
         getServer().getPluginManager().registerEvents(new PlayerRespawnEventListener(spawnPointLoader), this);
         getServer().getPluginManager().registerEvents(new PlayerLoginEventListener(playersTable, spawnPointLoader), this);
         getServer().getPluginManager().registerEvents(new PlayerJoinEventListener(playersTable, playerAndTeamsBridge), this);
@@ -174,7 +174,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
             case "home":
                 if (sender instanceof Player) {
                     Player player = (Player) sender;
-                    Location location = player.getBedLocation();
+                    Location location = player.getBedSpawnLocation();
                     if (location == null)
                         location = spawnPointLoader.getSpawn(player);
                     player.teleport(location);
@@ -199,7 +199,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
 
     PlayersTable getPlayersTable() {
         return playersTable;
-}
+    }
 
     PlayersTeamsTable getPlayersTeamsTable() {
         return playersTeamsTable;

@@ -70,7 +70,7 @@ public class BlockEventListener implements Listener {
         if (!player.hasPermission("soloservercore.protect.bypass")) {
             String actionPlayer = coreProtect.getAction(block, settingsManager.getProtectionPeriod());
             // Action Player Check
-            if (actionPlayer != null && !player.getName().equals(actionPlayer)) {
+            if (actionPlayer != null && !actionPlayer.startsWith("#") && !player.getName().equals(actionPlayer)) {
                 TeamsPlayerData playerData = teamsBridge.getPlayerData(player.getUniqueId());
                 if (playerData != null) {
                     if (playerData.getJoinedTeam() != null) {
