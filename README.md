@@ -28,7 +28,7 @@ SoloServerCoreはマルチプレイなのにシングルプレイのようなあ
 
 ## Develpment [![](https://jitpack.io/v/nafu-at/SoloServerCore3.svg)](https://jitpack.io/#nafu-at/SoloServerCore3)
 
-SoloServerCore3ではカスタムイベントが使用可能になっています。  
+SoloServerCore3ではAPIやカスタムイベントが使用可能になっています。  
 SoloServerCoreを依存関係に追加する場合は以下を使用して下さい。
 
 **maven:**
@@ -58,7 +58,13 @@ repositories {
 dependencies {
     implementation 'com.github.nafu-at:SoloServerCore3:Tag'
 }
+```
 
+### SoloServerApiを使う
+```java
+// Make it singleton.
+SoloServerApi soloServerApi = SoloServerApi.getSoloServerApi();
+PlayersTeam team = soloServerApi.getPlayerJoinedTeam(player.getUniqueId());
 ```
 
 ## License
@@ -78,4 +84,3 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ```
-
