@@ -35,7 +35,7 @@ public class AsyncPlayerChatEventListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onAsyncPlayerChatEvent(AsyncPlayerChatEvent event) {
-        TeamsPlayerData teamsPlayerData = playerAndTeamsBridge.getPlayerData(event.getPlayer());
+        TeamsPlayerData teamsPlayerData = playerAndTeamsBridge.getPlayerData(event.getPlayer().getUniqueId());
         if (teamsPlayerData != null) {
             String message = event.getPlayer().getDisplayName() + " >> " +
                     ChatColor.translateAlternateColorCodes('&', event.getMessage());
