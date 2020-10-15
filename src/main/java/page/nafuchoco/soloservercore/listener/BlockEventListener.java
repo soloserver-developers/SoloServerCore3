@@ -71,7 +71,7 @@ public class BlockEventListener implements Listener {
             String actionPlayer = coreProtect.getAction(block, settingsManager.getProtectionPeriod());
             // Action Player Check
             if (actionPlayer != null && !player.getName().equals(actionPlayer)) {
-                TeamsPlayerData playerData = teamsBridge.getPlayerData(player);
+                TeamsPlayerData playerData = teamsBridge.getPlayerData(player.getUniqueId());
                 if (playerData != null) {
                     if (playerData.getJoinedTeam() != null) {
                         List<UUID> members = new ArrayList<>();
