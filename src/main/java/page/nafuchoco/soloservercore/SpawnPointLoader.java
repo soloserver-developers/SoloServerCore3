@@ -24,10 +24,11 @@ import page.nafuchoco.soloservercore.database.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 public class SpawnPointLoader {
     private final Random random = new Random();
-    
+
     private final PlayersTable playersTable;
     private final PlayerAndTeamsBridge playerAndTeamsBridge;
     private final PluginSettingsManager settingsManager;
@@ -82,15 +83,19 @@ public class SpawnPointLoader {
     }
 
     public Location getSpawn(Player player) {
+        return getSpawn(player.getUniqueId());
+    }
+
+    public Location getSpawn(UUID uuid) {
         if (settingsManager.isTeamSpawnCollect()) {
-            TeamsPlayerData teamsPlayerData = playerAndTeamsBridge.getPlayerData(player);
+            TeamsPlayerData teamsPlayerData = playerAndTeamsBridge.getPlayerData(uuid);
             if (teamsPlayerData != null) { // プレイヤーデータが取得されている場合必然的にチームに所属している。
                 PlayerData ownerData = playersTable.getPlayerData(teamsPlayerData.getTeamOwner());
                 return ownerData.getSpawnLocationLocation();
             }
         }
         // いずれでもない場合プレイヤーデータのスポーンロケーションにテレポートさせる。
-        PlayerData playerData = playersTable.getPlayerData(player);
+        PlayerData playerData = playersTable.getPlayerData(uuid);
         return playerData.getSpawnLocationLocation();
     }
 

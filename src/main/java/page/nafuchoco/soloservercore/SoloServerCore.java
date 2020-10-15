@@ -196,4 +196,20 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
         if (Bukkit.getOnlinePlayers().isEmpty())
             spawnPointLoader.initPoint(false);
     }
+
+    PlayersTable getPlayersTable() {
+        return playersTable;
+}
+
+    PlayersTeamsTable getPlayersTeamsTable() {
+        return playersTeamsTable;
+    }
+
+    PlayerAndTeamsBridge getPlayerAndTeamsBridge() {
+        return playerAndTeamsBridge;
+    }
+
+    SpawnPointLoader getSpawnPointLoader() {
+        return spawnPointLoader;
+    }
 }

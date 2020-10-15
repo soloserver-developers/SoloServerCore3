@@ -19,7 +19,6 @@ package page.nafuchoco.soloservercore.database;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import org.apache.commons.lang3.StringUtils;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import page.nafuchoco.soloservercore.SoloServerCore;
 
@@ -45,14 +44,14 @@ public class PlayerAndTeamsBridge {
         this.teamsTable = teamsTable;
     }
 
-    public TeamsPlayerData getPlayerData(@NotNull Player player) {
+    public TeamsPlayerData getPlayerData(@NotNull UUID uuid) {
         try (Connection connection = connector.getConnection();
              PreparedStatement ps = connection.prepareStatement(
                      "SELECT * FROM " + playersTable.getTablename() + " INNER JOIN " + teamsTable.getTablename() +
                              " ON " + playersTable.getTablename() + ".joined_team = " + teamsTable.getTablename() + ".id" +
                              " WHERE " + playersTable.getTablename() + ".id = ?"
              )) {
-            ps.setString(1, player.getUniqueId().toString());
+            ps.setString(1, uuid.toString());
             try (ResultSet resultSet = ps.executeQuery()) {
                 while (resultSet.next()) {
                     String playerName = resultSet.getString("player_name");
@@ -66,7 +65,7 @@ public class PlayerAndTeamsBridge {
                         membersList = gson.fromJson(members, new TypeToken<List<UUID>>() {
                         }.getType());
                     return new TeamsPlayerData(
-                            player.getUniqueId(),
+                            uuid,
                             playerName,
                             spawnLocation,
                             lastJoined,

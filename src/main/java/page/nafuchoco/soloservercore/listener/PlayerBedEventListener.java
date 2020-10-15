@@ -21,6 +21,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBedEnterEvent;
+import org.bukkit.event.player.PlayerBedLeaveEvent;
 import page.nafuchoco.soloservercore.database.PluginSettingsManager;
 
 public class PlayerBedEnterEventListener implements Listener {
@@ -36,9 +37,10 @@ public class PlayerBedEnterEventListener implements Listener {
             event.getPlayer().sendMessage(ChatColor.DARK_GRAY + "世界のどこかにいるまだ起きている誰かが眠るのを待っています...");
             int count = 0;
             for (Player player : event.getPlayer().getWorld().getPlayers()) {
-                if (!player.equals(event.getPlayer()) && event.getPlayer().getWorld().equals(player.getWorld()) && !player.isSleeping())
+                if (!player.equals(event.getPlayer()) && event.getPlayer().getWorld().equals(player.getWorld()) && !player.isSleeping()) {
                     player.sendMessage(ChatColor.DARK_GRAY + "世界のどこかにいる誰かが貴方が眠りにつくのを待っています...");
-                count++;
+                    count++;
+                }
             }
 
             if (settingsManager.isBroadcastBedCount()
@@ -46,6 +48,22 @@ public class PlayerBedEnterEventListener implements Listener {
                 for (Player player : event.getPlayer().getWorld().getPlayers()) {
                     player.sendMessage(ChatColor.GRAY + "あと" + count + "人がベッドに入ると朝になります。");
                 }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerBedLeaveEvent(PlayerBedLeaveEvent event) {
+        int count = 0;
+        for (Player player : event.getPlayer().getWorld().getPlayers()) {
+            if (!player.equals(event.getPlayer()) && event.getPlayer().getWorld().equals(player.getWorld()) && !player.isSleeping())
+                count++;
+        }
+
+        if (settingsManager.isBroadcastBedCount()
+                && (event.getPlayer().getWorld().getTime() >= 12542 || event.getPlayer().getWorld().hasStorm())) {
+            for (Player player : event.getPlayer().getWorld().getPlayers()) {
+                player.sendMessage(ChatColor.GRAY + "あと" + count + "人がベッドに入ると朝になります。");
             }
         }
     }

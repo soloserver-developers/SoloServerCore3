@@ -50,7 +50,7 @@ public class PlayerJoinEventListener implements Listener {
             event.getPlayer().teleport(playerData.getSpawnLocationLocation());
         }
 
-        TeamsPlayerData teamsPlayerData = playerAndTeamsBridge.getPlayerData(event.getPlayer());
+        TeamsPlayerData teamsPlayerData = playerAndTeamsBridge.getPlayerData(event.getPlayer().getUniqueId());
         List<UUID> bypass;
         if (teamsPlayerData != null) {
             bypass = teamsPlayerData.getMembers();
