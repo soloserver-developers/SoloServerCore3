@@ -56,7 +56,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.nafu-at:SoloServerCore3:Tag'
+    compileOnly 'com.github.nafu-at:SoloServerCore3:Tag'
 }
 ```
 
