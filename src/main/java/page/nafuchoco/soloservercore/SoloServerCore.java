@@ -129,7 +129,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
 
         // Command Register
         SettingsCommand settingsCommand = new SettingsCommand(pluginSettingsManager);
-        TeamCommand teamCommand = new TeamCommand(playersTable, playersTeamsTable);
+        TeamCommand teamCommand = new TeamCommand(playersTable, playersTeamsTable, pluginSettingsManager);
         ReTeleportCommand reTeleportCommand = new ReTeleportCommand(playersTable, playersTeamsTable, spawnPointLoader, Bukkit.getWorld(config.getInitConfig().getSpawnWorld()));
         getCommand("settings").setExecutor(settingsCommand);
         getCommand("settings").setTabCompleter(settingsCommand);

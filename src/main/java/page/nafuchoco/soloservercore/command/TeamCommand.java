@@ -29,6 +29,7 @@ import page.nafuchoco.soloservercore.SoloServerCore;
 import page.nafuchoco.soloservercore.database.PlayerData;
 import page.nafuchoco.soloservercore.database.PlayersTable;
 import page.nafuchoco.soloservercore.database.PlayersTeamsTable;
+import page.nafuchoco.soloservercore.database.PluginSettingsManager;
 import page.nafuchoco.soloservercore.team.PlayersTeam;
 
 import java.sql.SQLException;
@@ -39,12 +40,14 @@ import java.util.stream.Collectors;
 public class TeamCommand implements CommandExecutor, TabCompleter {
     private final PlayersTable playersTable;
     private final PlayersTeamsTable teamsTable;
+    private final PluginSettingsManager settingsManager;
 
     private final Map<UUID, UUID> invited;
 
-    public TeamCommand(PlayersTable playersTable, PlayersTeamsTable teamsTable) {
+    public TeamCommand(PlayersTable playersTable, PlayersTeamsTable teamsTable, PluginSettingsManager settingsManager) {
         this.playersTable = playersTable;
         this.teamsTable = teamsTable;
+        this.settingsManager = settingsManager;
         invited = new HashMap<>();
     }
 
@@ -142,6 +145,27 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                     UUID joinedTeam = playerData.getJoinedTeam();
                     if (joinedTeam != null) {
                         PlayersTeam team = teamsTable.getPlayersTeam(joinedTeam);
+                        if (settingsManager.isTeamSpawnCollect()
+                                && team.getOwner().equals(player.getUniqueId())
+                                && !team.getMembers().isEmpty()) {
+                            invited.put(joinedTeam, null);
+                            sender.sendMessage(ChatColor.YELLOW + "[Teams] あなたはチームオーナーです。");
+                            sender.sendMessage(ChatColor.YELLOW + "チームを解散すると他の所属プレイヤーのスポーンポイントが離散してしまいます。");
+                            sender.sendMessage(ChatColor.YELLOW + "本当に解散しますか？解散する場合は /team confirm を実行してください。");
+                        } else {
+                            team.leaveTeam(player);
+                            sender.sendMessage(ChatColor.GREEN + "[Teams] チームから脱退しました。");
+                        }
+
+                    }
+                }
+                break;
+
+                case "confirm": {
+                    PlayerData playerData = playersTable.getPlayerData(player);
+                    UUID joinedTeam = playerData.getJoinedTeam();
+                    if (joinedTeam != null && invited.remove(joinedTeam) != null) {
+                        PlayersTeam team = teamsTable.getPlayersTeam(joinedTeam);
                         team.leaveTeam(player);
                         sender.sendMessage(ChatColor.GREEN + "[Teams] チームから脱退しました。");
                     }
@@ -157,7 +181,7 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1)
-            return Arrays.asList("create", "invite", "accept", "leave");
+            return Arrays.asList("create", "invite", "accept", "leave", "confirm");
         return null;
     }
 }
