@@ -3,8 +3,8 @@ version: @version@
 main: page.nafuchoco.soloservercore.SoloServerCore
 api-version: 1.15
 prefix: SSC
-depend: [ProtocolLib, CoreProtect]
-authors: [NAFU_at]
+depend: [ ProtocolLib, CoreProtect ]
+authors: [ NAFU_at ]
 description: A single-player experience, even though it's multiplayer, is now available for you.
 website: https://nafuchoco.page/
 
@@ -43,6 +43,8 @@ permissions:
       soloservercore.team.invite: true
       soloservercore.team.accept: true
       soloservercore.team.leave: true
+      soloservercore.team.confirm: true
+      soloservercore.team.transfer: true
       soloservercore.protect.bypass: true
       soloservercore.reteleport: true
 
@@ -53,3 +55,5 @@ permissions:
       soloservercore.team.invite: true
       soloservercore.team.accept: true
       soloservercore.team.leave: true
+      soloservercore.team.confirm: true
+      soloservercore.team.transfer: true

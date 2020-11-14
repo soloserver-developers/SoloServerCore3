@@ -107,10 +107,14 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                             for (String arg : args) {
                                 Player target = Bukkit.getPlayer(arg);
                                 if (target != null) {
-                                    invited.put(target.getUniqueId(), teamId);
-                                    target.sendMessage(ChatColor.GREEN + "[Teams]" + player.getDisplayName() +
-                                            " さんからチームに招待されました。\n" +
-                                            "参加するには /team accept を実行してください。");
+                                    if (player.getWorld().equals(target.getWorld())) {
+                                        invited.put(target.getUniqueId(), teamId);
+                                        target.sendMessage(ChatColor.GREEN + "[Teams]" + player.getDisplayName() +
+                                                " さんからチームに招待されました。\n" +
+                                                "参加するには /team accept を実行してください。");
+                                    } else {
+                                        sender.sendMessage(ChatColor.RED + "[Teams] 招待するプレイヤーは同じワールドにいる必要があります。");
+                                    }
                                 }
                             }
                         } else {
@@ -171,6 +175,43 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                     }
                 }
                 break;
+
+                case "transfer":
+                    if (args.length >= 2) {
+                        UUID teamId = teamsTable.searchTeamFromOwner((player).getUniqueId());
+                        if (teamId != null) {
+                            Player target = Bukkit.getPlayer(args[1]);
+                            if (target != null && !player.equals(target)) {
+                                PlayerData playerData = playersTable.getPlayerData(target);
+                                UUID joinedTeam = playerData.getJoinedTeam();
+                                if (teamId.equals(joinedTeam)) {
+                                    PlayersTeam original = teamsTable.getPlayersTeam(teamId);
+                                    List<UUID> members = original.getMembers();
+                                    try {
+                                        teamsTable.deleteTeam(teamId);
+                                        members.remove(target.getUniqueId());
+                                        members.add(player.getUniqueId());
+                                        teamsTable.registerTeam(teamId, target.getUniqueId(), members);
+
+                                        target.sendMessage(ChatColor.GREEN + "[Teams] チームのオーナが" + target.getDisplayName() + "に譲渡されました。");
+                                        members.forEach(uuid -> {
+                                            Player member = Bukkit.getPlayer(uuid);
+                                            if (member != null)
+                                                member.sendMessage(ChatColor.GREEN + "[Teams] チームのオーナが" + target.getDisplayName() + "に譲渡されました。");
+                                        });
+                                    } catch (SQLException throwables) {
+                                        sender.sendMessage(ChatColor.RED + "チームデータの保存に失敗しました。");
+                                        SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to save the team data.", throwables);
+                                    }
+                                }
+                            }
+                        } else {
+                            sender.sendMessage(ChatColor.YELLOW + "[Teams] オーナーを譲渡するためには自分がチームのオーナーである必要があります。");
+                        }
+                    } else {
+                        sender.sendMessage(ChatColor.YELLOW + "[Teams] オーナーを譲渡するプレイヤーを指定してください。");
+                    }
+                    break;
             }
         } else {
             Bukkit.getLogger().info("This command must be executed in-game.");
@@ -181,7 +222,7 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1)
-            return Arrays.asList("create", "invite", "accept", "leave", "confirm");
+            return Arrays.asList("create", "invite", "accept", "leave", "confirm", "transfer");
         return null;
     }
 }
