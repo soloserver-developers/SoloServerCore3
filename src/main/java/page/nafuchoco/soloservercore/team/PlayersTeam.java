@@ -73,4 +73,16 @@ public class PlayersTeam {
                 members.add(player.getUniqueId());
         }
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        } else if (!(obj instanceof PlayersTeam)) {
+            return false;
+        } else {
+            PlayersTeam team = (PlayersTeam) obj;
+            return id.equals(team.id);
+        }
+    }
 }
