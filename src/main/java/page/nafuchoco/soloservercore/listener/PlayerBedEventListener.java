@@ -16,6 +16,7 @@
 
 package page.nafuchoco.soloservercore.listener;
 
+import org.apache.commons.lang.text.ExtendedMessageFormat;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -42,19 +43,18 @@ public class PlayerBedEventListener implements Listener {
     @EventHandler
     public void onPlayerBedEnterEvent(PlayerBedEnterEvent event) {
         if (!event.isCancelled() && !checkCooldown(event.getPlayer())) {
-            event.getPlayer().sendMessage(ChatColor.DARK_GRAY + "世界のどこかにいるまだ起きている誰かが眠るのを待っています...");
-            int count = 0;
-            for (Player player : event.getPlayer().getWorld().getPlayers()) {
-                if (!player.equals(event.getPlayer()) && event.getPlayer().getWorld().equals(player.getWorld()) && !player.isSleeping()) {
-                    player.sendMessage(ChatColor.DARK_GRAY + "世界のどこかにいる誰かが貴方が眠りにつくのを待っています...");
-                    count++;
-                }
-            }
-
             if (settingsManager.isBroadcastBedCount()
-                    && (event.getPlayer().getWorld().getTime() >= 12542 || event.getPlayer().getWorld().hasStorm())) {
-                for (Player player : event.getPlayer().getWorld().getPlayers()) {
-                    player.sendMessage(ChatColor.GRAY + "あと" + count + "人がベッドに入ると朝になります。");
+                    && event.getBedEnterResult().equals(PlayerBedEnterEvent.BedEnterResult.OK)) {
+                long count = event.getBed().getWorld().getPlayers().stream()
+                        .filter(player -> !player.isSleeping())
+                        .filter(player -> !player.equals(event.getPlayer()))
+                        .peek(player -> player.sendMessage(ChatColor.DARK_GRAY + "世界のどこかにいる誰かが貴方が眠りにつくのを待っています..."))
+                        .count();
+                if (count != 0) {
+                    event.getBed().getWorld().getPlayers().forEach(
+                            player -> player.sendMessage(ChatColor.GRAY
+                                    + ExtendedMessageFormat.format("あと{0}人がベッドに入ると朝になります。", count)));
+                    event.getPlayer().sendMessage(ChatColor.DARK_GRAY + "世界のどこかにいるまだ起きている誰かが眠るのを待っています...");
                 }
             }
 
@@ -66,19 +66,16 @@ public class PlayerBedEventListener implements Listener {
 
     @EventHandler
     public void onPlayerBedLeaveEvent(PlayerBedLeaveEvent event) {
-        if (!checkCooldown(event.getPlayer())) {
-            int count = 0;
-            for (Player player : event.getPlayer().getWorld().getPlayers()) {
-                if (!player.equals(event.getPlayer()) && event.getPlayer().getWorld().equals(player.getWorld()) && !player.isSleeping())
-                    count++;
-            }
-
-            if (settingsManager.isBroadcastBedCount()
-                    && (event.getPlayer().getWorld().getTime() >= 12542 || event.getPlayer().getWorld().hasStorm())) {
-                for (Player player : event.getPlayer().getWorld().getPlayers()) {
-                    player.sendMessage(ChatColor.GRAY + "あと" + count + "人がベッドに入ると朝になります。");
-                }
-            }
+        if (!checkCooldown(event.getPlayer())
+                && settingsManager.isBroadcastBedCount()
+                && (event.getPlayer().getWorld().getTime() >= 12542 || event.getPlayer().getWorld().hasStorm())) {
+            long count = event.getBed().getWorld().getPlayers().stream()
+                    .filter(player -> !player.isSleeping())
+                    .filter(player -> !player.equals(event.getPlayer()))
+                    .count();
+            event.getBed().getWorld().getPlayers().forEach(
+                    player -> player.sendMessage(ChatColor.GRAY
+                            + ExtendedMessageFormat.format("あと{0}人がベッドに入ると朝になります。", count)));
         }
     }
 
