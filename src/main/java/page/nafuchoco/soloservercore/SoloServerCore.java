@@ -118,7 +118,12 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
         if (pluginSettingsManager.isCheckBlock())
             getServer().getPluginManager().registerEvents(new BlockEventListener(new CoreProtectClient(coreProtectAPI), pluginSettingsManager, playerAndTeamsBridge), this);
 
-        getServer().getPluginManager().registerEvents(new PlayersTeamEventListener(playersTable, playersTeamsTable), this);
+        getServer().getPluginManager().registerEvents(new PlayersTeamEventListener(
+                        playersTable,
+                        playersTeamsTable,
+                        pluginSettingsManager,
+                        spawnPointLoader),
+                this);
         getServer().getPluginManager().registerEvents(new PlayerBedEventListener(pluginSettingsManager), this);
         getServer().getPluginManager().registerEvents(new PlayerRespawnEventListener(spawnPointLoader), this);
         getServer().getPluginManager().registerEvents(new PlayerLoginEventListener(playersTable, spawnPointLoader), this);
@@ -130,7 +135,11 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
         // Command Register
         SettingsCommand settingsCommand = new SettingsCommand(pluginSettingsManager);
         TeamCommand teamCommand = new TeamCommand(playersTable, playersTeamsTable, pluginSettingsManager);
-        ReTeleportCommand reTeleportCommand = new ReTeleportCommand(playersTable, playersTeamsTable, spawnPointLoader, Bukkit.getWorld(config.getInitConfig().getSpawnWorld()));
+        ReTeleportCommand reTeleportCommand = new ReTeleportCommand(
+                playersTable,
+                playersTeamsTable,
+                spawnPointLoader,
+                Bukkit.getWorld(config.getInitConfig().getSpawnWorld()));
         getCommand("settings").setExecutor(settingsCommand);
         getCommand("settings").setTabCompleter(settingsCommand);
         getCommand("team").setExecutor(teamCommand);
