@@ -6,13 +6,13 @@ plugins {
 }
 
 group = 'page.nafuchoco'
-version = '3.4.0'
+version = '3.5.0'
 
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
 shadowJar {
-    archiveName = "${rootProject.name}.${extension}"
+    archiveFileName.set(rootProject.name + '.' + archiveExtension.get())
 }
 
 task sourcesJar(type: Jar, dependsOn: 'classes') {
