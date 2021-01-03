@@ -23,8 +23,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import page.nafuchoco.soloservercore.SoloServerCore;
+import page.nafuchoco.soloservercore.SpawnPointLoader;
 import page.nafuchoco.soloservercore.database.PlayersTable;
 import page.nafuchoco.soloservercore.database.PlayersTeamsTable;
+import page.nafuchoco.soloservercore.database.PluginSettingsManager;
 import page.nafuchoco.soloservercore.event.PlayersTeamDisappearanceEvent;
 import page.nafuchoco.soloservercore.event.PlayersTeamJoinEvent;
 import page.nafuchoco.soloservercore.event.PlayersTeamLeaveEvent;
@@ -35,10 +37,18 @@ import java.util.logging.Level;
 public class PlayersTeamEventListener implements Listener {
     private final PlayersTable playersTable;
     private final PlayersTeamsTable teamsTable;
+    private final PluginSettingsManager settingsManager;
+    private final SpawnPointLoader loader;
 
-    public PlayersTeamEventListener(PlayersTable playersTable, PlayersTeamsTable teamsTable) {
+    public PlayersTeamEventListener(
+            PlayersTable playersTable,
+            PlayersTeamsTable teamsTable,
+            PluginSettingsManager settingsManager,
+            SpawnPointLoader loader) {
         this.playersTable = playersTable;
         this.teamsTable = teamsTable;
+        this.settingsManager = settingsManager;
+        this.loader = loader;
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -67,6 +77,9 @@ public class PlayersTeamEventListener implements Listener {
                     player.showPlayer(SoloServerCore.getInstance(), event.getPlayer());
                 }
             });
+
+            if (settingsManager.isTeamSpawnCollect())
+                event.getPlayer().teleport(loader.getSpawn(event.getPlayersTeam().getOwner()));
         }
     }
 
