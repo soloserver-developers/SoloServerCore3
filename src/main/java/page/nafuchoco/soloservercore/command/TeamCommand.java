@@ -107,7 +107,10 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                             for (String arg : args) {
                                 Player target = Bukkit.getPlayer(arg);
                                 if (target != null) {
-                                    if (player.getWorld().equals(target.getWorld())) {
+                                    if (target.equals(player)) {
+                                        sender.sendMessage(ChatColor.RED +
+                                                "[Teams] 自分自身を招待することはできません！");
+                                    } else if (player.getWorld().equals(target.getWorld())) {
                                         invited.put(target.getUniqueId(), teamId);
                                         target.sendMessage(ChatColor.GREEN + "[Teams]" + player.getDisplayName() +
                                                 " さんからチームに招待されました。\n" +
@@ -221,8 +224,11 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
-        if (args.length == 1)
+        if (args.length <= 1)
             return Arrays.asList("create", "invite", "accept", "leave", "confirm", "transfer");
-        return null;
+        else if (args[0].equals("invite"))
+            return Bukkit.getServer().getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList());
+        else
+            return null;
     }
 }
