@@ -26,7 +26,7 @@ SoloServerCoreはマルチプレイなのにシングルプレイのようなあ
 - ProtocolLib 4.5.x ~
 - CoreProtect 19.1 ~
 
-## Develpment [![](https://jitpack.io/v/nafu-at/SoloServerCore3.svg)](https://jitpack.io/#nafu-at/SoloServerCore3)
+## Develpment [![](https://jitpack.io/v/soloserver-developers/SoloServerCore3.svg)](https://jitpack.io/#soloserver-developers/SoloServerCore3)
 
 SoloServerCore3ではAPIやカスタムイベントが使用可能になっています。  
 SoloServerCoreを依存関係に追加する場合は以下を使用して下さい。
@@ -42,7 +42,7 @@ SoloServerCoreを依存関係に追加する場合は以下を使用して下さ
 
 <dependencies>
     <dependency>
-	    <groupId>com.github.nafu-at</groupId>
+	    <groupId>com.github.soloserver-developers</groupId>
 	    <artifactId>SoloServerCore3</artifactId>
 	    <version>Tag</version>
 	</dependency>
@@ -56,7 +56,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'com.github.nafu-at:SoloServerCore3:Tag'
+    compileOnly 'com.github.soloserver-developers:SoloServerCore3:Tag'
 }
 ```
 
