@@ -32,7 +32,7 @@ public abstract class DatabaseTable {
         this.connector = connector;
     }
 
-    protected String getTablename() {
+    public String getTablename() {
         return tablename;
     }
 

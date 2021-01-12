@@ -1,0 +1,9 @@
+migrate:
+  - version: 3.6.0
+    database: teams
+    scripts:
+      - "ALTER TABLE %TABLENAME% ADD team_name VARCHAR(16)"
+  - version: 3.6.0
+    database: settings
+    scripts:
+      - "CREATE UNIQUE INDEX settings_index ON %TABLENAME% (settings_name, settings_value)"

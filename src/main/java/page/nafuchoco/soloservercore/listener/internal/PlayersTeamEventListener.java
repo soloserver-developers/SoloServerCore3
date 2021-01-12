@@ -30,6 +30,7 @@ import page.nafuchoco.soloservercore.database.PluginSettingsManager;
 import page.nafuchoco.soloservercore.event.PlayersTeamDisappearanceEvent;
 import page.nafuchoco.soloservercore.event.PlayersTeamJoinEvent;
 import page.nafuchoco.soloservercore.event.PlayersTeamLeaveEvent;
+import page.nafuchoco.soloservercore.event.PlayersTeamStatusUpdateEvent;
 
 import java.sql.SQLException;
 import java.util.logging.Level;
@@ -57,8 +58,8 @@ public class PlayersTeamEventListener implements Listener {
             try {
                 playersTable.updateJoinedTeam(event.getPlayer().getUniqueId(), event.getPlayersTeam().getId());
                 teamsTable.updateMembers(event.getPlayersTeam().getId(), event.getPlayersTeam().getMembers());
-            } catch (SQLException throwables) {
-                SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to update the team data.", throwables);
+            } catch (SQLException e) {
+                SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to update the team data.", e);
                 event.setCancelled(true);
                 return;
             }
@@ -89,8 +90,8 @@ public class PlayersTeamEventListener implements Listener {
             try {
                 playersTable.updateJoinedTeam(event.getPlayer().getUniqueId(), null);
                 teamsTable.updateMembers(event.getPlayersTeam().getId(), event.getPlayersTeam().getMembers());
-            } catch (SQLException throwables) {
-                SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to update the team data.", throwables);
+            } catch (SQLException e) {
+                SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to update the team data.", e);
                 event.setCancelled(true);
                 return;
             }
@@ -134,13 +135,22 @@ public class PlayersTeamEventListener implements Listener {
                             }
                         });
                     }
-                } catch (SQLException throwables) {
-                    SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to update the team data.", throwables);
+                } catch (SQLException e) {
+                    SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to update the team data.", e);
                 }
             });
             teamsTable.deleteTeam(event.getPlayersTeam().getId());
-        } catch (SQLException throwables) {
-            SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to update the team data.", throwables);
+        } catch (SQLException e) {
+            SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to update the team data.", e);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayersTeamStatusUpdateEvent(PlayersTeamStatusUpdateEvent event) {
+        try {
+            teamsTable.updateTeamName(event.getPlayersTeam().getId(), event.getPlayersTeam().getTeamName());
+        } catch (SQLException e) {
+            SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to update the team data.", e);
         }
     }
 }

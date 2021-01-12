@@ -48,8 +48,8 @@ public class PlayersTable extends DatabaseTable {
                     return UUID.fromString(resultSet.getString("id"));
                 }
             }
-        } catch (SQLException throwables) {
-            SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to get player data.", throwables);
+        } catch (SQLException e) {
+            SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to get player data.", e);
         }
         return null;
     }
@@ -76,8 +76,8 @@ public class PlayersTable extends DatabaseTable {
                     return new PlayerData(uuid, playerName, spawnLocation, lastJoined, joinedTeam);
                 }
             }
-        } catch (SQLException throwables) {
-            SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to get player data.", throwables);
+        } catch (SQLException e) {
+            SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to get player data.", e);
         }
         return null;
     }

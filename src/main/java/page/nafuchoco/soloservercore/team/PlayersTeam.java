@@ -21,6 +21,7 @@ import org.bukkit.entity.Player;
 import page.nafuchoco.soloservercore.event.PlayersTeamDisappearanceEvent;
 import page.nafuchoco.soloservercore.event.PlayersTeamJoinEvent;
 import page.nafuchoco.soloservercore.event.PlayersTeamLeaveEvent;
+import page.nafuchoco.soloservercore.event.PlayersTeamStatusUpdateEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,7 @@ public class PlayersTeam {
     private final UUID id;
     private final UUID owner;
 
+    private String teamName;
     private List<UUID> members = new ArrayList<>();
 
     public PlayersTeam(UUID id, UUID owner) {
@@ -45,12 +47,28 @@ public class PlayersTeam {
         return owner;
     }
 
+    public String getTeamName() {
+        return teamName;
+    }
+
     public List<UUID> getMembers() {
         return members;
     }
 
+    public void setTeamName(String teamName) {
+        this.teamName = teamName;
+    }
+
     public void setMembers(List<UUID> members) {
         this.members = members;
+    }
+
+    public void updateTeamName(Player player, String teamName) {
+        String before = getTeamName();
+        setTeamName(teamName);
+        PlayersTeamStatusUpdateEvent statusUpdateEvent =
+                new PlayersTeamStatusUpdateEvent(this, player, PlayersTeamStatusUpdateEvent.UpdatedState.NAME, before, teamName);
+        Bukkit.getServer().getPluginManager().callEvent(statusUpdateEvent);
     }
 
     public void joinTeam(Player player) {

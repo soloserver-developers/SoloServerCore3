@@ -57,3 +57,4 @@ permissions:
       soloservercore.team.leave: true
       soloservercore.team.confirm: true
       soloservercore.team.transfer: true
+      soloservercore.team.name: true

@@ -29,6 +29,7 @@ public class PluginSettingsManager {
     private static final boolean TEAM_SPAWN_COLLECT = true;
     private static final int STOCK_SPAWN_POINT = 100;
     private static final boolean BROADCAST_BED_COUNT = true;
+    private static final int LAST_MIGRATED_VERSION = 350;
 
     public PluginSettingsManager(PluginSettingsTable settingsTable) {
         this.settingsTable = settingsTable;
@@ -74,6 +75,14 @@ public class PluginSettingsManager {
             return Boolean.parseBoolean(value);
     }
 
+    public int getLastMigratedVersion() {
+        String value = settingsTable.getPluginSetting("lastMigratedVersion");
+        if (value == null)
+            return LAST_MIGRATED_VERSION;
+        else
+            return Integer.parseInt(value.replaceAll("\\.", ""));
+    }
+
     public void setCheckBlock(@NotNull boolean checkBlock) throws SQLException {
         settingsTable.setPluginSetting("checkBlock", String.valueOf(checkBlock));
     }
@@ -94,4 +103,7 @@ public class PluginSettingsManager {
         settingsTable.setPluginSetting("broadcastBedCount", String.valueOf(broadcastBedCount));
     }
 
+    public void setLastMigratedVersion(@NotNull String lastMigratedVersion) throws SQLException {
+        settingsTable.setPluginSetting("lastMigratedVersion", lastMigratedVersion);
+    }
 }

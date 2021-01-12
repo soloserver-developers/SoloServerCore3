@@ -62,9 +62,16 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                 if (joinedTeam != null) {
                     PlayersTeam team = teamsTable.getPlayersTeam(joinedTeam);
                     sender.sendMessage(ChatColor.AQUA + "======== PlayersTeam Infomation ========");
-                    sender.sendMessage("JoinedTeam: " + team.getId() + "\n" +
-                            "TeamOwner: " + Bukkit.getOfflinePlayer(team.getOwner()).getName() + "\n" +
-                            "TeamMembers: " + team.getMembers().stream().map(m -> Bukkit.getOfflinePlayer(m).getName()).collect(Collectors.joining(",")));
+                    StringBuilder builder = new StringBuilder();
+                    if (team.getTeamName() == null)
+                        builder.append("JoinedTeam: " + team.getId() + "\n");
+                    else
+                        builder.append("JoinedTeam: " + team.getTeamName() + "\n");
+                    builder.append("TeamOwner: " + Bukkit.getOfflinePlayer(team.getOwner()).getName() + "\n");
+                    builder.append("TeamMembers: " + team.getMembers().stream()
+                            .map(m -> Bukkit.getOfflinePlayer(m).getName())
+                            .collect(Collectors.joining(",")));
+                    sender.sendMessage(builder.toString());
                 } else {
                     sender.sendMessage(ChatColor.YELLOW + "[Teams] 所属しているチームがありません！");
                 }
@@ -88,7 +95,7 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
 
                     try {
                         UUID id = UUID.randomUUID();
-                        teamsTable.registerTeam(id, (player).getUniqueId(), null);
+                        teamsTable.registerTeam(id, (player).getUniqueId(), null, null);
                         playersTable.updateJoinedTeam((player).getUniqueId(), id);
                         sender.sendMessage(ChatColor.GREEN + "[Teams] あなたのチームが作成されました！\n" +
                                 "/team invite [player] で他のプレイヤーを招待しましょう！");
@@ -194,7 +201,7 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                                         teamsTable.deleteTeam(teamId);
                                         members.remove(target.getUniqueId());
                                         members.add(player.getUniqueId());
-                                        teamsTable.registerTeam(teamId, target.getUniqueId(), members);
+                                        teamsTable.registerTeam(teamId, target.getUniqueId(), original.getTeamName(), members);
 
                                         target.sendMessage(ChatColor.GREEN + "[Teams] チームのオーナが" + target.getDisplayName() + "に譲渡されました。");
                                         members.forEach(uuid -> {
@@ -215,6 +222,20 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                         sender.sendMessage(ChatColor.YELLOW + "[Teams] オーナーを譲渡するプレイヤーを指定してください。");
                     }
                     break;
+
+                case "name":
+                    UUID teamId = teamsTable.searchTeamFromOwner((player).getUniqueId());
+                    if (teamId != null) {
+                        PlayersTeam playersTeam = teamsTable.getPlayersTeam(teamId);
+                        if (args.length >= 2)
+                            playersTeam.updateTeamName(player, args[1]);
+                        else
+                            playersTeam.updateTeamName(player, null);
+                        sender.sendMessage(ChatColor.GREEN + "[Teams] チーム名を変更が変更されました。");
+                    } else {
+                        sender.sendMessage(ChatColor.YELLOW + "[Teams] チーム名を変更するには自分がオーナーのチームに所属している必要があります。");
+                    }
+                    break;
             }
         } else {
             Bukkit.getLogger().info("This command must be executed in-game.");
@@ -225,7 +246,7 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length <= 1)
-            return Arrays.asList("create", "invite", "accept", "leave", "confirm", "transfer");
+            return Arrays.asList("create", "invite", "accept", "leave", "confirm", "transfer", "name");
         else if (args[0].equals("invite"))
             return Bukkit.getServer().getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList());
         else
