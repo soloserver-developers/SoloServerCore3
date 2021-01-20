@@ -65,7 +65,7 @@ dependencies {
 
     implementation 'team.aura_dev.lib.slf4j-plugin.spigot:slf4j-plugin-spigot:1.2.0.39:1.7.25'
     implementation 'com.zaxxer:HikariCP:3.4.5'
-    implementation 'mysql:mysql-connector-java:8.0.22'
+    implementation 'mysql:mysql-connector-java:8.0.23'
     implementation 'org.mariadb.jdbc:mariadb-java-client:2.7.1'
 }
 
