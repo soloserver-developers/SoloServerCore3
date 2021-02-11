@@ -33,11 +33,14 @@ import page.nafuchoco.soloservercore.database.PluginSettingsManager;
 import page.nafuchoco.soloservercore.team.PlayersTeam;
 
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class TeamCommand implements CommandExecutor, TabCompleter {
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
+
     private final PlayersTable playersTable;
     private final PlayersTeamsTable teamsTable;
     private final PluginSettingsManager settingsManager;
@@ -68,9 +71,10 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                     else
                         builder.append("JoinedTeam: " + team.getTeamName() + "\n");
                     builder.append("TeamOwner: " + Bukkit.getOfflinePlayer(team.getOwner()).getName() + "\n");
-                    builder.append("TeamMembers: " + team.getMembers().stream()
-                            .map(m -> Bukkit.getOfflinePlayer(m).getName())
-                            .collect(Collectors.joining(",")));
+                    builder.append("TeamMembers: \n" + team.getMembers().stream()
+                            .map(m -> Bukkit.getOfflinePlayer(m).getName() + ChatColor.GRAY +
+                                    " [" + dateFormat.format(Bukkit.getOfflinePlayer(m).getLastPlayed()) + "]")
+                            .collect(Collectors.joining("\n")));
                     sender.sendMessage(builder.toString());
                 } else {
                     sender.sendMessage(ChatColor.YELLOW + "[Teams] 所属しているチームがありません！");
