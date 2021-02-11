@@ -24,6 +24,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import page.nafuchoco.soloservercore.database.InGamePlayerData;
+import page.nafuchoco.soloservercore.database.PlayerDataStore;
 import page.nafuchoco.soloservercore.database.PluginSettingsManager;
 
 import java.util.Calendar;
@@ -34,9 +36,11 @@ import java.util.Map;
 public class PlayerBedEventListener implements Listener {
     private final Map<Player, Date> cooldownMap;
     private final PluginSettingsManager settingsManager;
+    private final PlayerDataStore playerDataStore;
 
-    public PlayerBedEventListener(PluginSettingsManager settingsManager) {
+    public PlayerBedEventListener(PluginSettingsManager settingsManager, PlayerDataStore playerDataStore) {
         this.settingsManager = settingsManager;
+        this.playerDataStore = playerDataStore;
         cooldownMap = new LinkedHashMap<>();
     }
 
@@ -46,15 +50,19 @@ public class PlayerBedEventListener implements Listener {
             if (settingsManager.isBroadcastBedCount()
                     && event.getBedEnterResult().equals(PlayerBedEnterEvent.BedEnterResult.OK)) {
                 long count = event.getBed().getWorld().getPlayers().stream()
+                        .filter(player -> !isAfk(player))
                         .filter(player -> !player.isSleeping())
                         .filter(player -> !player.equals(event.getPlayer()))
                         .peek(player -> player.sendMessage(ChatColor.DARK_GRAY + "世界のどこかにいる誰かが貴方が眠りにつくのを待っています..."))
                         .count();
-                if (count != 0) {
+                if (count > 0) {
                     event.getBed().getWorld().getPlayers().forEach(
                             player -> player.sendMessage(ChatColor.GRAY
                                     + ExtendedMessageFormat.format("あと{0}人がベッドに入ると朝になります。", count)));
                     event.getPlayer().sendMessage(ChatColor.DARK_GRAY + "世界のどこかにいるまだ起きている誰かが眠るのを待っています...");
+                } else if (settingsManager.isUseAfkCount()
+                        && event.getBed().getWorld().getPlayers().stream().filter(player -> isAfk(player)).count() > 0) {
+                    event.getPlayer().getWorld().setTime(0);
                 }
             }
 
@@ -95,5 +103,20 @@ public class PlayerBedEventListener implements Listener {
             return cooldown;
         }
         return false;
+    }
+
+    private boolean isAfk(Player player) {
+        if (settingsManager.isUseAfkCount()) {
+            InGamePlayerData playerData = (InGamePlayerData) playerDataStore.getPlayerData(player);
+
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(new Date(playerData.getLatestMoveTime()));
+
+            calendar.add(Calendar.MINUTE, settingsManager.getAfkTimeThreshold());
+
+            return new Date().after(calendar.getTime());
+        } else {
+            return false;
+        }
     }
 }

@@ -29,6 +29,8 @@ public class PluginSettingsManager {
     private static final boolean TEAM_SPAWN_COLLECT = true;
     private static final int STOCK_SPAWN_POINT = 100;
     private static final boolean BROADCAST_BED_COUNT = true;
+    private static final boolean USE_AFK_COUNT = false;
+    private static final int AFK_TIME_THRESHOLD = 30;
     private static final int LAST_MIGRATED_VERSION = 350;
 
     public PluginSettingsManager(PluginSettingsTable settingsTable) {
@@ -75,6 +77,22 @@ public class PluginSettingsManager {
             return Boolean.parseBoolean(value);
     }
 
+    public boolean isUseAfkCount() {
+        String value = settingsTable.getPluginSetting("useAfkCount");
+        if (value == null)
+            return USE_AFK_COUNT;
+        else
+            return Boolean.parseBoolean(value);
+    }
+
+    public int getAfkTimeThreshold() {
+        String value = settingsTable.getPluginSetting("afkTimeThreshold");
+        if (value == null)
+            return AFK_TIME_THRESHOLD;
+        else
+            return Integer.parseInt(value);
+    }
+
     public int getLastMigratedVersion() {
         String value = settingsTable.getPluginSetting("lastMigratedVersion");
         if (value == null)
@@ -101,6 +119,14 @@ public class PluginSettingsManager {
 
     public void setBroadcastBedCount(@NotNull boolean broadcastBedCount) throws SQLException {
         settingsTable.setPluginSetting("broadcastBedCount", String.valueOf(broadcastBedCount));
+    }
+
+    public void setUseAfkCount(@NotNull boolean useAfkCount) throws SQLException {
+        settingsTable.setPluginSetting("useAfkCount", String.valueOf(useAfkCount));
+    }
+
+    public void setAfkTimeThreshold(@NotNull int afkTimeThreshold) throws SQLException {
+        settingsTable.setPluginSetting("afkTimeThreshold", String.valueOf(afkTimeThreshold));
     }
 
     public void setLastMigratedVersion(@NotNull String lastMigratedVersion) throws SQLException {

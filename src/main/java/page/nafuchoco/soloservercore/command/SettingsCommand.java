@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.logging.Level;
 
 public class SettingsCommand implements CommandExecutor, TabCompleter {
+    private static final String UPDATED_MESSAGE = ChatColor.GREEN + "[SSC] Option updated.";
+
     private final PluginSettingsManager settingsManager;
 
     public SettingsCommand(PluginSettingsManager settingsManager) {
@@ -53,27 +55,37 @@ public class SettingsCommand implements CommandExecutor, TabCompleter {
                 } else switch (args[0]) {
                     case "checkBlock":
                         settingsManager.setCheckBlock(Boolean.parseBoolean(args[1]));
-                        sender.sendMessage(ChatColor.GREEN + "[SSC] Option updated.");
+                        sender.sendMessage(UPDATED_MESSAGE);
                         break;
 
                     case "protectionPeriod":
                         settingsManager.setProtectionPeriod(Integer.parseInt(args[1]));
-                        sender.sendMessage(ChatColor.GREEN + "[SSC] Option updated.");
+                        sender.sendMessage(UPDATED_MESSAGE);
                         break;
 
                     case "teamSpawnCollect":
                         settingsManager.setTeamSpawnCollect(Boolean.parseBoolean(args[1]));
-                        sender.sendMessage(ChatColor.GREEN + "[SSC] Option updated.");
+                        sender.sendMessage(UPDATED_MESSAGE);
                         break;
 
                     case "stockSpawnPoint":
                         settingsManager.setStockSpawnPoint(Integer.parseInt(args[1]));
-                        sender.sendMessage(ChatColor.GREEN + "[SSC] Option updated.");
+                        sender.sendMessage(UPDATED_MESSAGE);
                         break;
 
                     case "broadcastBedCount":
                         settingsManager.setBroadcastBedCount(Boolean.parseBoolean(args[1]));
-                        sender.sendMessage(ChatColor.GREEN + "[SSC] Option updated.");
+                        sender.sendMessage(UPDATED_MESSAGE);
+                        break;
+
+                    case "useAfkCount":
+                        settingsManager.setUseAfkCount(Boolean.parseBoolean(args[1]));
+                        sender.sendMessage(UPDATED_MESSAGE);
+                        break;
+
+                    case "afkTimeThreshold":
+                        settingsManager.setAfkTimeThreshold(Integer.parseInt(args[1]));
+                        sender.sendMessage(UPDATED_MESSAGE);
                         break;
 
                     default:
@@ -91,7 +103,7 @@ public class SettingsCommand implements CommandExecutor, TabCompleter {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1)
-            return Arrays.asList("checkBlock", "protectionPeriod", "teamSpawnCollect", "stockSpawnPoint");
+            return Arrays.asList("checkBlock", "protectionPeriod", "teamSpawnCollect", "stockSpawnPoint", "broadcastBedCount", "useAfkCount", "afkTimeThreshold");
         return null;
     }
 }
