@@ -8,6 +8,8 @@ SoloServerCore3ではゲーム内コマンドでプラグインの設定を変�
 | teamSpawnCollect | bool | チームメンバーのスポーンポイントを集合します。 | true |
 | stockSpawnPoint | int | 初期生成するランダム座標の数 | 100 |
 | broadcastBedCount | bool | ベッドに寝ていない人の数を告知 | true |
+| useAfkCount | bool | AFKプレイヤーの除外機能を有効にします。 | false |
+| afkTimeThreshold | int | AFK判定を行うまでの時間 (分) | 30 |
 
 ## Optionの説明
 ### checkBlock
@@ -28,3 +30,10 @@ protectionPeriodの値に基づき保護期間内に他ユーザーによる設�
 
 ### broadcastBedCount
 だれかがベッドに寝ると寝ていない人の数をカウントしてブロードキャストします。
+
+### useAfkCount
+AFKプレイヤーの除外機能を有効にします。
+AFK中の以外のプレイヤーが就寝すると夜をスキップします。
+
+### afkTimeThreshold
+AFKとして判定するまでの時間を分単位で指定できます。
