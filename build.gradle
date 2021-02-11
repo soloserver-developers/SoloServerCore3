@@ -57,7 +57,7 @@ dependencies {
 
     compileOnly 'org.spigotmc:spigot-api:1.15.2-R0.1-SNAPSHOT'
     compileOnly 'com.sk89q.worldedit:worldedit-bukkit:7.1.0'
-    compileOnly 'net.coreprotect:coreprotect:19.1'
+    compileOnly 'net.coreprotect:coreprotect:19.4'
     compileOnly 'com.comphenix.protocol:ProtocolLib:4.5.1'
 
     implementation 'com.google.code.gson:gson:2.8.6'
