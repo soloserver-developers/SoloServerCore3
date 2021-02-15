@@ -1,7 +1,7 @@
 name: SoloServerCore
 version: @version@
 main: page.nafuchoco.soloservercore.SoloServerCore
-api-version: 1.15
+api-version: 1.16
 prefix: SSC
 depend: [ ProtocolLib, CoreProtect ]
 authors: [ NAFU_at ]

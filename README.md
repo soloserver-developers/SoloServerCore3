@@ -1,12 +1,15 @@
 # SoloServerCore 3
+
 SoloServerCoreはマルチプレイなのにシングルプレイのようなあべこべ体験ができる、Spigot向けプラグインです。  
 より強力で魅力的になって帰ってきたSoloServerCore3はプレイヤーに新たな体験を提供します。
 
 ## SoloServerCore 2との違い
+
 **SoloServerCore3は完全に1から開発されておりSoloServerCore2との互換性はありません。  
 そのため既存のデータの引き継ぎはできません。**
 
 ### 新たに追加されたもの
+
 - サーバーリストのログインプレイヤーを表示しない機能
 - 世界のどこかで眠りにつくのを待っている人が居ることをお知らせする機能
 - 簡易的なチームプレイ機能
@@ -16,13 +19,16 @@ SoloServerCoreはマルチプレイなのにシングルプレイのようなあ
 - (開発者向け) 受信可能なイベントが幾つか実装されました。 [CustomEvents](./CustomEvent.md)
 
 ### 廃止された機能
+
 - プレイヤーの表示非表示を切り替える機能
 
 ## 動作要項
-- Spigot 1.15.x
+
+- Spigot 1.16.x
 - MySQL or MariaDB 5.x ~
 
 ### 前提プラグイン
+
 - ProtocolLib 4.5.x ~
 - CoreProtect 19.1 ~
 
@@ -32,7 +38,9 @@ SoloServerCore3ではAPIやカスタムイベントが使用可能になって�
 SoloServerCoreを依存関係に追加する場合は以下を使用して下さい。
 
 **maven:**
+
 ```xml
+
 <repositories>
     <repository>
         <id>jitpack.io</id>
@@ -41,15 +49,16 @@ SoloServerCoreを依存関係に追加する場合は以下を使用して下さ
 </repositories>
 
 <dependencies>
-    <dependency>
-	    <groupId>com.github.soloserver-developers</groupId>
-	    <artifactId>SoloServerCore3</artifactId>
-	    <version>Tag</version>
-	</dependency>
+<dependency>
+    <groupId>com.github.soloserver-developers</groupId>
+    <artifactId>SoloServerCore3</artifactId>
+    <version>Tag</version>
+</dependency>
 </dependencies>
 ```
 
 **gradle**
+
 ```gradle
 repositories {
     maven { url 'https://jitpack.io' }
@@ -61,14 +70,17 @@ dependencies {
 ```
 
 ### SoloServerApiを使う
+
 ```java
 // Make it singleton.
-SoloServerApi soloServerApi = SoloServerApi.getSoloServerApi();
-PlayersTeam team = soloServerApi.getPlayerJoinedTeam(player.getUniqueId());
+SoloServerApi soloServerApi=SoloServerApi.getSoloServerApi();
+        PlayersTeam team=soloServerApi.getPlayerJoinedTeam(player.getUniqueId());
 ```
 
 ## License
+
 This plugin is published under Apache License 2.0.
+
 ```
 Copyright 2020 NAFU_at.
 
