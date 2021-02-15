@@ -74,7 +74,7 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                     builder.append("TeamMembers: \n" + team.getMembers().stream()
                             .map(m -> playersTable.getPlayerData(m))
                             .map(p -> p.getPlayerName() + ChatColor.GRAY +
-                                    " [" + dateFormat.format(p.getLastJoined()) + "]")
+                                    " [" + dateFormat.format(p.getLastJoined()) + "]" + ChatColor.WHITE)
                             .collect(Collectors.joining("\n")));
                     sender.sendMessage(builder.toString());
                 } else {
