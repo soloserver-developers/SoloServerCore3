@@ -48,7 +48,9 @@ public class PlayerJoinEventListener implements Listener {
 
         if (!event.getPlayer().hasPlayedBefore()) {
             PlayerData playerData = playersTable.getPlayerData(event.getPlayer());
-            event.getPlayer().teleport(playerData.getSpawnLocationLocation());
+            // MVとの競合に対する対策
+            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(SoloServerCore.getInstance(),
+                    () -> event.getPlayer().teleport(playerData.getSpawnLocationLocation()), 10L);
         }
 
         TeamsPlayerData teamsPlayerData = playerAndTeamsBridge.getPlayerData(event.getPlayer().getUniqueId());
