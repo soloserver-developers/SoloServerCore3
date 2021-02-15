@@ -146,4 +146,14 @@ public class PlayersTable extends DatabaseTable {
             ps.execute();
         }
     }
+
+    public void deletePlayer(@NotNull PlayerData playerData) throws SQLException {
+        try (Connection connection = getConnector().getConnection();
+             PreparedStatement ps = connection.prepareStatement(
+                     "DELETE FROM " + getTablename() + " WHERE id = ?"
+             )) {
+            ps.setString(1, playerData.getId().toString());
+            ps.execute();
+        }
+    }
 }
