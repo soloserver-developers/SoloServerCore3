@@ -49,10 +49,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.SQLSyntaxErrorException;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -169,7 +167,8 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
     private void migrateDatabase() {
         // 初起動は除外する
         boolean doMigrate = true;
-        if (pluginSettingsManager.getLastMigratedVersion() == 350) {
+        int lastMigratedVersion = pluginSettingsManager.getLastMigratedVersion();
+        if (lastMigratedVersion == 350) {
             try {
                 List<PlayersTeam> teams = playersTeamsTable.getPlayersTeams();
                 if (teams.isEmpty())
@@ -177,9 +176,12 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
             } catch (SQLSyntaxErrorException e) {
                 // nothing...
             }
+        } else {
+
         }
 
         if (doMigrate) {
+            // Migrationコンフィグの読み込み
             FileConfiguration migrateConfig =
                     YamlConfiguration.loadConfiguration(new InputStreamReader(getResource("migrate.yml")));
             List<Integer> versions = migrateConfig.getMapList("migrate").stream()
@@ -189,10 +191,17 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                     .collect(Collectors.toList());
             Collections.sort(versions);
 
-            int index = versions.indexOf(pluginSettingsManager.getLastMigratedVersion());
-            List<Integer> processList = index == -1 ? versions : versions.subList(index + 1, versions.size());
-            doMigrate = !processList.isEmpty();
+            // 更新がない場合実行しない
+            int nowVersion = Integer.parseInt(getDescription().getVersion().replaceAll("\\.", ""));
+            if (nowVersion == lastMigratedVersion || versions.stream().max(Comparator.naturalOrder()).get() < nowVersion)
+                doMigrate = false;
 
+            // processリストの生成
+            int index = versions.indexOf(lastMigratedVersion);
+            List<Integer> processList = index == -1 ? versions : versions.subList(index + 1, versions.size());
+            doMigrate = doMigrate ? !processList.isEmpty() : false;
+
+            AtomicBoolean processError = new AtomicBoolean(false);
             if (doMigrate) {
                 getLogger().info("The database structure has been updated. Start the migration process.");
                 processList.forEach(process -> {
@@ -229,23 +238,25 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                                 ps.execute();
                             } catch (SQLException e) {
                                 getLogger().log(Level.WARNING, "An error has occurred during the migration process.", e);
+                                processError.set(true);
                             }
                         });
                     });
                 });
-            }
-        }
 
-        // 必ず保存する
-        try {
-            pluginSettingsManager.setLastMigratedVersion(getDescription().getVersion());
-            getLogger().info("Migration process is completed.");
-        } catch (SQLException e) {
-            getLogger().log(Level.WARNING,
-                    "The migration process was completed successfully, \n" +
-                            "but the results could not be saved. \n" +
-                            "An error may be displayed the next time you start the program.",
-                    e);
+                if (!processError.get()) {
+                    try {
+                        pluginSettingsManager.setLastMigratedVersion(getDescription().getVersion());
+                        getLogger().info("Migration process is completed.");
+                    } catch (SQLException e) {
+                        getLogger().log(Level.WARNING,
+                                "The migration process was completed successfully, \n" +
+                                        "but the results could not be saved. \n" +
+                                        "An error may be displayed the next time you start the program.",
+                                e);
+                    }
+                }
+            }
         }
     }
 
