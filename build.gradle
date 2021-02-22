@@ -56,7 +56,7 @@ dependencies {
     implementation 'org.jetbrains:annotations:20.1.0'
 
     compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
-    compileOnly 'com.sk89q.worldedit:worldedit-bukkit:7.2.2'
+    compileOnly 'com.sk89q.worldedit:worldedit-bukkit:7.2.3'
     compileOnly 'net.coreprotect:coreprotect:19.4'
     compileOnly 'com.comphenix.protocol:ProtocolLib:4.5.1'
 
