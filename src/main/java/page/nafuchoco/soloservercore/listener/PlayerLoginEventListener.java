@@ -55,9 +55,9 @@ public class PlayerLoginEventListener implements Listener {
                     null);
             try {
                 playersTable.registerPlayer(playerData);
-            } catch (SQLException throwables) {
+            } catch (SQLException | NullPointerException exception) {
                 SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to save the player data.\n" +
-                        "New data will be regenerated next time.", throwables);
+                        "New data will be regenerated next time.", exception);
                 event.disallow(PlayerLoginEvent.Result.KICK_OTHER, "The login process was interrupted due to a system problem.");
             }
         } else {

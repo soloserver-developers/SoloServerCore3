@@ -16,6 +16,9 @@
 
 package page.nafuchoco.soloservercore.database;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -72,7 +75,7 @@ public class PlayersTable extends DatabaseTable {
                     UUID joinedTeam = null;
                     String teamUUID = resultSet.getString("joined_team");
                     if (teamUUID != null)
-                        joinedTeam = UUID.fromString(resultSet.getString("joined_team"));
+                        joinedTeam = UUID.fromString(teamUUID);
                     return new PlayerData(uuid, playerName, spawnLocation, lastJoined, joinedTeam);
                 }
             }
@@ -111,13 +114,20 @@ public class PlayersTable extends DatabaseTable {
         }
     }
 
-    public void updateSpawnLocation(@NotNull PlayerData playerData) throws SQLException {
+    public void updateSpawnLocation(@NotNull UUID uuid, @NotNull Location location) throws SQLException {
+        JsonObject locationJson = new JsonObject();
+        locationJson.addProperty("World", location.getWorld().getName());
+        locationJson.addProperty("X", location.getBlockX());
+        locationJson.addProperty("Y", location.getBlockY());
+        locationJson.addProperty("Z", location.getBlockZ());
+        String stringLocation = new Gson().toJson(locationJson);
+
         try (Connection connection = getConnector().getConnection();
              PreparedStatement ps = connection.prepareStatement(
                      "UPDATE " + getTablename() + " SET spawn_location = ? WHERE id = ?"
              )) {
-            ps.setString(1, playerData.getSpawnLocation());
-            ps.setString(2, playerData.getId().toString());
+            ps.setString(1, stringLocation);
+            ps.setString(2, uuid.toString());
             ps.execute();
         }
     }

@@ -37,6 +37,15 @@ public final class SoloServerApi {
         this.soloServerCore = soloServerCore;
     }
 
+    /**
+     * @param player
+     * @return
+     * @since 3.7
+     */
+    public PlayerData getPlayerData(Player player) {
+        return soloServerCore.getPlayersTable().getPlayerData(player);
+    }
+
     public Location getPlayerSpawn(Player player) {
         return getPlayerSpawn(player.getUniqueId());
     }

@@ -20,6 +20,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Date;
 import java.util.UUID;
@@ -33,7 +35,7 @@ public class PlayerData {
     private Date lastJoined;
     private UUID joinedTeam;
 
-    public PlayerData(UUID id, String playerName, String spawnLocation, Date lastJoined, UUID joinedTeam) {
+    public PlayerData(@NotNull UUID id, @NotNull String playerName, @NotNull String spawnLocation, @NotNull Date lastJoined, @Nullable UUID joinedTeam) {
         this.id = id;
         this.playerName = playerName;
         this.spawnLocation = spawnLocation;
@@ -41,7 +43,7 @@ public class PlayerData {
         this.joinedTeam = joinedTeam;
     }
 
-    public PlayerData(UUID id, String playerName, Location location, Date lastJoined, UUID joinedTeam) {
+    public PlayerData(@NotNull UUID id, @NotNull String playerName, @NotNull Location location, @NotNull Date lastJoined, @Nullable UUID joinedTeam) {
         this.id = id;
         this.playerName = playerName;
         this.lastJoined = lastJoined;

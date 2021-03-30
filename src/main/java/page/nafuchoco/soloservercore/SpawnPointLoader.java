@@ -77,7 +77,7 @@ public class SpawnPointLoader {
     }
 
     public Location getNewLocation() {
-        Location location = points.get(random.nextInt(points.size() + 1) - 1);
+        Location location = points.get(random.nextInt(points.size() - 1));
         points.remove(location);
         return location;
     }

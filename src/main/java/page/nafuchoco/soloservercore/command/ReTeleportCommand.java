@@ -117,9 +117,8 @@ public class ReTeleportCommand implements CommandExecutor, TabCompleter {
         player.setBedSpawnLocation(null);
 
         // データの上書き
-        PlayerData newData = new PlayerData(player.getUniqueId(), null, location, null, null);
         try {
-            playersTable.updateSpawnLocation(newData);
+            playersTable.updateSpawnLocation(player.getUniqueId(), location);
         } catch (SQLException e) {
             SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to update the player data.", e);
         }
