@@ -23,11 +23,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLoginEvent;
 import page.nafuchoco.soloservercore.SoloServerCore;
 import page.nafuchoco.soloservercore.SpawnPointLoader;
-import page.nafuchoco.soloservercore.database.PlayerData;
+import page.nafuchoco.soloservercore.data.OfflineSSCPlayer;
 import page.nafuchoco.soloservercore.database.PlayersTable;
 
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.logging.Level;
 
 public class PlayerLoginEventListener implements Listener {
@@ -46,25 +45,17 @@ public class PlayerLoginEventListener implements Listener {
             return;
         }
 
-        if (playersTable.getPlayerData(event.getPlayer()) == null) {
+        if (playersTable.getPlayerData(event.getPlayer().getUniqueId()) == null) {
             Location location = loader.getNewLocation();
-            PlayerData playerData = new PlayerData(event.getPlayer().getUniqueId(),
-                    event.getPlayer().getName(),
+            OfflineSSCPlayer sscPlayer = new OfflineSSCPlayer(event.getPlayer().getUniqueId(),
                     location,
-                    new Date(),
                     null);
             try {
-                playersTable.registerPlayer(playerData);
+                playersTable.registerPlayer(sscPlayer);
             } catch (SQLException | NullPointerException exception) {
                 SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to save the player data.\n" +
                         "New data will be regenerated next time.", exception);
                 event.disallow(PlayerLoginEvent.Result.KICK_OTHER, "The login process was interrupted due to a system problem.");
-            }
-        } else {
-            try {
-                playersTable.updateJoinedDate(event.getPlayer().getUniqueId(), new Date());
-            } catch (SQLException throwables) {
-                SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to update the player data.", throwables);
             }
         }
     }

@@ -27,13 +27,14 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import page.nafuchoco.soloservercore.SoloServerApi;
 import page.nafuchoco.soloservercore.SoloServerCore;
 import page.nafuchoco.soloservercore.SpawnPointLoader;
-import page.nafuchoco.soloservercore.database.PlayerData;
+import page.nafuchoco.soloservercore.data.PlayersTeam;
+import page.nafuchoco.soloservercore.data.SSCPlayer;
 import page.nafuchoco.soloservercore.database.PlayersTable;
 import page.nafuchoco.soloservercore.database.PlayersTeamsTable;
 import page.nafuchoco.soloservercore.event.PlayerMoveToNewWorldEvent;
-import page.nafuchoco.soloservercore.team.PlayersTeam;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -64,8 +65,8 @@ public class ReTeleportCommand implements CommandExecutor, TabCompleter {
             if (!sender.hasPermission("soloservercore.reteleport")) {
                 sender.sendMessage(ChatColor.RED + "You can't run this command because you don't have permission.");
             } else if (args.length == 0) {
-                PlayerData playerData = playersTable.getPlayerData(player);
-                if (!playerData.getSpawnLocationLocation().getWorld().equals(spawnWorld)) {
+                SSCPlayer sscPlayer = SoloServerApi.getInstance().getSSCPlayer(player);
+                if (!sscPlayer.getSpawnLocationObject().getWorld().equals(spawnWorld)) {
                     sender.sendMessage(ChatColor.YELLOW + "[SSC] 新しいワールドへ移動します。\n" +
                             "一度移動すると元のワールドに戻ることはできません。\n" +
                             "本当によろしいですか？移動する場合は /reteleport confirm を実行して下さい。");
@@ -97,8 +98,8 @@ public class ReTeleportCommand implements CommandExecutor, TabCompleter {
 
     private void reTeleport(Player player) {
         // チーム情報を確認し所属している場合は脱退
-        PlayerData playerData = playersTable.getPlayerData(player);
-        UUID joinedTeam = playerData.getJoinedTeam();
+        SSCPlayer sscPlayer = SoloServerApi.getInstance().getSSCPlayer(player);
+        UUID joinedTeam = sscPlayer.getJoinedTeam();
         if (joinedTeam != null) {
             PlayersTeam team = teamsTable.getPlayersTeam(joinedTeam);
             team.leaveTeam(player);
@@ -110,7 +111,7 @@ public class ReTeleportCommand implements CommandExecutor, TabCompleter {
         player.teleport(location);
 
         // イベントの発火
-        PlayerMoveToNewWorldEvent moveToNewWorldEvent = new PlayerMoveToNewWorldEvent(player, playerData.getSpawnLocationLocation().getWorld(), location.getWorld());
+        PlayerMoveToNewWorldEvent moveToNewWorldEvent = new PlayerMoveToNewWorldEvent(player, sscPlayer.getSpawnLocationObject().getWorld(), location.getWorld());
         Bukkit.getPluginManager().callEvent(moveToNewWorldEvent);
 
         // ベッドスポーンの上書き

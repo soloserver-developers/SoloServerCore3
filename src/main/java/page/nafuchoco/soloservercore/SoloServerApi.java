@@ -16,17 +16,23 @@
 
 package page.nafuchoco.soloservercore;
 
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import page.nafuchoco.soloservercore.database.PlayerData;
-import page.nafuchoco.soloservercore.team.PlayersTeam;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import page.nafuchoco.soloservercore.data.InGameSSCPlayer;
+import page.nafuchoco.soloservercore.data.OfflineSSCPlayer;
+import page.nafuchoco.soloservercore.data.PlayersTeam;
+import page.nafuchoco.soloservercore.data.SSCPlayer;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public final class SoloServerApi {
     private final SoloServerCore soloServerCore;
+    private final Map<Player, InGameSSCPlayer> playerStore;
 
-    public static SoloServerApi getSoloServerApi() {
+    public static SoloServerApi getInstance() {
         SoloServerCore core = SoloServerCore.getInstance();
         if (core == null)
             return null;
@@ -35,36 +41,80 @@ public final class SoloServerApi {
 
     private SoloServerApi(SoloServerCore soloServerCore) {
         this.soloServerCore = soloServerCore;
+        playerStore = new HashMap<>();
     }
 
     /**
-     * @param player
-     * @return
-     * @since 3.7
+     * SoloServerCore固有のオンラインプレイヤーデータを返します。
+     *
+     * @param player プレイヤーデータを取得したいプレイヤー
+     * @return SoloServerCore固有のプレイヤーデータクラス
      */
-    public PlayerData getPlayerData(Player player) {
-        return soloServerCore.getPlayersTable().getPlayerData(player);
+    @NotNull
+    public InGameSSCPlayer getSSCPlayer(@NotNull Player player) {
+        InGameSSCPlayer sscPlayer = playerStore.get(player);
+        if (sscPlayer == null) {
+            UUID id = player.getUniqueId();
+            OfflineSSCPlayer offlineSSCPlayer = getOfflineSSCPlayer(id);
+            if (offlineSSCPlayer == null)
+                throw new IllegalStateException();
+            sscPlayer = new InGameSSCPlayer(offlineSSCPlayer, player);
+        }
+        return sscPlayer;
     }
 
-    public Location getPlayerSpawn(Player player) {
-        return getPlayerSpawn(player.getUniqueId());
+    /**
+     * SoloServerCore固有のプレイヤーデータを返します。
+     *
+     * @param uuid プレイヤーデータを取得したいプレイヤーのUUID
+     * @return SoloServerCore固有のプレイヤーデータクラス もしくは null
+     */
+    @Nullable
+    public OfflineSSCPlayer getOfflineSSCPlayer(@NotNull UUID uuid) {
+        return soloServerCore.getPlayersTable().getPlayerData(uuid);
     }
 
-    public Location getPlayerSpawn(UUID player) {
-        return soloServerCore.getSpawnPointLoader().getSpawn(player);
-    }
-
-    public UUID getPlayerJoinedTeamUUID(UUID player) {
-        PlayerData playerData = soloServerCore.getPlayersTable().getPlayerData(player);
-        if (playerData != null)
-            return playerData.getJoinedTeam();
+    /**
+     * 指定したプレイヤーが所有するPlayersTeamを検索します。
+     *
+     * @param owner 検索するプレイヤーのID
+     * @return PlayersTeam もしくは null
+     */
+    @Nullable
+    public PlayersTeam searchTeamFromOwner(@NotNull UUID owner) {
+        UUID teamId = soloServerCore.getPlayersTeamsTable().searchTeamFromOwner(owner);
+        if (teamId != null)
+            return getPlayersTeam(teamId);
         return null;
     }
 
-    public PlayersTeam getPlayerJoinedTeam(UUID player) {
-        UUID uuid = getPlayerJoinedTeamUUID(player);
-        if (uuid != null)
-            return soloServerCore.getPlayersTeamsTable().getPlayersTeam(uuid);
+    /**
+     * PlayersTeamを返します。
+     *
+     * @param id 取得したいPlayersTeamのID
+     * @return PlayersTeam もしくは null
+     */
+    @Nullable
+    public PlayersTeam getPlayersTeam(@NotNull UUID id) {
+        return soloServerCore.getPlayersTeamsTable().getPlayersTeam(id);
+    }
+
+    /**
+     * 指定したプレイヤーが所属するPlayersTeamを返します。
+     *
+     * @param player 取得したいプレイヤー
+     * @return プレイヤーが所属するPlayersTeam もしくは null
+     */
+    @Nullable
+    public PlayersTeam getPlayersTeam(@NotNull Player player) {
+        SSCPlayer sscPlayer = getSSCPlayer(player);
+        if (sscPlayer.getJoinedTeam() != null)
+            return soloServerCore.getPlayersTeamsTable().getPlayersTeam(sscPlayer.getJoinedTeam());
         return null;
+    }
+    
+
+    void dropStoreData(Player player) {
+        playerStore.remove(player);
     }
 }
