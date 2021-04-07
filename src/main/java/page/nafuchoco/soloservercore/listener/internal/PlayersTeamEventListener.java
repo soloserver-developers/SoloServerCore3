@@ -113,7 +113,7 @@ public class PlayersTeamEventListener implements Listener {
 
             Player owner = Bukkit.getPlayer(event.getPlayersTeam().getOwner());
             if (owner != null) {
-                owner.sendMessage(ChatColor.RED + "[Teams] あなたのチームから" + event.getPlayer().getDisplayName() + "が加脱退しました。");
+                owner.sendMessage(ChatColor.RED + "[Teams] あなたのチームから" + event.getPlayer().getDisplayName() + "が脱退しました。");
                 event.getPlayer().hidePlayer(SoloServerCore.getInstance(), owner);
                 owner.hidePlayer(SoloServerCore.getInstance(), event.getPlayer());
             }

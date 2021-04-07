@@ -30,6 +30,7 @@ import java.util.UUID;
 public final class SoloServerApi {
     private final SoloServerCore soloServerCore;
     private final Map<Player, InGameSSCPlayer> playerStore;
+    private final Map<UUID, PlayersTeam> teamsStore;
 
     public static SoloServerApi getInstance() {
         SoloServerCore core = SoloServerCore.getInstance();
@@ -41,6 +42,7 @@ public final class SoloServerApi {
     private SoloServerApi(SoloServerCore soloServerCore) {
         this.soloServerCore = soloServerCore;
         playerStore = new HashMap<>();
+        teamsStore = new HashMap<>();
     }
 
     /**
@@ -58,6 +60,7 @@ public final class SoloServerApi {
             if (offlineSSCPlayer == null)
                 throw new IllegalStateException();
             sscPlayer = new InGameSSCPlayer(offlineSSCPlayer, player);
+            playerStore.put(player, sscPlayer);
         }
         return sscPlayer;
     }
@@ -95,7 +98,13 @@ public final class SoloServerApi {
      */
     @Nullable
     public PlayersTeam getPlayersTeam(@NotNull UUID id) {
-        return soloServerCore.getPlayersTeamsTable().getPlayersTeam(id);
+        PlayersTeam playersTeam = teamsStore.get(id);
+        if (playersTeam == null) {
+            playersTeam = soloServerCore.getPlayersTeamsTable().getPlayersTeam(id);
+            if (playersTeam != null)
+                teamsStore.put(id, playersTeam);
+        }
+        return playersTeam;
     }
 
     /**
