@@ -2,6 +2,7 @@ import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
     id 'java'
+    id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '6.1.0'
 }
 
@@ -17,15 +18,29 @@ shadowJar {
 
 task sourcesJar(type: Jar, dependsOn: 'classes') {
     from sourceSets.main.allSource
-    classifier = 'sources'
+    archiveClassifier.set('sources')
 }
 task javadocJar(type: Jar, dependsOn: 'javadoc') {
     from javadoc.destinationDir
-    classifier = 'javadoc'
+    archiveClassifier.set('javadoc')
 }
 javadoc {
     options.charSet = 'UTF-8'
     options.encoding = 'UTF-8'
+}
+task beforeDeploy {
+    dependsOn('sourcesJar', 'javadocJar', 'shadowJar')
+}
+publishing {
+    publications {
+        mavenAar(MavenPublication) {
+            from components.java
+            afterEvaluate {
+                artifact javadocJar
+                artifact sourcesJar
+            }
+        }
+    }
 }
 
 repositories {
