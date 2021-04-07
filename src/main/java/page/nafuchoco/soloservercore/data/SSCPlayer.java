@@ -57,9 +57,19 @@ public interface SSCPlayer {
     }
 
     /**
+     * プレイヤーが所属しているチームを返します。
+     *
+     * @return プレイヤーが所属しているチーム
+     */
+    @Nullable PlayersTeam getJoinedTeam();
+
+    /**
      * プレイヤーが所属しているチームのIDを返します。
      *
      * @return プレイヤーが所属しているチームのID
      */
-    @Nullable UUID getJoinedTeam();
+    @Nullable
+    default UUID getJoinedTeamId() {
+        return getJoinedTeam() != null ? getJoinedTeam().getId() : null;
+    }
 }

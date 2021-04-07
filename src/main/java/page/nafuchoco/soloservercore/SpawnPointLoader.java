@@ -19,7 +19,6 @@ package page.nafuchoco.soloservercore;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import page.nafuchoco.soloservercore.data.PlayersTeam;
 import page.nafuchoco.soloservercore.data.SSCPlayer;
 import page.nafuchoco.soloservercore.database.PluginSettingsManager;
 
@@ -35,21 +34,19 @@ public class SpawnPointLoader {
     private final SpawnPointGenerator generator;
     private final List<Location> points;
     private boolean done;
-    private int stockSpawnPoint;
 
     public SpawnPointLoader(PluginSettingsManager settingsManager, SpawnPointGenerator generator) {
         this.settingsManager = settingsManager;
         this.generator = generator;
         points = new ArrayList<>();
-
-        stockSpawnPoint = settingsManager.getStockSpawnPoint();
     }
 
     public void initPoint(boolean init) {
         done = false;
         Bukkit.getScheduler().runTask(SoloServerCore.getInstance(), () -> {
-            if (points.size() < stockSpawnPoint) {
-                SoloServerCore.getInstance().getLogger().info("Generating Spawn Point... [" + (points.size() + 1) + "/" + stockSpawnPoint + "]");
+            if (points.size() < settingsManager.getStockSpawnPoint()) {
+                SoloServerCore.getInstance().getLogger().info(
+                        "Generating Spawn Point... [" + (points.size() + 1) + "/" + settingsManager.getStockSpawnPoint() + "]");
                 generator.generatePoint(this, init);
             } else {
                 done = true;
@@ -87,9 +84,9 @@ public class SpawnPointLoader {
     public Location getSpawn(UUID uuid) {
         if (settingsManager.isTeamSpawnCollect()) {
             SSCPlayer sscPlayer = SoloServerApi.getInstance().getOfflineSSCPlayer(uuid);
+
             if (sscPlayer.getJoinedTeam() != null) {
-                PlayersTeam joinedTeam = SoloServerApi.getInstance().getPlayersTeam(sscPlayer.getJoinedTeam());
-                SSCPlayer ownerPlayer = SoloServerApi.getInstance().getOfflineSSCPlayer(joinedTeam.getOwner());
+                SSCPlayer ownerPlayer = SoloServerApi.getInstance().getOfflineSSCPlayer(sscPlayer.getJoinedTeam().getOwner());
                 return ownerPlayer.getSpawnLocationObject();
             }
         }

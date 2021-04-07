@@ -23,10 +23,17 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import page.nafuchoco.soloservercore.SoloServerApi;
+import page.nafuchoco.soloservercore.SoloServerCore;
+import page.nafuchoco.soloservercore.data.OfflineSSCPlayer;
+import page.nafuchoco.soloservercore.data.PlayersTeam;
 import page.nafuchoco.soloservercore.database.PlayersTable;
 import page.nafuchoco.soloservercore.database.PlayersTeamsTable;
 
+import java.sql.SQLException;
 import java.util.List;
+import java.util.UUID;
+import java.util.logging.Level;
 
 public class MaintenanceCommand implements CommandExecutor, TabCompleter {
     private final PlayersTable playersTable;
@@ -40,11 +47,52 @@ public class MaintenanceCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         // TODO: 2021/02/15 いずれ。
+        SoloServerApi soloServerApi = SoloServerApi.getInstance();
+        // Map<CommandSender, Object> confirmWaitList = new HashMap<>();
+
         if (!sender.hasPermission("soloservercore.maintenance")) {
             sender.sendMessage(ChatColor.RED + "You can't run this command because you don't have permission.");
         } else if (args.length < 2) {
             sender.sendMessage(ChatColor.RED + "Insufficient arguments to execute the command.");
         } else switch (args[0]) {
+            case "clear":
+                try {
+                    UUID playerId = UUID.fromString(args[1]);
+                    OfflineSSCPlayer target = soloServerApi.getOfflineSSCPlayer(playerId);
+                    if (target != null) {
+                        try {
+                            // チームに所属している場合は脱退、オーナーの場合はチームの削除
+                            if (target.getJoinedTeam() != null) {
+                                PlayersTeam joinedTeam = soloServerApi.getPlayersTeam(target.getJoinedTeamId());
+                                if (joinedTeam.getOwner().equals(target.getId())) {
+                                    teamsTable.deleteTeam(joinedTeam.getId());
+                                    if (!joinedTeam.getMembers().isEmpty()) {
+                                        joinedTeam.getMembers().forEach(m -> {
+                                                    try {
+                                                        playersTable.updateJoinedTeam(m, null);
+                                                    } catch (SQLException e) {
+                                                        SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to update the team data.", e);
+                                                    }
+                                                }
+                                        );
+                                    }
+                                } else {
+                                    List<UUID> members = joinedTeam.getMembers();
+                                    members.remove(playerId);
+                                    teamsTable.updateMembers(joinedTeam.getId(), members);
+                                }
+                            }
+                            playersTable.deletePlayer(target);
+                            sender.sendMessage(ChatColor.GREEN + "Player data has been deleted.");
+                        } catch (SQLException e) {
+                            SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to update the team data.", e);
+                        }
+                    }
+                } catch (IllegalArgumentException e) {
+                    sender.sendMessage(ChatColor.RED + "You must specify the exact UUID of the player whose data you want to delete.");
+                }
+                break;
+
             default:
                 break;
         }

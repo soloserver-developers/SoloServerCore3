@@ -55,9 +55,8 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
             if (args.length == 0) {
                 // Show Team Status
                 SSCPlayer sscPlayer = soloServerApi.getSSCPlayer(player);
-                UUID joinedTeam = sscPlayer.getJoinedTeam();
-                if (joinedTeam != null) {
-                    PlayersTeam team = soloServerApi.getPlayersTeam(joinedTeam);
+                if (sscPlayer.getJoinedTeam() != null) {
+                    PlayersTeam team = sscPlayer.getJoinedTeam();
                     sender.sendMessage(ChatColor.AQUA + "======== PlayersTeam Infomation ========");
                     StringBuilder builder = new StringBuilder();
                     if (team.getTeamName() == null)
@@ -81,9 +80,8 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                 case "create": {
                     // すでにチームに所属している場合は
                     SSCPlayer sscPlayer = soloServerApi.getSSCPlayer(player);
-                    UUID joinedTeam = sscPlayer.getJoinedTeam();
-                    if (joinedTeam != null) {
-                        PlayersTeam team = soloServerApi.getPlayersTeam(joinedTeam);
+                    if (sscPlayer.getJoinedTeam() != null) {
+                        PlayersTeam team = sscPlayer.getJoinedTeam();
                         if (player.getUniqueId().equals(team.getOwner())) {
                             sender.sendMessage(ChatColor.RED + "[Teams] 既にあなたがオーナーのチームを持っています！");
                             break;
@@ -139,9 +137,8 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                     if (invitedTeam != null) {
                         // すでにチームに所属している場合は
                         SSCPlayer sscPlayer = soloServerApi.getSSCPlayer(player);
-                        UUID joinedTeam = sscPlayer.getJoinedTeam();
-                        if (joinedTeam != null) {
-                            soloServerApi.getPlayersTeam(joinedTeam).leaveTeam(player);
+                        if (sscPlayer.getJoinedTeam() != null) {
+                            sscPlayer.getJoinedTeam().leaveTeam(player);
                             sender.sendMessage(ChatColor.GREEN + "[Teams] これまで入っていたチームから脱退しました。");
                         }
 
@@ -153,13 +150,12 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
 
                 case "leave": {
                     SSCPlayer sscPlayer = soloServerApi.getSSCPlayer(player);
-                    UUID joinedTeam = sscPlayer.getJoinedTeam();
-                    if (joinedTeam != null) {
-                        PlayersTeam team = soloServerApi.getPlayersTeam(joinedTeam);
+                    if (sscPlayer.getJoinedTeam() != null) {
+                        PlayersTeam team = sscPlayer.getJoinedTeam();
                         if (settingsManager.isTeamSpawnCollect()
                                 && team.getOwner().equals(player.getUniqueId())
                                 && !team.getMembers().isEmpty()) {
-                            invited.put(joinedTeam, null);
+                            invited.put(sscPlayer.getJoinedTeamId(), null);
                             sender.sendMessage(ChatColor.YELLOW + "[Teams] あなたはチームオーナーです。");
                             sender.sendMessage(ChatColor.YELLOW + "チームを解散すると他の所属プレイヤーのスポーンポイントが離散してしまいます。");
                             sender.sendMessage(ChatColor.YELLOW + "本当に解散しますか？解散する場合は /team confirm を実行してください。");
@@ -174,9 +170,8 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
 
                 case "confirm": {
                     SSCPlayer sscPlayer = soloServerApi.getSSCPlayer(player);
-                    UUID joinedTeam = sscPlayer.getJoinedTeam();
-                    if (joinedTeam != null && invited.remove(joinedTeam) != null) {
-                        PlayersTeam team = soloServerApi.getPlayersTeam(joinedTeam);
+                    if (sscPlayer.getJoinedTeam() != null && invited.remove(sscPlayer.getJoinedTeamId()) != null) {
+                        PlayersTeam team = sscPlayer.getJoinedTeam();
                         team.leaveTeam(player);
                         sender.sendMessage(ChatColor.GREEN + "[Teams] チームから脱退しました。");
                     }
@@ -190,8 +185,7 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                             Player target = Bukkit.getPlayer(args[1]);
                             if (target != null && !player.equals(target)) {
                                 SSCPlayer sscPlayer = soloServerApi.getSSCPlayer(target);
-                                UUID joinedTeam = sscPlayer.getJoinedTeam();
-                                if (originalTeam.getId().equals(joinedTeam)) {
+                                if (originalTeam.getId().equals(sscPlayer.getJoinedTeamId())) {
                                     PlayersTeam transferredTeam = new PlayersTeam(originalTeam.getId(), target.getUniqueId());
                                     transferredTeam.setMembers(originalTeam.getMembers());
                                     PlayersTeamStatusUpdateEvent updateEvent =

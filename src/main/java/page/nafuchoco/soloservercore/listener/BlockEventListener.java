@@ -72,7 +72,7 @@ public class BlockEventListener implements Listener {
             if (actionPlayer != null && !actionPlayer.startsWith("#") && !player.getName().equals(actionPlayer)) {
                 SSCPlayer sscPlayer = SoloServerApi.getInstance().getSSCPlayer(player);
                 if (sscPlayer != null && sscPlayer.getJoinedTeam() != null) {
-                    PlayersTeam joinedTeam = SoloServerApi.getInstance().getPlayersTeam(sscPlayer.getJoinedTeam());
+                    PlayersTeam joinedTeam = sscPlayer.getJoinedTeam();
                     List<UUID> members = new ArrayList<>();
                     members.addAll(joinedTeam.getMembers());
                     members.add(joinedTeam.getOwner());

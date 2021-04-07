@@ -19,28 +19,30 @@ package page.nafuchoco.soloservercore.data;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import page.nafuchoco.soloservercore.SoloServerApi;
 
 import java.util.UUID;
 
 public class InGameSSCPlayer implements SSCPlayer {
     private final UUID id;
     private final String spawnLocation;
-    private UUID joinedTeam;
+    private PlayersTeam joinedTeam;
 
     private final Player player;
     private long latestMoveTime;
 
-    public InGameSSCPlayer(UUID id, String spawnLocation, UUID joinedTeam, Player player) {
+    public InGameSSCPlayer(@NotNull UUID id, @NotNull String spawnLocation, @Nullable UUID joinedTeamId, @NotNull Player player) {
         this.id = id;
         this.spawnLocation = spawnLocation;
-        this.joinedTeam = joinedTeam;
+        this.joinedTeam = (joinedTeamId != null) ? SoloServerApi.getInstance().getPlayersTeam(joinedTeamId) : null;
         this.player = player;
     }
 
-    public InGameSSCPlayer(OfflineSSCPlayer offlineSSCPlayer, Player player) {
+    public InGameSSCPlayer(@NotNull OfflineSSCPlayer offlineSSCPlayer, @NotNull Player player) {
         this.id = offlineSSCPlayer.getId();
         this.spawnLocation = offlineSSCPlayer.getSpawnLocation();
-        this.joinedTeam = offlineSSCPlayer.getJoinedTeam();
+        this.joinedTeam = (offlineSSCPlayer.getJoinedTeamId() != null) ?
+                SoloServerApi.getInstance().getPlayersTeam(offlineSSCPlayer.getJoinedTeamId()) : null;
         this.player = player;
     }
 
@@ -55,8 +57,12 @@ public class InGameSSCPlayer implements SSCPlayer {
     }
 
     @Override
-    public @Nullable UUID getJoinedTeam() {
+    public @Nullable PlayersTeam getJoinedTeam() {
         return joinedTeam;
+    }
+
+    public void setJoinedTeam(PlayersTeam joinedTeam) { // TODO: 2021/04/07 パブリックにしたくない。
+        this.joinedTeam = joinedTeam;
     }
 
     public Player getPlayer() {

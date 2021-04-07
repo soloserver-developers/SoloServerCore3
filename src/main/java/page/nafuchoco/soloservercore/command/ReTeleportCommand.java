@@ -30,7 +30,6 @@ import org.jetbrains.annotations.Nullable;
 import page.nafuchoco.soloservercore.SoloServerApi;
 import page.nafuchoco.soloservercore.SoloServerCore;
 import page.nafuchoco.soloservercore.SpawnPointLoader;
-import page.nafuchoco.soloservercore.data.PlayersTeam;
 import page.nafuchoco.soloservercore.data.SSCPlayer;
 import page.nafuchoco.soloservercore.database.PlayersTable;
 import page.nafuchoco.soloservercore.database.PlayersTeamsTable;
@@ -40,7 +39,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 import java.util.logging.Level;
 
 public class ReTeleportCommand implements CommandExecutor, TabCompleter {
@@ -92,17 +90,15 @@ public class ReTeleportCommand implements CommandExecutor, TabCompleter {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1)
-            return Arrays.asList(new String[]{"confirm"});
+            return Arrays.asList("confirm");
         return null;
     }
 
     private void reTeleport(Player player) {
         // チーム情報を確認し所属している場合は脱退
         SSCPlayer sscPlayer = SoloServerApi.getInstance().getSSCPlayer(player);
-        UUID joinedTeam = sscPlayer.getJoinedTeam();
-        if (joinedTeam != null) {
-            PlayersTeam team = teamsTable.getPlayersTeam(joinedTeam);
-            team.leaveTeam(player);
+        if (sscPlayer.getJoinedTeam() != null) {
+            sscPlayer.getJoinedTeam().leaveTeam(player);
             player.sendMessage(ChatColor.GREEN + "[Teams] チームから脱退しました。");
         }
 

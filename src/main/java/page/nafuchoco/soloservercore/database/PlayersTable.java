@@ -97,8 +97,8 @@ public class PlayersTable extends DatabaseTable {
              )) {
             ps.setString(1, sscPlayer.getId().toString());
             ps.setString(2, sscPlayer.getSpawnLocation());
-            if (sscPlayer.getJoinedTeam() != null)
-                ps.setString(3, sscPlayer.getJoinedTeam().toString());
+            if (sscPlayer.getJoinedTeamId() != null)
+                ps.setString(3, sscPlayer.getJoinedTeamId().toString());
             else
                 ps.setString(3, null);
             ps.execute();

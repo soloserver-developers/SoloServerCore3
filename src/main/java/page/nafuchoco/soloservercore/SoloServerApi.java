@@ -22,7 +22,6 @@ import org.jetbrains.annotations.Nullable;
 import page.nafuchoco.soloservercore.data.InGameSSCPlayer;
 import page.nafuchoco.soloservercore.data.OfflineSSCPlayer;
 import page.nafuchoco.soloservercore.data.PlayersTeam;
-import page.nafuchoco.soloservercore.data.SSCPlayer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -107,12 +106,9 @@ public final class SoloServerApi {
      */
     @Nullable
     public PlayersTeam getPlayersTeam(@NotNull Player player) {
-        SSCPlayer sscPlayer = getSSCPlayer(player);
-        if (sscPlayer.getJoinedTeam() != null)
-            return soloServerCore.getPlayersTeamsTable().getPlayersTeam(sscPlayer.getJoinedTeam());
-        return null;
+        return getSSCPlayer(player).getJoinedTeam();
     }
-    
+
 
     void dropStoreData(Player player) {
         playerStore.remove(player);

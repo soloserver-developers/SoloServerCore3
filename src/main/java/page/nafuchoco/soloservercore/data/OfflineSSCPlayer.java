@@ -21,25 +21,26 @@ import com.google.gson.JsonObject;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import page.nafuchoco.soloservercore.SoloServerApi;
 
 import java.util.UUID;
 
 public class OfflineSSCPlayer implements SSCPlayer {
     private static final Gson gson = new Gson();
 
-    private UUID id;
-    private String spawnLocation;
-    private UUID joinedTeam;
+    private final UUID id;
+    private final String spawnLocation;
+    private final PlayersTeam joinedTeam;
 
-    public OfflineSSCPlayer(@NotNull UUID id, @NotNull String spawnLocation, @Nullable UUID joinedTeam) {
+    public OfflineSSCPlayer(@NotNull UUID id, @NotNull String spawnLocation, @Nullable UUID joinedTeamId) {
         this.id = id;
         this.spawnLocation = spawnLocation;
-        this.joinedTeam = joinedTeam;
+        this.joinedTeam = (joinedTeamId != null) ? SoloServerApi.getInstance().getPlayersTeam(joinedTeamId) : null;
     }
 
-    public OfflineSSCPlayer(@NotNull UUID id, @NotNull Location location, @Nullable UUID joinedTeam) {
+    public OfflineSSCPlayer(@NotNull UUID id, @NotNull Location location, @Nullable UUID joinedTeamId) {
         this.id = id;
-        this.joinedTeam = joinedTeam;
+        this.joinedTeam = (joinedTeamId != null) ? SoloServerApi.getInstance().getPlayersTeam(joinedTeamId) : null;
 
         JsonObject locationJson = new JsonObject();
         locationJson.addProperty("World", location.getWorld().getName());
@@ -60,7 +61,7 @@ public class OfflineSSCPlayer implements SSCPlayer {
     }
 
     @Override
-    public UUID getJoinedTeam() {
+    public @Nullable PlayersTeam getJoinedTeam() {
         return joinedTeam;
     }
 }

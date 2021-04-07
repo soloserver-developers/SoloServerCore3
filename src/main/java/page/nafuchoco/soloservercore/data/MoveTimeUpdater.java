@@ -24,7 +24,7 @@ import page.nafuchoco.soloservercore.SoloServerApi;
 import java.util.Date;
 
 public class MoveTimeUpdater implements Listener {
-    
+
     @EventHandler(ignoreCancelled = true)
     public void onPlayerMoveEvent(PlayerMoveEvent event) {
         // ブロック単位で移動した場合のみカウント

@@ -34,6 +34,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+import page.nafuchoco.soloservercore.command.MaintenanceCommand;
 import page.nafuchoco.soloservercore.command.ReTeleportCommand;
 import page.nafuchoco.soloservercore.command.SettingsCommand;
 import page.nafuchoco.soloservercore.command.TeamCommand;
@@ -151,12 +152,14 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                 playersTeamsTable,
                 spawnPointLoader,
                 Bukkit.getWorld(config.getInitConfig().getSpawnWorld()));
+        MaintenanceCommand maintenanceCommand = new MaintenanceCommand(playersTable, playersTeamsTable);
         getCommand("settings").setExecutor(settingsCommand);
         getCommand("settings").setTabCompleter(settingsCommand);
         getCommand("team").setExecutor(teamCommand);
         getCommand("team").setTabCompleter(teamCommand);
         getCommand("reteleport").setExecutor(reTeleportCommand);
         getCommand("reteleport").setTabCompleter(reTeleportCommand);
+        getCommand("maintenance").setExecutor(maintenanceCommand);
     }
 
     private void migrateDatabase() {
@@ -195,7 +198,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
             // processリストの生成
             int index = versions.indexOf(lastMigratedVersion);
             List<Integer> processList = index == -1 ? versions : versions.subList(index + 1, versions.size());
-            doMigrate = doMigrate ? !processList.isEmpty() : false;
+            doMigrate = doMigrate && !processList.isEmpty();
 
             if (doMigrate) {
                 getLogger().info("The database structure has been updated. Start the migration process.");
