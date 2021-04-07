@@ -33,10 +33,7 @@ public final class SoloServerApi {
     private final Map<UUID, PlayersTeam> teamsStore;
 
     public static SoloServerApi getInstance() {
-        SoloServerCore core = SoloServerCore.getInstance();
-        if (core == null)
-            return null;
-        return new SoloServerApi(core);
+        return ApiInstanceHolder.INSTANCE;
     }
 
     private SoloServerApi(SoloServerCore soloServerCore) {
@@ -121,5 +118,17 @@ public final class SoloServerApi {
 
     void dropStoreData(Player player) {
         playerStore.remove(player);
+    }
+
+    private static class ApiInstanceHolder {
+        private static final SoloServerApi INSTANCE;
+
+        static {
+            SoloServerCore core = SoloServerCore.getInstance();
+            if (core == null)
+                INSTANCE = null;
+            else
+                INSTANCE = new SoloServerApi(core);
+        }
     }
 }
