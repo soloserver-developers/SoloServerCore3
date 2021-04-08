@@ -26,9 +26,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import page.nafuchoco.soloservercore.CoreProtectClient;
-import page.nafuchoco.soloservercore.database.PlayerAndTeamsBridge;
+import page.nafuchoco.soloservercore.SoloServerApi;
+import page.nafuchoco.soloservercore.data.PlayersTeam;
+import page.nafuchoco.soloservercore.data.SSCPlayer;
 import page.nafuchoco.soloservercore.database.PluginSettingsManager;
-import page.nafuchoco.soloservercore.database.TeamsPlayerData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,12 +42,10 @@ import java.util.UUID;
 public class BlockEventListener implements Listener {
     private final CoreProtectClient coreProtect;
     private final PluginSettingsManager settingsManager;
-    private final PlayerAndTeamsBridge teamsBridge;
 
-    public BlockEventListener(CoreProtectClient coreProtect, PluginSettingsManager settingsManager, PlayerAndTeamsBridge teamsBridge) {
+    public BlockEventListener(CoreProtectClient coreProtect, PluginSettingsManager settingsManager) {
         this.coreProtect = coreProtect;
         this.settingsManager = settingsManager;
-        this.teamsBridge = teamsBridge;
     }
 
     @EventHandler(priority = EventPriority.LOW)
@@ -71,18 +70,17 @@ public class BlockEventListener implements Listener {
             String actionPlayer = coreProtect.getAction(block, settingsManager.getProtectionPeriod());
             // Action Player Check
             if (actionPlayer != null && !actionPlayer.startsWith("#") && !player.getName().equals(actionPlayer)) {
-                TeamsPlayerData playerData = teamsBridge.getPlayerData(player.getUniqueId());
-                if (playerData != null) {
-                    if (playerData.getJoinedTeam() != null) {
-                        List<UUID> members = new ArrayList<>();
-                        members.addAll(playerData.getMembers());
-                        members.add(playerData.getTeamOwner());
-                        // Action Team Member Check
-                        for (UUID uuid : members) {
-                            String member = Bukkit.getOfflinePlayer(uuid).getName();
-                            if (member.equals(actionPlayer))
-                                return true;
-                        }
+                SSCPlayer sscPlayer = SoloServerApi.getInstance().getSSCPlayer(player);
+                if (sscPlayer != null && sscPlayer.getJoinedTeam() != null) {
+                    PlayersTeam joinedTeam = sscPlayer.getJoinedTeam();
+                    List<UUID> members = new ArrayList<>();
+                    members.addAll(joinedTeam.getMembers());
+                    members.add(joinedTeam.getOwner());
+                    // Action Team Member Check
+                    for (UUID uuid : members) {
+                        String member = Bukkit.getOfflinePlayer(uuid).getName();
+                        if (member.equals(actionPlayer))
+                            return true;
                     }
                 }
             } else {

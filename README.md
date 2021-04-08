@@ -47,19 +47,22 @@ SoloServerCoreを依存関係に追加する場合は以下を使用して下さ
         <url>https://jitpack.io</url>
     </repository>
 </repositories>
+```
+
+```xml
 
 <dependencies>
-<dependency>
-    <groupId>com.github.soloserver-developers</groupId>
-    <artifactId>SoloServerCore3</artifactId>
-    <version>Tag</version>
-</dependency>
+    <dependency>
+        <groupId>com.github.soloserver-developers</groupId>
+        <artifactId>SoloServerCore3</artifactId>
+        <version>Tag</version>
+    </dependency>
 </dependencies>
 ```
 
 **gradle**
 
-```gradle
+```Groovy
 repositories {
     maven { url 'https://jitpack.io' }
 }
@@ -71,10 +74,23 @@ dependencies {
 
 ### SoloServerApiを使う
 
+SoloServerApiを使用する際にプラグインのインスタンスを呼び出す必要はありません。  
+SoloServerApiから直接アクセスすることができます。  
+但しSoloServerCoreを`plugin.yml`内で`depend`に設定することを忘れないでください。
+
 ```java
-// Make it singleton.
-SoloServerApi soloServerApi=SoloServerApi.getSoloServerApi();
-        PlayersTeam team=soloServerApi.getPlayerJoinedTeam(player.getUniqueId());
+public final class SoloServerCoreExtensions extends JavaPlugin {
+    @Override
+    public void onEnable() {
+        // SoloServerApi.getInstance() はシングルトンです。
+        // 常に1つのインスタンスを返します。
+        SoloServerApi soloServerApi = SoloServerApi.getInstance();
+
+        // 例えばSSCのプレイヤーデータを取得する方法は以下のとおりです。
+        Player player = Bukkit.getPlayer(uuid);
+        SSCPlayer sscPlayer = soloServerApi.getSSCPlayer(player);
+    }
+}
 ```
 
 ## License

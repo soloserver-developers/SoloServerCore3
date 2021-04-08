@@ -51,7 +51,10 @@ public class SettingsCommand implements CommandExecutor, TabCompleter {
                     sender.sendMessage("checkBlock: " + settingsManager.isCheckBlock() + "\n" +
                             "protectionPeriod: " + settingsManager.getProtectionPeriod() + "\n" +
                             "teamSpawnCollect: " + settingsManager.isTeamSpawnCollect() + "\n" +
-                            "stockSpawnPoint: " + settingsManager.getStockSpawnPoint());
+                            "stockSpawnPoint: " + settingsManager.getStockSpawnPoint() + "\n" +
+                            "broadcastBedCount: " + settingsManager.isBroadcastBedCount() + "\n" +
+                            "useAfkCount: " + settingsManager.isUseAfkCount() + "\n" +
+                            "afkTimeThreshold: " + settingsManager.getAfkTimeThreshold());
                 } else switch (args[0]) {
                     case "checkBlock":
                         settingsManager.setCheckBlock(Boolean.parseBoolean(args[1]));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 NAFU_at
+ * Copyright 2021 NAFU_at
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,40 +14,33 @@
  * limitations under the License.
  */
 
-package page.nafuchoco.soloservercore.database;
+package page.nafuchoco.soloservercore.data;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import page.nafuchoco.soloservercore.SoloServerApi;
 
-import java.util.Date;
 import java.util.UUID;
 
-public class PlayerData {
+public class OfflineSSCPlayer implements SSCPlayer {
     private static final Gson gson = new Gson();
 
-    private UUID id;
-    private String playerName;
-    private String spawnLocation;
-    private Date lastJoined;
-    private UUID joinedTeam;
+    private final UUID id;
+    private final String spawnLocation;
+    private final PlayersTeam joinedTeam;
 
-    public PlayerData(@NotNull UUID id, @NotNull String playerName, @NotNull String spawnLocation, @NotNull Date lastJoined, @Nullable UUID joinedTeam) {
+    public OfflineSSCPlayer(@NotNull UUID id, @NotNull String spawnLocation, @Nullable UUID joinedTeamId) {
         this.id = id;
-        this.playerName = playerName;
         this.spawnLocation = spawnLocation;
-        this.lastJoined = lastJoined;
-        this.joinedTeam = joinedTeam;
+        this.joinedTeam = (joinedTeamId != null) ? SoloServerApi.getInstance().getPlayersTeam(joinedTeamId) : null;
     }
 
-    public PlayerData(@NotNull UUID id, @NotNull String playerName, @NotNull Location location, @NotNull Date lastJoined, @Nullable UUID joinedTeam) {
+    public OfflineSSCPlayer(@NotNull UUID id, @NotNull Location location, @Nullable UUID joinedTeamId) {
         this.id = id;
-        this.playerName = playerName;
-        this.lastJoined = lastJoined;
-        this.joinedTeam = joinedTeam;
+        this.joinedTeam = (joinedTeamId != null) ? SoloServerApi.getInstance().getPlayersTeam(joinedTeamId) : null;
 
         JsonObject locationJson = new JsonObject();
         locationJson.addProperty("World", location.getWorld().getName());
@@ -57,32 +50,18 @@ public class PlayerData {
         this.spawnLocation = new Gson().toJson(locationJson);
     }
 
+    @Override
     public UUID getId() {
         return id;
     }
 
-    public String getPlayerName() {
-        return playerName;
-    }
-
+    @Override
     public String getSpawnLocation() {
         return spawnLocation;
     }
 
-    public Location getSpawnLocationLocation() {
-        JsonObject locationJson = gson.fromJson(spawnLocation, JsonObject.class);
-        String world = locationJson.get("World").getAsString();
-        double x = locationJson.get("X").getAsDouble();
-        double y = locationJson.get("Y").getAsDouble();
-        double z = locationJson.get("Z").getAsDouble();
-        return new Location(Bukkit.getWorld(world), x, y, z);
-    }
-
-    public Date getLastJoined() {
-        return lastJoined;
-    }
-
-    public UUID getJoinedTeam() {
+    @Override
+    public @Nullable PlayersTeam getJoinedTeam() {
         return joinedTeam;
     }
 }

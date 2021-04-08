@@ -19,7 +19,8 @@ package page.nafuchoco.soloservercore;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import page.nafuchoco.soloservercore.database.*;
+import page.nafuchoco.soloservercore.data.SSCPlayer;
+import page.nafuchoco.soloservercore.database.PluginSettingsManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,29 +30,23 @@ import java.util.UUID;
 public class SpawnPointLoader {
     private final Random random = new Random();
 
-    private final PlayersTable playersTable;
-    private final PlayerAndTeamsBridge playerAndTeamsBridge;
     private final PluginSettingsManager settingsManager;
     private final SpawnPointGenerator generator;
     private final List<Location> points;
     private boolean done;
-    private int stockSpawnPoint;
 
-    public SpawnPointLoader(PlayersTable playersTable, PlayerAndTeamsBridge playerAndTeamsBridge, PluginSettingsManager settingsManager, SpawnPointGenerator generator) {
-        this.playersTable = playersTable;
-        this.playerAndTeamsBridge = playerAndTeamsBridge;
+    public SpawnPointLoader(PluginSettingsManager settingsManager, SpawnPointGenerator generator) {
         this.settingsManager = settingsManager;
         this.generator = generator;
         points = new ArrayList<>();
-
-        stockSpawnPoint = settingsManager.getStockSpawnPoint();
     }
 
     public void initPoint(boolean init) {
         done = false;
         Bukkit.getScheduler().runTask(SoloServerCore.getInstance(), () -> {
-            if (points.size() < stockSpawnPoint) {
-                SoloServerCore.getInstance().getLogger().info("Generating Spawn Point... [" + (points.size() + 1) + "/" + stockSpawnPoint + "]");
+            if (points.size() < settingsManager.getStockSpawnPoint()) {
+                SoloServerCore.getInstance().getLogger().info(
+                        "Generating Spawn Point... [" + (points.size() + 1) + "/" + settingsManager.getStockSpawnPoint() + "]");
                 generator.generatePoint(this, init);
             } else {
                 done = true;
@@ -88,15 +83,16 @@ public class SpawnPointLoader {
 
     public Location getSpawn(UUID uuid) {
         if (settingsManager.isTeamSpawnCollect()) {
-            TeamsPlayerData teamsPlayerData = playerAndTeamsBridge.getPlayerData(uuid);
-            if (teamsPlayerData != null) { // プレイヤーデータが取得されている場合必然的にチームに所属している。
-                PlayerData ownerData = playersTable.getPlayerData(teamsPlayerData.getTeamOwner());
-                return ownerData.getSpawnLocationLocation();
+            SSCPlayer sscPlayer = SoloServerApi.getInstance().getOfflineSSCPlayer(uuid);
+
+            if (sscPlayer.getJoinedTeam() != null) {
+                SSCPlayer ownerPlayer = SoloServerApi.getInstance().getOfflineSSCPlayer(sscPlayer.getJoinedTeam().getOwner());
+                return ownerPlayer.getSpawnLocationObject();
             }
         }
-        // いずれでもない場合プレイヤーデータのスポーンロケーションにテレポートさせる。
-        PlayerData playerData = playersTable.getPlayerData(uuid);
-        return playerData.getSpawnLocationLocation();
+
+        SSCPlayer sscPlayer = SoloServerApi.getInstance().getOfflineSSCPlayer(uuid);
+        return sscPlayer.getSpawnLocationObject();
     }
 
     public int getPointRemaining() {

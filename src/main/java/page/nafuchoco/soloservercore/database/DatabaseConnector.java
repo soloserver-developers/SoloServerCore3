@@ -24,7 +24,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class DatabaseConnector {
-    private HikariDataSource dataSource;
+    private final HikariDataSource dataSource;
 
     public DatabaseConnector(SoloServerCoreConfig.DatabaseType databaseType, String address, String database, String username, String password) {
         HikariConfig hconfig = new HikariConfig();

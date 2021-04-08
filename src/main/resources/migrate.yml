@@ -3,7 +3,19 @@ migrate:
     database: teams
     scripts:
       - "ALTER TABLE %TABLENAME% ADD team_name VARCHAR(16)"
-  - version: 3.6.0
+  - version: 4.0.0
+    database: players
+    scripts:
+      - "ALTER TABLE %TABLENAME% DROP player_name"
+  - version: 4.0.0
+    database: players
+    scripts:
+      - "ALTER TABLE %TABLENAME% DROP last_joined"
+  - version: 4.0.0
     database: settings
     scripts:
-      - "CREATE UNIQUE INDEX settings_index ON %TABLENAME% (settings_name, settings_value)"
+      - "ALTER TABLE %TABLENAME% DROP INDEX settings_index"
+  - version: 4.0.0
+    database: settings
+    scripts:
+      - "ALTER TABLE %TABLENAME% ADD PRIMARY KEY (settings_name)"

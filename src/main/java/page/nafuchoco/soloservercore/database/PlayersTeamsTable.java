@@ -22,7 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import page.nafuchoco.soloservercore.SoloServerCore;
-import page.nafuchoco.soloservercore.team.PlayersTeam;
+import page.nafuchoco.soloservercore.data.PlayersTeam;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -109,18 +109,27 @@ public class PlayersTeamsTable extends DatabaseTable {
         return null;
     }
 
-    public void registerTeam(@NotNull final UUID id, @NotNull final UUID owner, @Nullable String teamName, @Nullable List<UUID> members) throws SQLException {
+    public void registerTeam(@NotNull PlayersTeam playersTeam) throws SQLException {
         try (Connection connection = getConnector().getConnection();
              PreparedStatement ps = connection.prepareStatement(
                      "INSERT INTO " + getTablename() + " (id, owner, team_name, members) VALUES (?, ?, ?, ?)"
              )) {
-            ps.setString(1, id.toString());
-            ps.setString(2, owner.toString());
-            ps.setString(3, teamName);
-            if (members == null)
-                members = new ArrayList<>();
-            String membersJson = gson.toJson(members);
+            ps.setString(1, playersTeam.getId().toString());
+            ps.setString(2, playersTeam.getOwner().toString());
+            ps.setString(3, playersTeam.getTeamName());
+            String membersJson = gson.toJson(playersTeam.getMembers());
             ps.setString(4, membersJson);
+            ps.execute();
+        }
+    }
+
+    public void updateTeamOwner(@NotNull UUID id, @NotNull UUID owner) throws SQLException {
+        try (Connection connection = getConnector().getConnection();
+             PreparedStatement ps = connection.prepareStatement(
+                     "UPDATE " + getTablename() + " SET owner = ? WHERE id = ?"
+             )) {
+            ps.setString(1, owner.toString());
+            ps.setString(2, id.toString());
             ps.execute();
         }
     }

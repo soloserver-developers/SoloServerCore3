@@ -72,16 +72,16 @@ public class SoloServerCoreConfig {
     }
 
     public static class InitConfig {
-        private DatabaseType databaseType;
-        private String address;
-        private int port;
-        private String database;
-        private String username;
-        private String password;
-        private String tablePrefix;
+        private final DatabaseType databaseType;
+        private final String address;
+        private final int port;
+        private final String database;
+        private final String username;
+        private final String password;
+        private final String tablePrefix;
 
-        private String spawnWorld;
-        private int generateLocationRange;
+        private final String spawnWorld;
+        private final int generateLocationRange;
 
         public InitConfig(DatabaseType databaseType, String address, int port, String database, String username, String password, String tablePrefix, String spawnWorld, int generateLocationRange) {
             this.databaseType = databaseType;

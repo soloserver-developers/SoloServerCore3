@@ -30,6 +30,9 @@ commands:
   reteleport:
     description: When a new world is ready, you will be moved to the new world.
 
+  maintenance:
+    description: Perform system maintenance.
+
 permissions:
   soloservercore.*:
     description: Grant all permissions for SoloServerCore.
@@ -47,6 +50,7 @@ permissions:
       soloservercore.team.transfer: true
       soloservercore.protect.bypass: true
       soloservercore.reteleport: true
+      soloservercore.maintenance: true
 
   soloservercore.team.*:
     description: Grant all permissions for SoloServerCore team functions.

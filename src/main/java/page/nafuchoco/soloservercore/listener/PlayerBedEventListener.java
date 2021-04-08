@@ -24,8 +24,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import page.nafuchoco.soloservercore.database.InGamePlayerData;
-import page.nafuchoco.soloservercore.database.PlayerDataStore;
+import page.nafuchoco.soloservercore.SoloServerApi;
+import page.nafuchoco.soloservercore.data.InGameSSCPlayer;
 import page.nafuchoco.soloservercore.database.PluginSettingsManager;
 
 import java.util.Calendar;
@@ -36,11 +36,9 @@ import java.util.Map;
 public class PlayerBedEventListener implements Listener {
     private final Map<Player, Date> cooldownMap;
     private final PluginSettingsManager settingsManager;
-    private final PlayerDataStore playerDataStore;
 
-    public PlayerBedEventListener(PluginSettingsManager settingsManager, PlayerDataStore playerDataStore) {
+    public PlayerBedEventListener(PluginSettingsManager settingsManager) {
         this.settingsManager = settingsManager;
-        this.playerDataStore = playerDataStore;
         cooldownMap = new LinkedHashMap<>();
     }
 
@@ -107,7 +105,7 @@ public class PlayerBedEventListener implements Listener {
 
     private boolean isAfk(Player player) {
         if (settingsManager.isUseAfkCount()) {
-            InGamePlayerData playerData = (InGamePlayerData) playerDataStore.getPlayerData(player);
+            InGameSSCPlayer playerData = SoloServerApi.getInstance().getSSCPlayer(player);
 
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(new Date(playerData.getLatestMoveTime()));
