@@ -175,8 +175,6 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
             } catch (SQLException e) {
                 // nothing...
             }
-        } else {
-
         }
 
         if (doMigrate) {
