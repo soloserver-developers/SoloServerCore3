@@ -319,4 +319,8 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
     PlayersTeamsTable getPlayersTeamsTable() {
         return playersTeamsTable;
     }
+
+    PluginSettingsTable getPluginSettingsTable() {
+        return pluginSettingsTable;
+    }
 }

@@ -21,6 +21,14 @@ import org.jetbrains.annotations.NotNull;
 import java.sql.SQLException;
 
 public class PluginSettingsManager {
+    private static final String[] settingsKeys =
+            new String[]{"checkBlock", "protectionPeriod", "teamSpawnCollect", "stockSpawnPoint", "broadcastBedCount", "useAfkCount", "afkTimeThreshold", "lastMigratedVersion"};
+
+    public static String[] getSettingsKeys() {
+        return settingsKeys;
+    }
+
+
     private final PluginSettingsTable settingsTable;
 
     // Default Value
