@@ -189,7 +189,8 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                     .collect(Collectors.toList());
 
             // 更新がない場合実行しない
-            int nowVersion = Integer.parseInt(getDescription().getVersion().replaceAll("\\.", ""));
+            String[] s = getDescription().getVersion().split("-");
+            int nowVersion = Integer.parseInt(s[0].replaceAll("\\.", ""));
             if (nowVersion == lastMigratedVersion || versions.stream().max(Comparator.naturalOrder()).get() < nowVersion)
                 doMigrate = false;
 
