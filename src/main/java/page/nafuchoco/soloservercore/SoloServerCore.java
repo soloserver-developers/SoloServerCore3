@@ -241,7 +241,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                 });
 
                 try {
-                    pluginSettingsManager.setLastMigratedVersion(getDescription().getVersion());
+                    pluginSettingsManager.setLastMigratedVersion(s[0]);
                     getLogger().info("Migration process is completed.");
                 } catch (SQLException e) {
                     getLogger().log(Level.WARNING,
