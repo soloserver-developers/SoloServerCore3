@@ -16,6 +16,9 @@
 
 package page.nafuchoco.soloservercore.data;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -30,20 +33,38 @@ public class InGameSSCPlayer implements SSCPlayer {
 
     private final Player player;
     private long latestMoveTime;
+    private final boolean firstJoined;
 
-    public InGameSSCPlayer(@NotNull UUID id, @NotNull String spawnLocation, @Nullable UUID joinedTeamId, @NotNull Player player) {
+    public InGameSSCPlayer(@NotNull UUID id, @NotNull String spawnLocation, @Nullable UUID joinedTeamId, @NotNull Player player, @NotNull boolean firstJoined) {
         this.id = id;
         this.spawnLocation = spawnLocation;
         this.joinedTeam = (joinedTeamId != null) ? SoloServerApi.getInstance().getPlayersTeam(joinedTeamId) : null;
         this.player = player;
+        this.firstJoined = firstJoined;
     }
 
-    public InGameSSCPlayer(@NotNull OfflineSSCPlayer offlineSSCPlayer, @NotNull Player player) {
+    public InGameSSCPlayer(@NotNull UUID id, @NotNull Location location, @Nullable UUID joinedTeamId, @NotNull Player player, @NotNull boolean firstJoined) {
+        this.id = id;
+
+        JsonObject locationJson = new JsonObject();
+        locationJson.addProperty("World", location.getWorld().getName());
+        locationJson.addProperty("X", location.getBlockX());
+        locationJson.addProperty("Y", location.getBlockY());
+        locationJson.addProperty("Z", location.getBlockZ());
+        this.spawnLocation = new Gson().toJson(locationJson);
+
+        this.joinedTeam = (joinedTeamId != null) ? SoloServerApi.getInstance().getPlayersTeam(joinedTeamId) : null;
+        this.player = player;
+        this.firstJoined = firstJoined;
+    }
+
+    public InGameSSCPlayer(@NotNull OfflineSSCPlayer offlineSSCPlayer, @NotNull Player player, @NotNull boolean firstJoined) {
         this.id = offlineSSCPlayer.getId();
         this.spawnLocation = offlineSSCPlayer.getSpawnLocation();
         this.joinedTeam = (offlineSSCPlayer.getJoinedTeamId() != null) ?
                 SoloServerApi.getInstance().getPlayersTeam(offlineSSCPlayer.getJoinedTeamId()) : null;
         this.player = player;
+        this.firstJoined = firstJoined;
     }
 
     @Override
@@ -59,6 +80,10 @@ public class InGameSSCPlayer implements SSCPlayer {
     @Override
     public @Nullable PlayersTeam getJoinedTeam() {
         return joinedTeam;
+    }
+
+    public boolean isFirstJoined() {
+        return firstJoined;
     }
 
     public void setJoinedTeam(PlayersTeam joinedTeam) { // TODO: 2021/04/07 パブリックにしたくない。

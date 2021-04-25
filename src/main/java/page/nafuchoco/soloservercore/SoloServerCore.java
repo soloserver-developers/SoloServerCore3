@@ -31,6 +31,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
@@ -38,6 +39,7 @@ import page.nafuchoco.soloservercore.command.MaintenanceCommand;
 import page.nafuchoco.soloservercore.command.ReTeleportCommand;
 import page.nafuchoco.soloservercore.command.SettingsCommand;
 import page.nafuchoco.soloservercore.command.TeamCommand;
+import page.nafuchoco.soloservercore.data.InGameSSCPlayer;
 import page.nafuchoco.soloservercore.data.MoveTimeUpdater;
 import page.nafuchoco.soloservercore.database.*;
 import page.nafuchoco.soloservercore.listener.*;
@@ -137,7 +139,6 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                 this);
         getServer().getPluginManager().registerEvents(new PlayerBedEventListener(pluginSettingsManager), this);
         getServer().getPluginManager().registerEvents(new PlayerRespawnEventListener(spawnPointLoader), this);
-        getServer().getPluginManager().registerEvents(new PlayerLoginEventListener(playersTable, spawnPointLoader), this);
         getServer().getPluginManager().registerEvents(new PlayerJoinEventListener(), this);
         getServer().getPluginManager().registerEvents(new AsyncPlayerChatEventListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerDeathEventListener(), this);
@@ -302,6 +303,30 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                 return false;
         }
         return true;
+    }
+
+    @EventHandler
+    public void onPlayerLoginEvent(PlayerLoginEvent event) {
+        if (!spawnPointLoader.isDone()) {
+            event.disallow(PlayerLoginEvent.Result.KICK_OTHER, "System is in preparation.");
+            return;
+        }
+
+        if (playersTable.getPlayerData(event.getPlayer().getUniqueId()) == null) {
+            Location location = spawnPointLoader.getNewLocation();
+            InGameSSCPlayer sscPlayer = new InGameSSCPlayer(event.getPlayer().getUniqueId(),
+                    location,
+                    null,
+                    event.getPlayer(),
+                    true);
+            try {
+                SoloServerApi.getInstance().registerSSCPlayer(sscPlayer);
+            } catch (SQLException | NullPointerException exception) {
+                SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to save the player data.\n" +
+                        "New data will be regenerated next time.", exception);
+                event.disallow(PlayerLoginEvent.Result.KICK_OTHER, "The login process was interrupted due to a system problem.");
+            }
+        }
     }
 
     @EventHandler

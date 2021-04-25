@@ -59,7 +59,7 @@ public final class SoloServerApi {
             OfflineSSCPlayer offlineSSCPlayer = getOfflineSSCPlayer(id);
             if (offlineSSCPlayer == null)
                 throw new IllegalStateException();
-            sscPlayer = new InGameSSCPlayer(offlineSSCPlayer, player);
+            sscPlayer = new InGameSSCPlayer(offlineSSCPlayer, player, false);
             playerStore.put(player, sscPlayer);
         }
         return sscPlayer;
@@ -141,6 +141,10 @@ public final class SoloServerApi {
         soloServerCore.getPluginSettingsTable().setPluginSetting(key, value);
     }
 
+    void registerSSCPlayer(InGameSSCPlayer sscPlayer) throws SQLException {
+        soloServerCore.getPlayersTable().registerPlayer(sscPlayer);
+        playerStore.put(sscPlayer.getPlayer(), sscPlayer);
+    }
 
     void dropStoreData(Player player) {
         playerStore.remove(player);

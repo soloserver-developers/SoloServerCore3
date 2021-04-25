@@ -25,8 +25,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import page.nafuchoco.soloservercore.SoloServerApi;
 import page.nafuchoco.soloservercore.SoloServerCore;
+import page.nafuchoco.soloservercore.data.InGameSSCPlayer;
 import page.nafuchoco.soloservercore.data.PlayersTeam;
-import page.nafuchoco.soloservercore.data.SSCPlayer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,11 +38,12 @@ public class PlayerJoinEventListener implements Listener {
     public void onPlayerJoinEvent(PlayerJoinEvent event) {
         event.setJoinMessage("");
 
-        if (!event.getPlayer().hasPlayedBefore()) {
-            SSCPlayer sscPlayer = SoloServerApi.getInstance().getSSCPlayer(event.getPlayer());
+        InGameSSCPlayer sscPlayer = SoloServerApi.getInstance().getSSCPlayer(event.getPlayer());
+        if (sscPlayer.isFirstJoined()) {
             // MVとの競合に対する対策
             Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(SoloServerCore.getInstance(),
                     () -> event.getPlayer().teleport(sscPlayer.getSpawnLocationObject()), 10L);
+            event.getPlayer().setCompassTarget(sscPlayer.getSpawnLocationObject());
         }
 
         PlayersTeam joinedTeam = SoloServerApi.getInstance().getPlayersTeam(event.getPlayer());
