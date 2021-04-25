@@ -18,6 +18,7 @@ package page.nafuchoco.soloservercore.command;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -29,6 +30,7 @@ import page.nafuchoco.soloservercore.SoloServerApi;
 import page.nafuchoco.soloservercore.SoloServerCore;
 import page.nafuchoco.soloservercore.data.OfflineSSCPlayer;
 import page.nafuchoco.soloservercore.data.PlayersTeam;
+import page.nafuchoco.soloservercore.data.SSCPlayer;
 import page.nafuchoco.soloservercore.database.PlayersTable;
 import page.nafuchoco.soloservercore.database.PlayersTeamsTable;
 
@@ -95,6 +97,25 @@ public class MaintenanceCommand implements CommandExecutor, TabCompleter {
                     }
                 } catch (IllegalArgumentException e) {
                     sender.sendMessage(ChatColor.RED + "You must specify the exact UUID of the player whose data you want to delete.");
+                }
+                break;
+
+            case "show":
+                OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[1]);
+                if (offlinePlayer != null) {
+                    SSCPlayer player = soloServerApi.getOfflineSSCPlayer(offlinePlayer.getUniqueId());
+                    if (player != null) {
+                        StringBuilder sb = new StringBuilder();
+                        sb.append(ChatColor.AQUA + "====== Maintenance Player Information ======");
+                        sb.append("UUID: " + player.getId());
+                        sb.append("SpawnLocation: " + player.getSpawnLocation());
+                        sb.append("JoinedTeam: " + player.getJoinedTeamId());
+                        sb.append("FirstJoinDate: " + offlinePlayer.getFirstPlayed());
+                    } else {
+                        sender.sendMessage("[SSC] This player has found data on the server, but SoloServerCore data does not exist.");
+                    }
+                } else {
+                    sender.sendMessage("[SSC] This player has never played on this server.");
                 }
                 break;
 
