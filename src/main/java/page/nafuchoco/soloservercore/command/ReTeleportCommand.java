@@ -105,6 +105,7 @@ public class ReTeleportCommand implements CommandExecutor, TabCompleter {
         // 新規座標への移動
         Location location = loader.getNewLocation();
         player.teleport(location);
+        player.setCompassTarget(location);
 
         // イベントの発火
         PlayerMoveToNewWorldEvent moveToNewWorldEvent = new PlayerMoveToNewWorldEvent(player, sscPlayer.getSpawnLocationObject().getWorld(), location.getWorld());
@@ -119,5 +120,13 @@ public class ReTeleportCommand implements CommandExecutor, TabCompleter {
         } catch (SQLException e) {
             SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to update the player data.", e);
         }
+
+        // ログの出力
+        SoloServerCore.getInstance().getLogger().log(Level.INFO,
+                player.getName() +
+                        " has been successfully teleported to " +
+                        location.getBlockX() + ", " +
+                        location.getBlockY() + ", " +
+                        location.getBlockZ());
     }
 }

@@ -50,9 +50,7 @@ public class MaintenanceCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        // TODO: 2021/02/15 いずれ。
         SoloServerApi soloServerApi = SoloServerApi.getInstance();
-        // Map<CommandSender, Object> confirmWaitList = new HashMap<>();
 
         if (!sender.hasPermission("soloservercore.maintenance")) {
             sender.sendMessage(ChatColor.RED + "You can't run this command because you don't have permission.");
