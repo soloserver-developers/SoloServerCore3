@@ -1,0 +1,16 @@
+version: 2
+updates:
+- package-ecosystem: gradle
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 99
+  target-branch: develop
+  ignore:
+  - dependency-name: com.sk89q.worldedit:worldedit-bukkit
+    versions:
+    - 7.2.3
+    - 7.2.4
+  - dependency-name: com.zaxxer:HikariCP
+    versions:
+    - 4.0.2
