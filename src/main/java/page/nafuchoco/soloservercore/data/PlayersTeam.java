@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 NAFU_at
+ * Copyright 2021 NAFU_at
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package page.nafuchoco.soloservercore.team;
+package page.nafuchoco.soloservercore.data;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import page.nafuchoco.soloservercore.event.PlayersTeamDisappearanceEvent;
 import page.nafuchoco.soloservercore.event.PlayersTeamJoinEvent;
 import page.nafuchoco.soloservercore.event.PlayersTeamLeaveEvent;
@@ -39,30 +41,68 @@ public class PlayersTeam {
         this.owner = owner;
     }
 
+    /**
+     * チームのIDを返します。
+     *
+     * @return チームID
+     */
+    @NotNull
     public UUID getId() {
         return id;
     }
 
+    /**
+     * チームオーナーのUUIDを返します。
+     *
+     * @return チームオーナーのプレイヤーUUID
+     */
+    @NotNull
     public UUID getOwner() {
         return owner;
     }
 
+    /**
+     * チーム名を返します。
+     *
+     * @return チーム名 もしくは Null
+     */
+    @Nullable
     public String getTeamName() {
         return teamName;
     }
 
+    /**
+     * チームのメンバー一覧を返します。
+     *
+     * @return チームのメンバー一覧
+     */
+    @NotNull
     public List<UUID> getMembers() {
         return members;
     }
 
-    public void setTeamName(String teamName) {
+    public void setTeamName(@Nullable String teamName) {
         this.teamName = teamName;
     }
 
-    public void setMembers(List<UUID> members) {
+    /**
+     * チームメンバーの一覧を設定します。
+     *
+     * @param members メンバー一覧のList
+     * @deprecated このメソッドはデータベースとの同期を行わず、データの不整合が発生する可能性があります。
+     * 通常は{@link #joinTeam(Player)}, {@link #leaveTeam(Player)}を使用してください。
+     */
+    @Deprecated
+    public void setMembers(@NotNull List<UUID> members) {
         this.members = members;
     }
 
+    /**
+     * チーム名を変更します。
+     *
+     * @param player   変更を実行したプレイヤー
+     * @param teamName 変更するチーム名
+     */
     public void updateTeamName(Player player, String teamName) {
         String before = getTeamName();
         setTeamName(teamName);
@@ -71,6 +111,11 @@ public class PlayersTeam {
         Bukkit.getServer().getPluginManager().callEvent(statusUpdateEvent);
     }
 
+    /**
+     * チームにメンバーを参加させます。
+     *
+     * @param player 参加させるプレイヤー
+     */
     public void joinTeam(Player player) {
         members.add(player.getUniqueId());
         PlayersTeamJoinEvent joinEvent = new PlayersTeamJoinEvent(this, player);
@@ -79,6 +124,11 @@ public class PlayersTeam {
             members.remove(player.getUniqueId());
     }
 
+    /**
+     * チームからメンバーを脱退させます。
+     *
+     * @param player 脱退させるプレイヤー
+     */
     public void leaveTeam(Player player) {
         if (player.getUniqueId().equals(owner)) {
             PlayersTeamDisappearanceEvent disappearanceEvent = new PlayersTeamDisappearanceEvent(this, player);

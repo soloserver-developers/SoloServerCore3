@@ -20,7 +20,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
-import page.nafuchoco.soloservercore.team.PlayersTeam;
+import page.nafuchoco.soloservercore.data.PlayersTeam;
 
 public class PlayersTeamLeaveEvent extends PlayersTeamEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();

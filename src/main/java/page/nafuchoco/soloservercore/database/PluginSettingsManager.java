@@ -21,6 +21,14 @@ import org.jetbrains.annotations.NotNull;
 import java.sql.SQLException;
 
 public class PluginSettingsManager {
+    private static final String[] settingsKeys =
+            new String[]{"checkBlock", "protectionPeriod", "teamSpawnCollect", "stockSpawnPoint", "broadcastBedCount", "useAfkCount", "afkTimeThreshold", "lastMigratedVersion"};
+
+    public static String[] getSettingsKeys() {
+        return settingsKeys;
+    }
+
+
     private final PluginSettingsTable settingsTable;
 
     // Default Value
@@ -95,10 +103,14 @@ public class PluginSettingsManager {
 
     public int getLastMigratedVersion() {
         String value = settingsTable.getPluginSetting("lastMigratedVersion");
-        if (value == null)
-            return LAST_MIGRATED_VERSION;
-        else
-            return Integer.parseInt(value.replaceAll("\\.", ""));
+        int result = LAST_MIGRATED_VERSION;
+        try {
+            if (value != null)
+                Integer.parseInt(value.replaceAll("\\.", ""));
+        } catch (NumberFormatException e) {
+            // nothing
+        }
+        return result;
     }
 
     public void setCheckBlock(@NotNull boolean checkBlock) throws SQLException {

@@ -22,15 +22,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import page.nafuchoco.soloservercore.SoloServerApi;
 import page.nafuchoco.soloservercore.SoloServerCore;
 import page.nafuchoco.soloservercore.SpawnPointLoader;
+import page.nafuchoco.soloservercore.data.PlayersTeam;
 import page.nafuchoco.soloservercore.database.PlayersTable;
 import page.nafuchoco.soloservercore.database.PlayersTeamsTable;
 import page.nafuchoco.soloservercore.database.PluginSettingsManager;
-import page.nafuchoco.soloservercore.event.PlayersTeamDisappearanceEvent;
-import page.nafuchoco.soloservercore.event.PlayersTeamJoinEvent;
-import page.nafuchoco.soloservercore.event.PlayersTeamLeaveEvent;
-import page.nafuchoco.soloservercore.event.PlayersTeamStatusUpdateEvent;
+import page.nafuchoco.soloservercore.event.*;
 
 import java.sql.SQLException;
 import java.util.logging.Level;
@@ -53,11 +52,26 @@ public class PlayersTeamEventListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayersTeamCreateEvent(PlayersTeamCreateEvent event) {
+        if (!event.isCancelled()) {
+            try {
+                teamsTable.registerTeam(event.getPlayersTeam());
+                playersTable.updateJoinedTeam(event.getPlayer().getUniqueId(), event.getPlayersTeam().getId());
+                SoloServerApi.getInstance().getSSCPlayer(event.getPlayer()).setJoinedTeam(event.getPlayersTeam());
+            } catch (SQLException e) {
+                SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to save the team data.", e);
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayersTeamJoinEvent(PlayersTeamJoinEvent event) {
         if (!event.isCancelled()) {
             try {
                 playersTable.updateJoinedTeam(event.getPlayer().getUniqueId(), event.getPlayersTeam().getId());
                 teamsTable.updateMembers(event.getPlayersTeam().getId(), event.getPlayersTeam().getMembers());
+                SoloServerApi.getInstance().getSSCPlayer(event.getPlayer()).setJoinedTeam(event.getPlayersTeam());
             } catch (SQLException e) {
                 SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to update the team data.", e);
                 event.setCancelled(true);
@@ -90,6 +104,7 @@ public class PlayersTeamEventListener implements Listener {
             try {
                 playersTable.updateJoinedTeam(event.getPlayer().getUniqueId(), null);
                 teamsTable.updateMembers(event.getPlayersTeam().getId(), event.getPlayersTeam().getMembers());
+                SoloServerApi.getInstance().getSSCPlayer(event.getPlayer()).setJoinedTeam(event.getPlayersTeam());
             } catch (SQLException e) {
                 SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to update the team data.", e);
                 event.setCancelled(true);
@@ -98,7 +113,7 @@ public class PlayersTeamEventListener implements Listener {
 
             Player owner = Bukkit.getPlayer(event.getPlayersTeam().getOwner());
             if (owner != null) {
-                owner.sendMessage(ChatColor.RED + "[Teams] あなたのチームから" + event.getPlayer().getDisplayName() + "が加脱退しました。");
+                owner.sendMessage(ChatColor.RED + "[Teams] あなたのチームから" + event.getPlayer().getDisplayName() + "が脱退しました。");
                 event.getPlayer().hidePlayer(SoloServerCore.getInstance(), owner);
                 owner.hidePlayer(SoloServerCore.getInstance(), event.getPlayer());
             }
@@ -120,6 +135,7 @@ public class PlayersTeamEventListener implements Listener {
             event.getPlayersTeam().getMembers().forEach(uuid -> {
                 try {
                     playersTable.updateJoinedTeam(uuid, null);
+                    SoloServerApi.getInstance().getSSCPlayer(event.getPlayer()).setJoinedTeam(null);
                     Player player = Bukkit.getPlayer(uuid);
                     if (player != null) {
                         player.sendMessage(ChatColor.RED + "[Teams] オーナーがチームから脱退したためチームが解散されました。");
@@ -148,7 +164,23 @@ public class PlayersTeamEventListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayersTeamStatusUpdateEvent(PlayersTeamStatusUpdateEvent event) {
         try {
-            teamsTable.updateTeamName(event.getPlayersTeam().getId(), event.getPlayersTeam().getTeamName());
+            switch (event.getState()) {
+                case NAME:
+                    teamsTable.updateTeamName(event.getPlayersTeam().getId(), event.getPlayersTeam().getTeamName());
+                    break;
+
+                case OWNER:
+                    Player ownerPlayer = Bukkit.getPlayer(((PlayersTeam) event.getAfter()).getOwner());
+                    teamsTable.updateTeamOwner(event.getPlayersTeam().getId(), ownerPlayer.getUniqueId());
+
+                    ownerPlayer.sendMessage(ChatColor.GREEN + "[Teams] チームのオーナが" + ownerPlayer.getDisplayName() + "に譲渡されました。");
+                    event.getPlayersTeam().getMembers().forEach(uuid -> {
+                        Player member = Bukkit.getPlayer(uuid);
+                        if (member != null)
+                            member.sendMessage(ChatColor.GREEN + "[Teams] チームのオーナが" + ownerPlayer.getDisplayName() + "に譲渡されました。");
+                    });
+                    break;
+            }
         } catch (SQLException e) {
             SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to update the team data.", e);
         }

@@ -23,28 +23,23 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import page.nafuchoco.soloservercore.database.PlayerAndTeamsBridge;
-import page.nafuchoco.soloservercore.database.TeamsPlayerData;
+import page.nafuchoco.soloservercore.SoloServerApi;
+import page.nafuchoco.soloservercore.data.PlayersTeam;
 
 public class AsyncPlayerChatEventListener implements Listener {
-    private final PlayerAndTeamsBridge playerAndTeamsBridge;
-
-    public AsyncPlayerChatEventListener(PlayerAndTeamsBridge playerAndTeamsBridge) {
-        this.playerAndTeamsBridge = playerAndTeamsBridge;
-    }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onAsyncPlayerChatEvent(AsyncPlayerChatEvent event) {
-        TeamsPlayerData teamsPlayerData = playerAndTeamsBridge.getPlayerData(event.getPlayer().getUniqueId());
-        if (teamsPlayerData != null) {
+        PlayersTeam joinedTeam = SoloServerApi.getInstance().getPlayersTeam(event.getPlayer());
+        if (joinedTeam != null) {
             String message = event.getPlayer().getDisplayName() + " >> " +
                     ChatColor.translateAlternateColorCodes('&', event.getMessage());
 
-            Player owner = Bukkit.getPlayer(teamsPlayerData.getTeamOwner());
+            Player owner = Bukkit.getPlayer(joinedTeam.getOwner());
             if (owner != null)
                 owner.sendMessage(message);
 
-            teamsPlayerData.getMembers().forEach(member -> {
+            joinedTeam.getMembers().forEach(member -> {
                 Player player = Bukkit.getPlayer(member);
                 if (player != null) {
                     player.sendMessage(message);

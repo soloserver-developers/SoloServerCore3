@@ -31,26 +31,28 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+import page.nafuchoco.soloservercore.command.MaintenanceCommand;
 import page.nafuchoco.soloservercore.command.ReTeleportCommand;
 import page.nafuchoco.soloservercore.command.SettingsCommand;
 import page.nafuchoco.soloservercore.command.TeamCommand;
+import page.nafuchoco.soloservercore.data.InGameSSCPlayer;
+import page.nafuchoco.soloservercore.data.MoveTimeUpdater;
 import page.nafuchoco.soloservercore.database.*;
 import page.nafuchoco.soloservercore.listener.*;
 import page.nafuchoco.soloservercore.listener.internal.PlayersTeamEventListener;
 import page.nafuchoco.soloservercore.packet.ServerInfoPacketEventListener;
-import page.nafuchoco.soloservercore.team.PlayersTeam;
 
 import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.SQLSyntaxErrorException;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -61,10 +63,8 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
     private static PluginSettingsTable pluginSettingsTable;
     private static PlayersTable playersTable;
     private static PlayersTeamsTable playersTeamsTable;
-    private static PlayerDataStore playerDataStore;
 
     private static PluginSettingsManager pluginSettingsManager;
-    private static PlayerAndTeamsBridge playerAndTeamsBridge;
     private static SpawnPointLoader spawnPointLoader;
     private static ProtocolManager protocolManager;
     private static DatabaseConnector connector;
@@ -107,17 +107,14 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
             getInstance().getLogger().log(Level.WARNING, "An error occurred while initializing the database table.", throwables);
         }
 
-        playerDataStore = new PlayerDataStore(playersTable);
         pluginSettingsManager = new PluginSettingsManager(pluginSettingsTable);
-        playerAndTeamsBridge = new PlayerAndTeamsBridge(connector, playersTable, playersTeamsTable);
 
         migrateDatabase();
 
         // Generate random world spawn point
         getLogger().info("Pre-generate spawn points. This often seems to freeze the system, but for the most part it is normal.");
         World world = Bukkit.getWorld(config.getInitConfig().getSpawnWorld());
-        spawnPointLoader = new SpawnPointLoader(playersTable,
-                playerAndTeamsBridge,
+        spawnPointLoader = new SpawnPointLoader(
                 pluginSettingsManager,
                 new SpawnPointGenerator(world, config.getInitConfig().getGenerateLocationRange()));
         spawnPointLoader.initPoint(true);
@@ -132,7 +129,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
         CoreProtect coreProtect = (CoreProtect) getServer().getPluginManager().getPlugin("CoreProtect");
         coreProtectAPI = coreProtect.getAPI();
         if (pluginSettingsManager.isCheckBlock())
-            getServer().getPluginManager().registerEvents(new BlockEventListener(new CoreProtectClient(coreProtectAPI), pluginSettingsManager, playerAndTeamsBridge), this);
+            getServer().getPluginManager().registerEvents(new BlockEventListener(new CoreProtectClient(coreProtectAPI), pluginSettingsManager), this);
 
         getServer().getPluginManager().registerEvents(new PlayersTeamEventListener(
                         playersTable,
@@ -140,28 +137,30 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                         pluginSettingsManager,
                         spawnPointLoader),
                 this);
-        getServer().getPluginManager().registerEvents(new PlayerBedEventListener(pluginSettingsManager, playerDataStore), this);
+        getServer().getPluginManager().registerEvents(new PlayerBedEventListener(pluginSettingsManager), this);
         getServer().getPluginManager().registerEvents(new PlayerRespawnEventListener(spawnPointLoader), this);
-        getServer().getPluginManager().registerEvents(new PlayerLoginEventListener(playersTable, spawnPointLoader), this);
-        getServer().getPluginManager().registerEvents(new PlayerJoinEventListener(playersTable, playerAndTeamsBridge), this);
-        getServer().getPluginManager().registerEvents(new AsyncPlayerChatEventListener(playerAndTeamsBridge), this);
+        getServer().getPluginManager().registerEvents(new PlayerJoinEventListener(), this);
+        getServer().getPluginManager().registerEvents(new AsyncPlayerChatEventListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerDeathEventListener(), this);
+        getServer().getPluginManager().registerEvents(new MoveTimeUpdater(), this);
         getServer().getPluginManager().registerEvents(this, this);
 
         // Command Register
         SettingsCommand settingsCommand = new SettingsCommand(pluginSettingsManager);
-        TeamCommand teamCommand = new TeamCommand(playersTable, playersTeamsTable, pluginSettingsManager);
+        TeamCommand teamCommand = new TeamCommand(pluginSettingsManager);
         ReTeleportCommand reTeleportCommand = new ReTeleportCommand(
                 playersTable,
                 playersTeamsTable,
                 spawnPointLoader,
                 Bukkit.getWorld(config.getInitConfig().getSpawnWorld()));
+        MaintenanceCommand maintenanceCommand = new MaintenanceCommand(playersTable, playersTeamsTable);
         getCommand("settings").setExecutor(settingsCommand);
         getCommand("settings").setTabCompleter(settingsCommand);
         getCommand("team").setExecutor(teamCommand);
         getCommand("team").setTabCompleter(teamCommand);
         getCommand("reteleport").setExecutor(reTeleportCommand);
         getCommand("reteleport").setTabCompleter(reTeleportCommand);
+        getCommand("maintenance").setExecutor(maintenanceCommand);
     }
 
     private void migrateDatabase() {
@@ -170,14 +169,13 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
         int lastMigratedVersion = pluginSettingsManager.getLastMigratedVersion();
         if (lastMigratedVersion == 350) {
             try {
-                List<PlayersTeam> teams = playersTeamsTable.getPlayersTeams();
-                if (teams.isEmpty())
+                if (playersTable.getPlayers().isEmpty()) {
                     doMigrate = false;
-            } catch (SQLSyntaxErrorException e) {
+                    pluginSettingsManager.setLastMigratedVersion(getDescription().getVersion());
+                }
+            } catch (SQLException e) {
                 // nothing...
             }
-        } else {
-
         }
 
         if (doMigrate) {
@@ -188,20 +186,20 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                     .map(map -> (String) map.get("version"))
                     .map(v -> Integer.parseInt(v.replaceAll("\\.", "")))
                     .distinct()
+                    .sorted()
                     .collect(Collectors.toList());
-            Collections.sort(versions);
 
             // 更新がない場合実行しない
-            int nowVersion = Integer.parseInt(getDescription().getVersion().replaceAll("\\.", ""));
+            String[] s = getDescription().getVersion().split("-");
+            int nowVersion = Integer.parseInt(s[0].replaceAll("\\.", ""));
             if (nowVersion == lastMigratedVersion || versions.stream().max(Comparator.naturalOrder()).get() < nowVersion)
                 doMigrate = false;
 
             // processリストの生成
             int index = versions.indexOf(lastMigratedVersion);
             List<Integer> processList = index == -1 ? versions : versions.subList(index + 1, versions.size());
-            doMigrate = doMigrate ? !processList.isEmpty() : false;
+            doMigrate = doMigrate && !processList.isEmpty();
 
-            AtomicBoolean processError = new AtomicBoolean(false);
             if (doMigrate) {
                 getLogger().info("The database structure has been updated. Start the migration process.");
                 processList.forEach(process -> {
@@ -238,23 +236,20 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                                 ps.execute();
                             } catch (SQLException e) {
                                 getLogger().log(Level.WARNING, "An error has occurred during the migration process.", e);
-                                processError.set(true);
                             }
                         });
                     });
                 });
 
-                if (!processError.get()) {
-                    try {
-                        pluginSettingsManager.setLastMigratedVersion(getDescription().getVersion());
-                        getLogger().info("Migration process is completed.");
-                    } catch (SQLException e) {
-                        getLogger().log(Level.WARNING,
-                                "The migration process was completed successfully, \n" +
-                                        "but the results could not be saved. \n" +
-                                        "An error may be displayed the next time you start the program.",
-                                e);
-                    }
+                try {
+                    pluginSettingsManager.setLastMigratedVersion(s[0]);
+                    getLogger().info("Migration process is completed.");
+                } catch (SQLException e) {
+                    getLogger().log(Level.WARNING,
+                            "The migration process was completed successfully, \n" +
+                                    "but the results could not be saved. \n" +
+                                    "An error may be displayed the next time you start the program.",
+                            e);
                 }
             }
         }
@@ -311,21 +306,36 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
     }
 
     @EventHandler
+    public void onPlayerLoginEvent(PlayerLoginEvent event) {
+        if (!spawnPointLoader.isDone()) {
+            event.disallow(PlayerLoginEvent.Result.KICK_OTHER, "System is in preparation.");
+            return;
+        }
+
+        if (playersTable.getPlayerData(event.getPlayer().getUniqueId()) == null) {
+            Location location = spawnPointLoader.getNewLocation();
+            InGameSSCPlayer sscPlayer = new InGameSSCPlayer(event.getPlayer().getUniqueId(),
+                    location,
+                    null,
+                    event.getPlayer(),
+                    true);
+            try {
+                SoloServerApi.getInstance().registerSSCPlayer(sscPlayer);
+            } catch (SQLException | NullPointerException exception) {
+                SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to save the player data.\n" +
+                        "New data will be regenerated next time.", exception);
+                event.disallow(PlayerLoginEvent.Result.KICK_OTHER, "The login process was interrupted due to a system problem.");
+            }
+        }
+    }
+
+    @EventHandler
     public void onPlayerQuitEvent(PlayerQuitEvent event) {
         event.setQuitMessage("");
 
+        SoloServerApi.getInstance().dropStoreData(event.getPlayer());
         if (Bukkit.getOnlinePlayers().isEmpty())
             spawnPointLoader.initPoint(false);
-    }
-
-    @EventHandler(ignoreCancelled = true)
-    public void onPlayerMoveEvent(PlayerMoveEvent event) {
-        // ブロック単位で移動した場合のみカウント
-        if (!(event.getFrom().getBlockX() == event.getTo().getBlockX()
-                && event.getFrom().getBlockZ() == event.getTo().getBlockZ()
-                && event.getFrom().getBlockY() == event.getTo().getBlockY())) {
-            ((InGamePlayerData) playerDataStore.getPlayerData(event.getPlayer())).setLatestMoveTime(new Date().getTime());
-        }
     }
 
     PlayersTable getPlayersTable() {
@@ -336,11 +346,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
         return playersTeamsTable;
     }
 
-    PlayerAndTeamsBridge getPlayerAndTeamsBridge() {
-        return playerAndTeamsBridge;
-    }
-
-    SpawnPointLoader getSpawnPointLoader() {
-        return spawnPointLoader;
+    PluginSettingsTable getPluginSettingsTable() {
+        return pluginSettingsTable;
     }
 }

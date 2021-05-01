@@ -18,46 +18,50 @@ package page.nafuchoco.soloservercore.listener;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import page.nafuchoco.soloservercore.SoloServerApi;
 import page.nafuchoco.soloservercore.SoloServerCore;
-import page.nafuchoco.soloservercore.database.PlayerAndTeamsBridge;
-import page.nafuchoco.soloservercore.database.PlayerData;
-import page.nafuchoco.soloservercore.database.PlayersTable;
-import page.nafuchoco.soloservercore.database.TeamsPlayerData;
+import page.nafuchoco.soloservercore.data.InGameSSCPlayer;
+import page.nafuchoco.soloservercore.data.PlayersTeam;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Level;
 
 public class PlayerJoinEventListener implements Listener {
-    private final PlayersTable playersTable;
-    private final PlayerAndTeamsBridge playerAndTeamsBridge;
-
-    public PlayerJoinEventListener(PlayersTable playersTable, PlayerAndTeamsBridge playerAndTeamsBridge) {
-        this.playersTable = playersTable;
-        this.playerAndTeamsBridge = playerAndTeamsBridge;
-    }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerJoinEvent(PlayerJoinEvent event) {
         event.setJoinMessage("");
 
-        if (!event.getPlayer().hasPlayedBefore()) {
-            PlayerData playerData = playersTable.getPlayerData(event.getPlayer());
+        InGameSSCPlayer sscPlayer = SoloServerApi.getInstance().getSSCPlayer(event.getPlayer());
+        if (sscPlayer.isFirstJoined()) {
             // MVとの競合に対する対策
             Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(SoloServerCore.getInstance(),
-                    () -> event.getPlayer().teleport(playerData.getSpawnLocationLocation()), 10L);
+                    () -> {
+                        Location location = sscPlayer.getSpawnLocationObject();
+                        event.getPlayer().teleport(location);
+                        SoloServerCore.getInstance().getLogger().log(Level.INFO,
+                                event.getPlayer().getName() +
+                                        " has been successfully teleported to " +
+                                        location.getBlockX() + ", " +
+                                        location.getBlockY() + ", " +
+                                        location.getBlockZ());
+                    }, 10L);
+            event.getPlayer().setCompassTarget(sscPlayer.getSpawnLocationObject());
         }
 
-        TeamsPlayerData teamsPlayerData = playerAndTeamsBridge.getPlayerData(event.getPlayer().getUniqueId());
+        PlayersTeam joinedTeam = SoloServerApi.getInstance().getPlayersTeam(event.getPlayer());
         List<UUID> member;
-        if (teamsPlayerData != null) {
-            member = new ArrayList<>(teamsPlayerData.getMembers());
-            member.add(teamsPlayerData.getTeamOwner());
+        if (joinedTeam != null) {
+            member = new ArrayList<>(joinedTeam.getMembers());
+            member.add(joinedTeam.getOwner());
         } else {
             member = new ArrayList<>();
         }

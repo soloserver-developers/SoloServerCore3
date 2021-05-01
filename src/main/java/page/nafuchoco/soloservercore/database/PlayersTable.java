@@ -19,13 +19,18 @@ package page.nafuchoco.soloservercore.database;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import page.nafuchoco.soloservercore.SoloServerCore;
+import page.nafuchoco.soloservercore.data.OfflineSSCPlayer;
+import page.nafuchoco.soloservercore.data.SSCPlayer;
 
-import java.sql.*;
-import java.util.Date;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -36,32 +41,33 @@ public class PlayersTable extends DatabaseTable {
     }
 
     public void createTable() throws SQLException {
-        super.createTable("id VARCHAR(36) PRIMARY KEY, player_name VARCHAR(16) NOT NULL, " +
-                "spawn_location TEXT NOT NULL, last_joined TIMESTAMP, joined_team VARCHAR(36)");
+        super.createTable("id VARCHAR(36) PRIMARY KEY, spawn_location TEXT NOT NULL, joined_team VARCHAR(36)");
     }
 
-    public UUID searchPlayerFromName(@NotNull String playerName) {
+    public List<OfflineSSCPlayer> getPlayers() {
+        List<OfflineSSCPlayer> players = new ArrayList<>();
         try (Connection connection = getConnector().getConnection();
              PreparedStatement ps = connection.prepareStatement(
-                     "SELECT id FROM " + getTablename() + " WHERE player_name = ?"
+                     "SELECT * FROM " + getTablename()
              )) {
-            ps.setString(1, playerName);
             try (ResultSet resultSet = ps.executeQuery()) {
                 while (resultSet.next()) {
-                    return UUID.fromString(resultSet.getString("id"));
+                    UUID id = UUID.fromString(resultSet.getString("id"));
+                    String spawnLocation = resultSet.getString("spawn_location");
+                    UUID joinedTeam = null;
+                    String teamUUID = resultSet.getString("joined_team");
+                    if (teamUUID != null)
+                        joinedTeam = UUID.fromString(teamUUID);
+                    players.add(new OfflineSSCPlayer(id, spawnLocation, joinedTeam));
                 }
             }
         } catch (SQLException e) {
             SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to get player data.", e);
         }
-        return null;
+        return players;
     }
 
-    public PlayerData getPlayerData(@NotNull Player player) {
-        return getPlayerData(player.getUniqueId());
-    }
-
-    public PlayerData getPlayerData(@NotNull UUID uuid) {
+    public OfflineSSCPlayer getPlayerData(@NotNull UUID uuid) {
         try (Connection connection = getConnector().getConnection();
              PreparedStatement ps = connection.prepareStatement(
                      "SELECT * FROM " + getTablename() + " WHERE id = ?"
@@ -69,14 +75,12 @@ public class PlayersTable extends DatabaseTable {
             ps.setString(1, uuid.toString());
             try (ResultSet resultSet = ps.executeQuery()) {
                 while (resultSet.next()) {
-                    String playerName = resultSet.getString("player_name");
                     String spawnLocation = resultSet.getString("spawn_location");
-                    Date lastJoined = new Date(resultSet.getTimestamp("last_joined").getTime());
                     UUID joinedTeam = null;
                     String teamUUID = resultSet.getString("joined_team");
                     if (teamUUID != null)
                         joinedTeam = UUID.fromString(teamUUID);
-                    return new PlayerData(uuid, playerName, spawnLocation, lastJoined, joinedTeam);
+                    return new OfflineSSCPlayer(uuid, spawnLocation, joinedTeam);
                 }
             }
         } catch (SQLException e) {
@@ -85,31 +89,18 @@ public class PlayersTable extends DatabaseTable {
         return null;
     }
 
-    public void registerPlayer(@NotNull PlayerData playerData) throws SQLException {
+    public void registerPlayer(@NotNull SSCPlayer sscPlayer) throws SQLException {
         try (Connection connection = getConnector().getConnection();
              PreparedStatement ps = connection.prepareStatement(
-                     "INSERT INTO " + getTablename() + " (id, player_name, spawn_location, last_joined, joined_team) " +
-                             "VALUES (?, ?, ?, ?, ?)"
+                     "INSERT INTO " + getTablename() + " (id, spawn_location, joined_team) " +
+                             "VALUES (?, ?, ?)"
              )) {
-            ps.setString(1, playerData.getId().toString());
-            ps.setString(2, playerData.getPlayerName());
-            ps.setString(3, playerData.getSpawnLocation());
-            ps.setTimestamp(4, new Timestamp(playerData.getLastJoined().getTime()));
-            if (playerData.getJoinedTeam() != null)
-                ps.setString(5, playerData.getJoinedTeam().toString());
+            ps.setString(1, sscPlayer.getId().toString());
+            ps.setString(2, sscPlayer.getSpawnLocation());
+            if (sscPlayer.getJoinedTeamId() != null)
+                ps.setString(3, sscPlayer.getJoinedTeamId().toString());
             else
-                ps.setString(5, null);
-            ps.execute();
-        }
-    }
-
-    public void updatePlayerName(@NotNull UUID uuid, @NotNull String playerName) throws SQLException {
-        try (Connection connection = getConnector().getConnection();
-             PreparedStatement ps = connection.prepareStatement(
-                     "UPDATE " + getTablename() + " SET player_name = ? WHERE id = ?"
-             )) {
-            ps.setString(1, playerName);
-            ps.setString(2, uuid.toString());
+                ps.setString(3, null);
             ps.execute();
         }
     }
@@ -132,17 +123,6 @@ public class PlayersTable extends DatabaseTable {
         }
     }
 
-    public void updateJoinedDate(@NotNull UUID uuid, @NotNull Date lastJoined) throws SQLException {
-        try (Connection connection = getConnector().getConnection();
-             PreparedStatement ps = connection.prepareStatement(
-                     "UPDATE " + getTablename() + " SET last_joined = ? WHERE id = ?"
-             )) {
-            ps.setTimestamp(1, new Timestamp(lastJoined.getTime()));
-            ps.setString(2, uuid.toString());
-            ps.execute();
-        }
-    }
-
     public void updateJoinedTeam(@NotNull UUID uuid, @Nullable UUID joinedTeam) throws SQLException {
         try (Connection connection = getConnector().getConnection();
              PreparedStatement ps = connection.prepareStatement(
@@ -157,12 +137,12 @@ public class PlayersTable extends DatabaseTable {
         }
     }
 
-    public void deletePlayer(@NotNull PlayerData playerData) throws SQLException {
+    public void deletePlayer(@NotNull OfflineSSCPlayer sscPlayer) throws SQLException {
         try (Connection connection = getConnector().getConnection();
              PreparedStatement ps = connection.prepareStatement(
                      "DELETE FROM " + getTablename() + " WHERE id = ?"
              )) {
-            ps.setString(1, playerData.getId().toString());
+            ps.setString(1, sscPlayer.getId().toString());
             ps.execute();
         }
     }

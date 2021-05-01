@@ -31,7 +31,7 @@ public class PluginSettingsTable extends DatabaseTable {
     }
 
     public void createTable() throws SQLException {
-        super.createTable("settings_name VARCHAR(32) NOT NULL, settings_value LONGTEXT NOT NULL");
+        super.createTable("settings_name VARCHAR(32) PRIMARY KEY, settings_value LONGTEXT NOT NULL");
     }
 
     public String getPluginSetting(String name) {
