@@ -60,7 +60,7 @@ repositories {
         url = 'https://repo.dmulloy2.net/nexus/repository/public/'
     }
     maven {
-        url = 'http://maven.playpro.com/'
+        url = 'https://maven.playpro.com/'
     }
     maven {
         url = 'https://maven.aura-dev.team/repository/auradev-releases/'
@@ -87,6 +87,7 @@ dependencies {
 }
 
 processResources {
+    duplicatesStrategy(DuplicatesStrategy.INCLUDE)
     from(sourceSets.main.resources.srcDirs) {
         filter ReplaceTokens, tokens: [version: version]
     }
