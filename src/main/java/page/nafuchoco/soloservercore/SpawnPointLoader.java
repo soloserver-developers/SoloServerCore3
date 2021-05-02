@@ -64,6 +64,8 @@ public class SpawnPointLoader {
     }
 
     public boolean isDone() {
+        if (points.size() == 0)
+            return false;
         return done;
     }
 
@@ -72,6 +74,9 @@ public class SpawnPointLoader {
     }
 
     public Location getNewLocation() {
+        if (points.size() == 0)
+            return null;
+
         Location location = points.get(random.nextInt(points.size()));
         points.remove(location);
         return location;

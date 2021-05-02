@@ -65,7 +65,7 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                         builder.append("JoinedTeam: " + team.getTeamName() + "\n");
                     builder.append("TeamOwner: " + Bukkit.getOfflinePlayer(team.getOwner()).getName() + ChatColor.GRAY +
                             " [" + DATE_FORMAT.format(Bukkit.getOfflinePlayer(team.getOwner()).getLastPlayed()) + "]" + "\n");
-                    builder.append("TeamMembers: \n" + team.getMembers().stream()
+                    builder.append(ChatColor.RESET + "TeamMembers: \n" + team.getMembers().stream()
                             .map(u -> Bukkit.getOfflinePlayer(u))
                             .map(p -> p.getName() + ChatColor.GRAY +
                                     " [" + DATE_FORMAT.format(p.getLastPlayed()) + "]" + ChatColor.WHITE)

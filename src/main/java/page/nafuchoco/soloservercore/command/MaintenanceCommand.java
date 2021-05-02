@@ -104,11 +104,12 @@ public class MaintenanceCommand implements CommandExecutor, TabCompleter {
                     SSCPlayer player = soloServerApi.getOfflineSSCPlayer(offlinePlayer.getUniqueId());
                     if (player != null) {
                         StringBuilder sb = new StringBuilder();
-                        sb.append(ChatColor.AQUA + "====== Maintenance Player Information ======");
-                        sb.append("UUID: " + player.getId());
-                        sb.append("SpawnLocation: " + player.getSpawnLocation());
-                        sb.append("JoinedTeam: " + player.getJoinedTeamId());
+                        sb.append(ChatColor.AQUA + "====== Maintenance Player Information ======\n");
+                        sb.append("UUID: " + player.getId() + "\n");
+                        sb.append("SpawnLocation: " + player.getSpawnLocation() + "\n");
+                        sb.append("JoinedTeam: " + player.getJoinedTeamId() + "\n");
                         sb.append("FirstJoinDate: " + offlinePlayer.getFirstPlayed());
+                        sender.sendMessage(sb.toString());
                     } else {
                         sender.sendMessage("[SSC] This player has found data on the server, but SoloServerCore data does not exist.");
                     }
