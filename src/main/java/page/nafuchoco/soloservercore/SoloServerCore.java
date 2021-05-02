@@ -314,17 +314,23 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
 
         if (playersTable.getPlayerData(event.getPlayer().getUniqueId()) == null) {
             Location location = spawnPointLoader.getNewLocation();
-            InGameSSCPlayer sscPlayer = new InGameSSCPlayer(event.getPlayer().getUniqueId(),
-                    location,
-                    null,
-                    event.getPlayer(),
-                    true);
-            try {
-                SoloServerApi.getInstance().registerSSCPlayer(sscPlayer);
-            } catch (SQLException | NullPointerException exception) {
-                SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to save the player data.\n" +
-                        "New data will be regenerated next time.", exception);
-                event.disallow(PlayerLoginEvent.Result.KICK_OTHER, "The login process was interrupted due to a system problem.");
+            if (location != null) {
+                InGameSSCPlayer sscPlayer = new InGameSSCPlayer(event.getPlayer().getUniqueId(),
+                        location,
+                        null,
+                        event.getPlayer(),
+                        true);
+                try {
+                    SoloServerApi.getInstance().registerSSCPlayer(sscPlayer);
+                } catch (SQLException | NullPointerException exception) {
+                    SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to save the player data.\n" +
+                            "New data will be regenerated next time.", exception);
+                    event.disallow(PlayerLoginEvent.Result.KICK_OTHER, "The login process was interrupted due to a system problem.");
+                }
+            } else {
+                event.disallow(PlayerLoginEvent.Result.KICK_OTHER, "System is in preparation.");
+                getLogger().warning("There is no stock of teleport coordinates. Please execute regeneration.");
+                return;
             }
         }
     }
