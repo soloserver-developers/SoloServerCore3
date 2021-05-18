@@ -104,7 +104,7 @@ public class MaintenanceCommand implements CommandExecutor, TabCompleter {
                     SSCPlayer player = soloServerApi.getOfflineSSCPlayer(offlinePlayer.getUniqueId());
                     if (player != null) {
                         StringBuilder sb = new StringBuilder();
-                        sb.append(ChatColor.AQUA + "====== Maintenance Player Information ======\n");
+                        sb.append(ChatColor.AQUA + "====== Maintenance Player Information ======\n" + ChatColor.RESET);
                         sb.append("UUID: " + player.getId() + "\n");
                         sb.append("SpawnLocation: " + player.getSpawnLocation() + "\n");
                         sb.append("JoinedTeam: " + player.getJoinedTeamId() + "\n");

@@ -24,16 +24,23 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import page.nafuchoco.soloservercore.SoloServerApi;
+import page.nafuchoco.soloservercore.SoloServerCore;
 import page.nafuchoco.soloservercore.data.PlayersTeam;
 
 public class AsyncPlayerChatEventListener implements Listener {
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onAsyncPlayerChatEvent(AsyncPlayerChatEvent event) {
+        String message = event.getPlayer().getDisplayName() + " >> " +
+                ChatColor.translateAlternateColorCodes('&', event.getMessage());
+        SoloServerCore.getInstance().getLogger().info(message);
+
+        Bukkit.getOnlinePlayers().stream()
+                .filter(p -> p.hasPermission("soloservercore.chat.bypass"))
+                .forEach(p -> p.sendMessage(ChatColor.GRAY + "[Chat] " + message));
+
         PlayersTeam joinedTeam = SoloServerApi.getInstance().getPlayersTeam(event.getPlayer());
         if (joinedTeam != null) {
-            String message = event.getPlayer().getDisplayName() + " >> " +
-                    ChatColor.translateAlternateColorCodes('&', event.getMessage());
 
             Player owner = Bukkit.getPlayer(joinedTeam.getOwner());
             if (owner != null)

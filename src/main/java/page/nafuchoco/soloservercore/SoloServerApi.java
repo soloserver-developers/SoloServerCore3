@@ -81,7 +81,9 @@ public final class SoloServerApi {
      *
      * @param owner 検索するプレイヤーのID
      * @return PlayersTeam もしくは null
+     * @deprecated {@link #getPlayersTeam(Player)} に置き換えられたため非推奨に設定されました。
      */
+    @Deprecated
     @Nullable
     public PlayersTeam searchTeamFromOwner(@NotNull UUID owner) {
         UUID teamId = soloServerCore.getPlayersTeamsTable().searchTeamFromOwner(owner);
