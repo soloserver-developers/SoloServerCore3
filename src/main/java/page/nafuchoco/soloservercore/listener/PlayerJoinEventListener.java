@@ -78,7 +78,7 @@ public class PlayerJoinEventListener implements Listener {
             member.forEach(m -> {
                 Player player = Bukkit.getPlayer(m);
                 if (player != null && !player.equals(event.getPlayer()))
-                    player.sendMessage(ChatColor.AQUA + "[Teams]" + event.getPlayer().getDisplayName() + "がログインしました。");
+                    player.sendMessage(ChatColor.AQUA + "[Teams] " + event.getPlayer().getDisplayName() + "がログインしました。");
             });
     }
 }

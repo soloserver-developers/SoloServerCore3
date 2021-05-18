@@ -105,7 +105,7 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                 case "invite":
                     if (args.length >= 2) {
                         args = Arrays.copyOfRange(args, 1, args.length);
-                        PlayersTeam playersTeam = soloServerApi.searchTeamFromOwner((player).getUniqueId());
+                        PlayersTeam playersTeam = soloServerApi.getPlayersTeam(player);
                         if (playersTeam != null) {
                             for (String arg : args) {
                                 Player target = Bukkit.getPlayer(arg);
@@ -180,7 +180,7 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
 
                 case "transfer":
                     if (args.length >= 2) {
-                        PlayersTeam originalTeam = soloServerApi.searchTeamFromOwner((player).getUniqueId());
+                        PlayersTeam originalTeam = soloServerApi.getPlayersTeam(player);
                         if (originalTeam != null) {
                             Player target = Bukkit.getPlayer(args[1]);
                             if (target != null && !player.equals(target)) {
@@ -209,7 +209,7 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                     break;
 
                 case "name":
-                    PlayersTeam targetTeam = soloServerApi.searchTeamFromOwner((player).getUniqueId());
+                    PlayersTeam targetTeam = soloServerApi.getPlayersTeam(player);
                     if (targetTeam != null) {
                         if (args.length >= 2)
                             targetTeam.updateTeamName(player, args[1]);
@@ -222,7 +222,7 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                     break;
             }
         } else {
-            Bukkit.getLogger().info("This command must be executed in-game.");
+            sender.sendMessage("[Teams] This command must be executed in-game.");
         }
         return true;
     }
