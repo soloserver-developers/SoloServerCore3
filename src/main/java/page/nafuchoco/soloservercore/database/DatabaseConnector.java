@@ -18,6 +18,7 @@ package page.nafuchoco.soloservercore.database;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import lombok.val;
 import page.nafuchoco.soloservercore.SoloServerCoreConfig;
 
 import java.sql.Connection;
@@ -27,7 +28,7 @@ public class DatabaseConnector {
     private final HikariDataSource dataSource;
 
     public DatabaseConnector(SoloServerCoreConfig.DatabaseType databaseType, String address, String database, String username, String password) {
-        HikariConfig hconfig = new HikariConfig();
+        val hconfig = new HikariConfig();
         hconfig.setDriverClassName(databaseType.getJdbcClass());
         hconfig.setJdbcUrl(databaseType.getAddressPrefix() + address + "/" + database);
         hconfig.addDataSourceProperty("user", username);

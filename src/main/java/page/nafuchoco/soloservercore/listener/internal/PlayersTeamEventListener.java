@@ -18,7 +18,6 @@ package page.nafuchoco.soloservercore.listener.internal;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -32,6 +31,7 @@ import page.nafuchoco.soloservercore.database.PluginSettingsManager;
 import page.nafuchoco.soloservercore.event.*;
 
 import java.sql.SQLException;
+import java.util.Objects;
 import java.util.logging.Level;
 
 public class PlayersTeamEventListener implements Listener {
@@ -78,14 +78,14 @@ public class PlayersTeamEventListener implements Listener {
                 return;
             }
 
-            Player owner = Bukkit.getPlayer(event.getPlayersTeam().getOwner());
+            var owner = Bukkit.getPlayer(event.getPlayersTeam().getOwner());
             if (owner != null) {
                 owner.sendMessage(ChatColor.GREEN + "[Teams] あなたのチームに" + event.getPlayer().getDisplayName() + "が加わりました！");
                 event.getPlayer().showPlayer(SoloServerCore.getInstance(), owner);
                 owner.showPlayer(SoloServerCore.getInstance(), event.getPlayer());
             }
             event.getPlayersTeam().getMembers().forEach(uuid -> {
-                Player player = Bukkit.getPlayer(uuid);
+                var player = Bukkit.getPlayer(uuid);
                 if (player != null) {
                     player.sendMessage(ChatColor.GREEN + "[Teams] " + event.getPlayer().getDisplayName() + "がチームに加わりました！");
                     event.getPlayer().showPlayer(SoloServerCore.getInstance(), player);
@@ -111,14 +111,14 @@ public class PlayersTeamEventListener implements Listener {
                 return;
             }
 
-            Player owner = Bukkit.getPlayer(event.getPlayersTeam().getOwner());
+            var owner = Bukkit.getPlayer(event.getPlayersTeam().getOwner());
             if (owner != null) {
                 owner.sendMessage(ChatColor.RED + "[Teams] あなたのチームから" + event.getPlayer().getDisplayName() + "が脱退しました。");
                 event.getPlayer().hidePlayer(SoloServerCore.getInstance(), owner);
                 owner.hidePlayer(SoloServerCore.getInstance(), event.getPlayer());
             }
             event.getPlayersTeam().getMembers().forEach(uuid -> {
-                Player player = Bukkit.getPlayer(uuid);
+                var player = Bukkit.getPlayer(uuid);
                 if (player != null) {
                     player.sendMessage(ChatColor.RED + "[Teams] " + event.getPlayer().getDisplayName() + "がチームから脱退しました。");
                     event.getPlayer().hidePlayer(SoloServerCore.getInstance(), player);
@@ -136,14 +136,14 @@ public class PlayersTeamEventListener implements Listener {
                 try {
                     playersTable.updateJoinedTeam(uuid, null);
                     SoloServerApi.getInstance().getSSCPlayer(event.getPlayer()).setJoinedTeam(null);
-                    Player player = Bukkit.getPlayer(uuid);
+                    var player = Bukkit.getPlayer(uuid);
                     if (player != null) {
                         player.sendMessage(ChatColor.RED + "[Teams] オーナーがチームから脱退したためチームが解散されました。");
                         event.getPlayer().hidePlayer(SoloServerCore.getInstance(), player);
                         player.hidePlayer(SoloServerCore.getInstance(), event.getPlayer());
                         event.getPlayersTeam().getMembers().forEach(member -> {
                             if (!member.equals(uuid)) {
-                                Player memberPlayer = Bukkit.getPlayer(member);
+                                var memberPlayer = Bukkit.getPlayer(member);
                                 if (memberPlayer != null) {
                                     player.hidePlayer(SoloServerCore.getInstance(), memberPlayer);
                                     memberPlayer.hidePlayer(SoloServerCore.getInstance(), player);
@@ -165,21 +165,17 @@ public class PlayersTeamEventListener implements Listener {
     public void onPlayersTeamStatusUpdateEvent(PlayersTeamStatusUpdateEvent event) {
         try {
             switch (event.getState()) {
-                case NAME:
-                    teamsTable.updateTeamName(event.getPlayersTeam().getId(), event.getPlayersTeam().getTeamName());
-                    break;
-
-                case OWNER:
-                    Player ownerPlayer = Bukkit.getPlayer(((PlayersTeam) event.getAfter()).getOwner());
+                case NAME -> teamsTable.updateTeamName(event.getPlayersTeam().getId(), event.getPlayersTeam().getTeamName());
+                case OWNER -> {
+                    var ownerPlayer = Bukkit.getPlayer(((PlayersTeam) event.getAfter()).getOwner());
                     teamsTable.updateTeamOwner(event.getPlayersTeam().getId(), ownerPlayer.getUniqueId());
-
                     ownerPlayer.sendMessage(ChatColor.GREEN + "[Teams] チームのオーナが" + ownerPlayer.getDisplayName() + "に譲渡されました。");
-                    event.getPlayersTeam().getMembers().forEach(uuid -> {
-                        Player member = Bukkit.getPlayer(uuid);
-                        if (member != null)
-                            member.sendMessage(ChatColor.GREEN + "[Teams] チームのオーナが" + ownerPlayer.getDisplayName() + "に譲渡されました。");
-                    });
-                    break;
+                    event.getPlayersTeam().getMembers().stream()
+                            .map(Bukkit::getPlayer)
+                            .filter(Objects::nonNull)
+                            .forEach(member ->
+                                    member.sendMessage(ChatColor.GREEN + "[Teams] チームのオーナが" + ownerPlayer.getDisplayName() + "に譲渡されました。"));
+                }
             }
         } catch (SQLException e) {
             SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to update the team data.", e);

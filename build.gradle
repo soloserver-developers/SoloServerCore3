@@ -9,9 +9,11 @@ plugins {
 group = 'page.nafuchoco'
 version = '4.1.0'
 
-sourceCompatibility = '1.8'
-targetCompatibility = '1.8'
-
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(16)
+    }
+}
 shadowJar {
     archiveFileName.set(rootProject.name + '.' + archiveExtension.get())
 }

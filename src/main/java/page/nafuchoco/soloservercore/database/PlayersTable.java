@@ -18,6 +18,7 @@ package page.nafuchoco.soloservercore.database;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import lombok.val;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,9 +26,6 @@ import page.nafuchoco.soloservercore.SoloServerCore;
 import page.nafuchoco.soloservercore.data.OfflineSSCPlayer;
 import page.nafuchoco.soloservercore.data.SSCPlayer;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,16 +44,16 @@ public class PlayersTable extends DatabaseTable {
 
     public List<OfflineSSCPlayer> getPlayers() {
         List<OfflineSSCPlayer> players = new ArrayList<>();
-        try (Connection connection = getConnector().getConnection();
-             PreparedStatement ps = connection.prepareStatement(
+        try (var connection = getConnector().getConnection();
+             var ps = connection.prepareStatement(
                      "SELECT * FROM " + getTablename()
              )) {
-            try (ResultSet resultSet = ps.executeQuery()) {
+            try (var resultSet = ps.executeQuery()) {
                 while (resultSet.next()) {
-                    UUID id = UUID.fromString(resultSet.getString("id"));
-                    String spawnLocation = resultSet.getString("spawn_location");
+                    val id = UUID.fromString(resultSet.getString("id"));
+                    val spawnLocation = resultSet.getString("spawn_location");
                     UUID joinedTeam = null;
-                    String teamUUID = resultSet.getString("joined_team");
+                    val teamUUID = resultSet.getString("joined_team");
                     if (teamUUID != null)
                         joinedTeam = UUID.fromString(teamUUID);
                     players.add(new OfflineSSCPlayer(id, spawnLocation, joinedTeam));
@@ -68,16 +66,16 @@ public class PlayersTable extends DatabaseTable {
     }
 
     public OfflineSSCPlayer getPlayerData(@NotNull UUID uuid) {
-        try (Connection connection = getConnector().getConnection();
-             PreparedStatement ps = connection.prepareStatement(
+        try (var connection = getConnector().getConnection();
+             var ps = connection.prepareStatement(
                      "SELECT * FROM " + getTablename() + " WHERE id = ?"
              )) {
             ps.setString(1, uuid.toString());
-            try (ResultSet resultSet = ps.executeQuery()) {
+            try (var resultSet = ps.executeQuery()) {
                 while (resultSet.next()) {
-                    String spawnLocation = resultSet.getString("spawn_location");
+                    val spawnLocation = resultSet.getString("spawn_location");
                     UUID joinedTeam = null;
-                    String teamUUID = resultSet.getString("joined_team");
+                    val teamUUID = resultSet.getString("joined_team");
                     if (teamUUID != null)
                         joinedTeam = UUID.fromString(teamUUID);
                     return new OfflineSSCPlayer(uuid, spawnLocation, joinedTeam);
@@ -90,8 +88,8 @@ public class PlayersTable extends DatabaseTable {
     }
 
     public void registerPlayer(@NotNull SSCPlayer sscPlayer) throws SQLException {
-        try (Connection connection = getConnector().getConnection();
-             PreparedStatement ps = connection.prepareStatement(
+        try (var connection = getConnector().getConnection();
+             var ps = connection.prepareStatement(
                      "INSERT INTO " + getTablename() + " (id, spawn_location, joined_team) " +
                              "VALUES (?, ?, ?)"
              )) {
@@ -106,15 +104,15 @@ public class PlayersTable extends DatabaseTable {
     }
 
     public void updateSpawnLocation(@NotNull UUID uuid, @NotNull Location location) throws SQLException {
-        JsonObject locationJson = new JsonObject();
+        val locationJson = new JsonObject();
         locationJson.addProperty("World", location.getWorld().getName());
         locationJson.addProperty("X", location.getBlockX());
         locationJson.addProperty("Y", location.getBlockY());
         locationJson.addProperty("Z", location.getBlockZ());
-        String stringLocation = new Gson().toJson(locationJson);
+        val stringLocation = new Gson().toJson(locationJson);
 
-        try (Connection connection = getConnector().getConnection();
-             PreparedStatement ps = connection.prepareStatement(
+        try (var connection = getConnector().getConnection();
+             var ps = connection.prepareStatement(
                      "UPDATE " + getTablename() + " SET spawn_location = ? WHERE id = ?"
              )) {
             ps.setString(1, stringLocation);
@@ -124,8 +122,8 @@ public class PlayersTable extends DatabaseTable {
     }
 
     public void updateJoinedTeam(@NotNull UUID uuid, @Nullable UUID joinedTeam) throws SQLException {
-        try (Connection connection = getConnector().getConnection();
-             PreparedStatement ps = connection.prepareStatement(
+        try (var connection = getConnector().getConnection();
+             var ps = connection.prepareStatement(
                      "UPDATE " + getTablename() + " SET joined_team = ? WHERE id = ?"
              )) {
             ps.setString(2, uuid.toString());
@@ -138,8 +136,8 @@ public class PlayersTable extends DatabaseTable {
     }
 
     public void deletePlayer(@NotNull OfflineSSCPlayer sscPlayer) throws SQLException {
-        try (Connection connection = getConnector().getConnection();
-             PreparedStatement ps = connection.prepareStatement(
+        try (var connection = getConnector().getConnection();
+             var ps = connection.prepareStatement(
                      "DELETE FROM " + getTablename() + " WHERE id = ?"
              )) {
             ps.setString(1, sscPlayer.getId().toString());

@@ -18,9 +18,6 @@ package page.nafuchoco.soloservercore.database;
 
 import page.nafuchoco.soloservercore.SoloServerCore;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 
@@ -35,11 +32,11 @@ public class PluginSettingsTable extends DatabaseTable {
     }
 
     public String getPluginSetting(String name) {
-        try (Connection connection = getConnector().getConnection();
-             PreparedStatement ps = connection.prepareStatement(
+        try (var connection = getConnector().getConnection();
+             var ps = connection.prepareStatement(
                      "SELECT settings_value FROM " + getTablename() + " WHERE settings_name = ?")) {
             ps.setString(1, name);
-            try (ResultSet resultSet = ps.executeQuery()) {
+            try (var resultSet = ps.executeQuery()) {
                 while (resultSet.next())
                     return resultSet.getString("settings_value");
             }
@@ -50,8 +47,8 @@ public class PluginSettingsTable extends DatabaseTable {
     }
 
     public void setPluginSetting(String name, String value) throws SQLException {
-        try (Connection connection = getConnector().getConnection();
-             PreparedStatement ps = connection.prepareStatement(
+        try (var connection = getConnector().getConnection();
+             var ps = connection.prepareStatement(
                      "INSERT INTO " + getTablename() + " (settings_name, settings_value) VALUES (?, ?) " +
                              "ON DUPLICATE KEY UPDATE settings_value = VALUES (settings_value)")) {
             ps.setString(1, name);

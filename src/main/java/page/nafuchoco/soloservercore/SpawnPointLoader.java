@@ -16,6 +16,7 @@
 
 package page.nafuchoco.soloservercore;
 
+import lombok.val;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -64,7 +65,7 @@ public class SpawnPointLoader {
     }
 
     public boolean isDone() {
-        if (points.size() == 0)
+        if (points.isEmpty())
             return false;
         return done;
     }
@@ -74,10 +75,10 @@ public class SpawnPointLoader {
     }
 
     public Location getNewLocation() {
-        if (points.size() == 0)
+        if (points.isEmpty())
             return null;
 
-        Location location = points.get(random.nextInt(points.size()));
+        val location = points.get(random.nextInt(points.size()));
         points.remove(location);
         return location;
     }

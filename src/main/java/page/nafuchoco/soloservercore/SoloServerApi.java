@@ -16,6 +16,7 @@
 
 package page.nafuchoco.soloservercore;
 
+import lombok.val;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -53,12 +54,11 @@ public final class SoloServerApi {
      */
     @NotNull
     public InGameSSCPlayer getSSCPlayer(@NotNull Player player) {
-        InGameSSCPlayer sscPlayer = playerStore.get(player);
+        var sscPlayer = playerStore.get(player);
         if (sscPlayer == null) {
-            UUID id = player.getUniqueId();
-            OfflineSSCPlayer offlineSSCPlayer = getOfflineSSCPlayer(id);
-            if (offlineSSCPlayer == null)
-                throw new IllegalStateException();
+            val id = player.getUniqueId();
+            val offlineSSCPlayer = getOfflineSSCPlayer(id);
+            assert offlineSSCPlayer != null;
             sscPlayer = new InGameSSCPlayer(offlineSSCPlayer, player, false);
             playerStore.put(player, sscPlayer);
         }
@@ -86,7 +86,7 @@ public final class SoloServerApi {
     @Deprecated
     @Nullable
     public PlayersTeam searchTeamFromOwner(@NotNull UUID owner) {
-        UUID teamId = soloServerCore.getPlayersTeamsTable().searchTeamFromOwner(owner);
+        val teamId = soloServerCore.getPlayersTeamsTable().searchTeamFromOwner(owner);
         if (teamId != null)
             return getPlayersTeam(teamId);
         return null;
@@ -100,7 +100,7 @@ public final class SoloServerApi {
      */
     @Nullable
     public PlayersTeam getPlayersTeam(@NotNull UUID id) {
-        PlayersTeam playersTeam = teamsStore.get(id);
+        var playersTeam = teamsStore.get(id);
         if (playersTeam == null) {
             playersTeam = soloServerCore.getPlayersTeamsTable().getPlayersTeam(id);
             if (playersTeam != null)
