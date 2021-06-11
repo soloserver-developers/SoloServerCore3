@@ -19,7 +19,7 @@ package page.nafuchoco.soloservercore.packet;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
-import com.comphenix.protocol.wrappers.WrappedServerPing;
+import lombok.val;
 import page.nafuchoco.soloservercore.SoloServerCore;
 
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ public class ServerInfoPacketEventListener extends PacketAdapter {
 
     @Override
     public void onPacketSending(PacketEvent event) {
-        WrappedServerPing ping = event.getPacket().getServerPings().read(0);
+        val ping = event.getPacket().getServerPings().read(0);
         ping.setPlayers(new ArrayList<>());
     }
 }

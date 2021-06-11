@@ -16,21 +16,17 @@
 
 package page.nafuchoco.soloservercore.command;
 
+import lombok.val;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import page.nafuchoco.soloservercore.SoloServerApi;
 import page.nafuchoco.soloservercore.SoloServerCore;
-import page.nafuchoco.soloservercore.data.OfflineSSCPlayer;
-import page.nafuchoco.soloservercore.data.PlayersTeam;
-import page.nafuchoco.soloservercore.data.SSCPlayer;
 import page.nafuchoco.soloservercore.database.PlayersTable;
 import page.nafuchoco.soloservercore.database.PlayersTeamsTable;
 
@@ -50,7 +46,7 @@ public class MaintenanceCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        SoloServerApi soloServerApi = SoloServerApi.getInstance();
+        var soloServerApi = SoloServerApi.getInstance();
 
         if (!sender.hasPermission("soloservercore.maintenance")) {
             sender.sendMessage(ChatColor.RED + "You can't run this command because you don't have permission.");
@@ -59,30 +55,28 @@ public class MaintenanceCommand implements CommandExecutor, TabCompleter {
         } else switch (args[0]) {
             case "clear":
                 try {
-                    UUID playerId = UUID.fromString(args[1]);
-                    OfflineSSCPlayer target = soloServerApi.getOfflineSSCPlayer(playerId);
+                    val playerId = UUID.fromString(args[1]);
+                    val target = soloServerApi.getOfflineSSCPlayer(playerId);
                     if (target != null) {
-                        Player targetPlayer = Bukkit.getPlayer(playerId);
+                        val targetPlayer = Bukkit.getPlayer(playerId);
                         if (targetPlayer != null)
                             targetPlayer.kickPlayer("[SSC] The player data has been deleted by the administrator.");
                         try {
                             // チームに所属している場合は脱退、オーナーの場合はチームの削除
                             if (target.getJoinedTeam() != null) {
-                                PlayersTeam joinedTeam = soloServerApi.getPlayersTeam(target.getJoinedTeamId());
+                                val joinedTeam = soloServerApi.getPlayersTeam(target.getJoinedTeamId());
                                 if (joinedTeam.getOwner().equals(target.getId())) {
                                     teamsTable.deleteTeam(joinedTeam.getId());
-                                    if (!joinedTeam.getMembers().isEmpty()) {
-                                        joinedTeam.getMembers().forEach(m -> {
-                                                    try {
-                                                        playersTable.updateJoinedTeam(m, null);
-                                                    } catch (SQLException e) {
-                                                        SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to update the team data.", e);
-                                                    }
+                                    joinedTeam.getMembers().forEach(m -> {
+                                                try {
+                                                    playersTable.updateJoinedTeam(m, null);
+                                                } catch (SQLException e) {
+                                                    SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to update the team data.", e);
                                                 }
-                                        );
-                                    }
+                                            }
+                                    );
                                 } else {
-                                    List<UUID> members = joinedTeam.getMembers();
+                                    val members = joinedTeam.getMembers();
                                     members.remove(playerId);
                                     teamsTable.updateMembers(joinedTeam.getId(), members);
                                 }
@@ -99,11 +93,11 @@ public class MaintenanceCommand implements CommandExecutor, TabCompleter {
                 break;
 
             case "show":
-                OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[1]);
+                val offlinePlayer = Bukkit.getOfflinePlayer(args[1]);
                 if (offlinePlayer != null) {
-                    SSCPlayer player = soloServerApi.getOfflineSSCPlayer(offlinePlayer.getUniqueId());
+                    val player = soloServerApi.getOfflineSSCPlayer(offlinePlayer.getUniqueId());
                     if (player != null) {
-                        StringBuilder sb = new StringBuilder();
+                        val sb = new StringBuilder();
                         sb.append(ChatColor.AQUA + "====== Maintenance Player Information ======\n" + ChatColor.RESET);
                         sb.append("UUID: " + player.getId() + "\n");
                         sb.append("SpawnLocation: " + player.getSpawnLocation() + "\n");

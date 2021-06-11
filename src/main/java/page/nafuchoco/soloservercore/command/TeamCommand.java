@@ -16,6 +16,7 @@
 
 package page.nafuchoco.soloservercore.command;
 
+import lombok.val;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -27,7 +28,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import page.nafuchoco.soloservercore.SoloServerApi;
 import page.nafuchoco.soloservercore.data.PlayersTeam;
-import page.nafuchoco.soloservercore.data.SSCPlayer;
 import page.nafuchoco.soloservercore.database.PluginSettingsManager;
 import page.nafuchoco.soloservercore.event.PlayersTeamCreateEvent;
 import page.nafuchoco.soloservercore.event.PlayersTeamStatusUpdateEvent;
@@ -37,7 +37,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class TeamCommand implements CommandExecutor, TabCompleter {
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
 
     private final PluginSettingsManager settingsManager;
     private final Map<UUID, PlayersTeam> invited;
@@ -50,25 +50,25 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (sender instanceof Player) {
-            Player player = (Player) sender;
-            SoloServerApi soloServerApi = SoloServerApi.getInstance();
+            val player = (Player) sender;
+            val soloServerApi = SoloServerApi.getInstance();
             if (args.length == 0) {
                 // Show Team Status
-                SSCPlayer sscPlayer = soloServerApi.getSSCPlayer(player);
+                val sscPlayer = soloServerApi.getSSCPlayer(player);
                 if (sscPlayer.getJoinedTeam() != null) {
-                    PlayersTeam team = sscPlayer.getJoinedTeam();
+                    val team = sscPlayer.getJoinedTeam();
                     sender.sendMessage(ChatColor.AQUA + "======== PlayersTeam Infomation ========");
-                    StringBuilder builder = new StringBuilder();
+                    val builder = new StringBuilder();
                     if (team.getTeamName() == null)
                         builder.append("JoinedTeam: " + team.getId() + "\n");
                     else
                         builder.append("JoinedTeam: " + team.getTeamName() + "\n");
                     builder.append("TeamOwner: " + Bukkit.getOfflinePlayer(team.getOwner()).getName() + ChatColor.GRAY +
-                            " [" + DATE_FORMAT.format(Bukkit.getOfflinePlayer(team.getOwner()).getLastPlayed()) + "]" + "\n");
+                            " [" + dateFormat.format(Bukkit.getOfflinePlayer(team.getOwner()).getLastPlayed()) + "]" + "\n");
                     builder.append(ChatColor.RESET + "TeamMembers: \n" + team.getMembers().stream()
                             .map(u -> Bukkit.getOfflinePlayer(u))
                             .map(p -> p.getName() + ChatColor.GRAY +
-                                    " [" + DATE_FORMAT.format(p.getLastPlayed()) + "]" + ChatColor.WHITE)
+                                    " [" + dateFormat.format(p.getLastPlayed()) + "]" + ChatColor.WHITE)
                             .collect(Collectors.joining("\n")));
                     sender.sendMessage(builder.toString());
                 } else {
@@ -79,9 +79,9 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
             } else switch (args[0]) {
                 case "create": {
                     // すでにチームに所属している場合は
-                    SSCPlayer sscPlayer = soloServerApi.getSSCPlayer(player);
+                    val sscPlayer = soloServerApi.getSSCPlayer(player);
                     if (sscPlayer.getJoinedTeam() != null) {
-                        PlayersTeam team = sscPlayer.getJoinedTeam();
+                        val team = sscPlayer.getJoinedTeam();
                         if (player.getUniqueId().equals(team.getOwner())) {
                             sender.sendMessage(ChatColor.RED + "[Teams] 既にあなたがオーナーのチームを持っています！");
                             break;
@@ -91,8 +91,8 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                         }
                     }
 
-                    UUID id = UUID.randomUUID();
-                    PlayersTeamCreateEvent createEvent = new PlayersTeamCreateEvent(new PlayersTeam(id, (player).getUniqueId()), player);
+                    val id = UUID.randomUUID();
+                    val createEvent = new PlayersTeamCreateEvent(new PlayersTeam(id, (player).getUniqueId()), player);
                     Bukkit.getServer().getPluginManager().callEvent(createEvent);
                     if (!createEvent.isCancelled())
                         sender.sendMessage(ChatColor.GREEN + "[Teams] あなたのチームが作成されました！\n" +
@@ -105,24 +105,24 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                 case "invite":
                     if (args.length >= 2) {
                         args = Arrays.copyOfRange(args, 1, args.length);
-                        PlayersTeam playersTeam = soloServerApi.getPlayersTeam(player);
+                        val playersTeam = soloServerApi.getPlayersTeam(player);
                         if (playersTeam != null) {
-                            for (String arg : args) {
-                                Player target = Bukkit.getPlayer(arg);
-                                if (target != null) {
-                                    if (target.equals(player)) {
-                                        sender.sendMessage(ChatColor.RED +
-                                                "[Teams] 自分自身を招待することはできません！");
-                                    } else if (player.getWorld().equals(target.getWorld())) {
-                                        invited.put(target.getUniqueId(), playersTeam);
-                                        target.sendMessage(ChatColor.GREEN + "[Teams]" + player.getDisplayName() +
-                                                " さんからチームに招待されました。\n" +
-                                                "参加するには /team accept を実行してください。");
-                                    } else {
-                                        sender.sendMessage(ChatColor.RED + "[Teams] 招待するプレイヤーは同じワールドにいる必要があります。");
-                                    }
-                                }
-                            }
+                            Arrays.stream(args)
+                                    .map(Bukkit::getPlayer)
+                                    .filter(Objects::nonNull)
+                                    .forEach(target -> {
+                                        if (target.equals(player)) {
+                                            sender.sendMessage(ChatColor.RED +
+                                                    "[Teams] 自分自身を招待することはできません！");
+                                        } else if (player.getWorld().equals(target.getWorld())) {
+                                            invited.put(target.getUniqueId(), playersTeam);
+                                            target.sendMessage(ChatColor.GREEN + "[Teams]" + player.getDisplayName() +
+                                                    " さんからチームに招待されました。\n" +
+                                                    "参加するには /team accept を実行してください。");
+                                        } else {
+                                            sender.sendMessage(ChatColor.RED + "[Teams] 招待するプレイヤーは同じワールドにいる必要があります。");
+                                        }
+                                    });
                         } else {
                             sender.sendMessage(ChatColor.YELLOW + "[Teams] チームに招待するためには自分がオーナーのチームに所属している必要があります。\n" +
                                     "チームを作成するには /team create を実行してください。");
@@ -133,10 +133,10 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                     break;
 
                 case "accept":
-                    PlayersTeam invitedTeam = invited.remove((player).getUniqueId());
+                    val invitedTeam = invited.remove((player).getUniqueId());
                     if (invitedTeam != null) {
                         // すでにチームに所属している場合は
-                        SSCPlayer sscPlayer = soloServerApi.getSSCPlayer(player);
+                        val sscPlayer = soloServerApi.getSSCPlayer(player);
                         if (sscPlayer.getJoinedTeam() != null) {
                             sscPlayer.getJoinedTeam().leaveTeam(player);
                             sender.sendMessage(ChatColor.GREEN + "[Teams] これまで入っていたチームから脱退しました。");
@@ -149,9 +149,9 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                     break;
 
                 case "leave": {
-                    SSCPlayer sscPlayer = soloServerApi.getSSCPlayer(player);
+                    val sscPlayer = soloServerApi.getSSCPlayer(player);
                     if (sscPlayer.getJoinedTeam() != null) {
-                        PlayersTeam team = sscPlayer.getJoinedTeam();
+                        val team = sscPlayer.getJoinedTeam();
                         if (settingsManager.isTeamSpawnCollect()
                                 && team.getOwner().equals(player.getUniqueId())
                                 && !team.getMembers().isEmpty()) {
@@ -169,9 +169,9 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                 break;
 
                 case "confirm": {
-                    SSCPlayer sscPlayer = soloServerApi.getSSCPlayer(player);
+                    val sscPlayer = soloServerApi.getSSCPlayer(player);
                     if (sscPlayer.getJoinedTeam() != null && invited.remove(sscPlayer.getJoinedTeamId()) != null) {
-                        PlayersTeam team = sscPlayer.getJoinedTeam();
+                        val team = sscPlayer.getJoinedTeam();
                         team.leaveTeam(player);
                         sender.sendMessage(ChatColor.GREEN + "[Teams] チームから脱退しました。");
                     }
@@ -180,21 +180,20 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
 
                 case "transfer":
                     if (args.length >= 2) {
-                        PlayersTeam originalTeam = soloServerApi.getPlayersTeam(player);
+                        val originalTeam = soloServerApi.getPlayersTeam(player);
                         if (originalTeam != null) {
-                            Player target = Bukkit.getPlayer(args[1]);
+                            val target = Bukkit.getPlayer(args[1]);
                             if (target != null && !player.equals(target)) {
-                                SSCPlayer sscPlayer = soloServerApi.getSSCPlayer(target);
+                                val sscPlayer = soloServerApi.getSSCPlayer(target);
                                 if (originalTeam.getId().equals(sscPlayer.getJoinedTeamId())) {
-                                    PlayersTeam transferredTeam = new PlayersTeam(originalTeam.getId(), target.getUniqueId());
+                                    val transferredTeam = new PlayersTeam(originalTeam.getId(), target.getUniqueId());
                                     transferredTeam.setMembers(originalTeam.getMembers());
-                                    PlayersTeamStatusUpdateEvent updateEvent =
-                                            new PlayersTeamStatusUpdateEvent(
-                                                    originalTeam,
-                                                    player,
-                                                    PlayersTeamStatusUpdateEvent.UpdatedState.OWNER,
-                                                    originalTeam,
-                                                    transferredTeam);
+                                    val updateEvent = new PlayersTeamStatusUpdateEvent(
+                                            originalTeam,
+                                            player,
+                                            PlayersTeamStatusUpdateEvent.UpdatedState.OWNER,
+                                            originalTeam,
+                                            transferredTeam);
                                     Bukkit.getServer().getPluginManager().callEvent(updateEvent);
                                 } else {
                                     sender.sendMessage(ChatColor.YELLOW + "[Teams] オーナーを譲渡するためには対象がチームのメンバーである必要があります。");
@@ -209,7 +208,7 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                     break;
 
                 case "name":
-                    PlayersTeam targetTeam = soloServerApi.getPlayersTeam(player);
+                    val targetTeam = soloServerApi.getPlayersTeam(player);
                     if (targetTeam != null) {
                         if (args.length >= 2)
                             targetTeam.updateTeamName(player, args[1]);

@@ -16,6 +16,7 @@
 
 package page.nafuchoco.soloservercore.data;
 
+import lombok.val;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -104,10 +105,9 @@ public class PlayersTeam {
      * @param teamName 変更するチーム名
      */
     public void updateTeamName(Player player, String teamName) {
-        String before = getTeamName();
+        val before = getTeamName();
         setTeamName(teamName);
-        PlayersTeamStatusUpdateEvent statusUpdateEvent =
-                new PlayersTeamStatusUpdateEvent(this, player, PlayersTeamStatusUpdateEvent.UpdatedState.NAME, before, teamName);
+        val statusUpdateEvent = new PlayersTeamStatusUpdateEvent(this, player, PlayersTeamStatusUpdateEvent.UpdatedState.NAME, before, teamName);
         Bukkit.getServer().getPluginManager().callEvent(statusUpdateEvent);
     }
 
@@ -118,7 +118,7 @@ public class PlayersTeam {
      */
     public void joinTeam(Player player) {
         members.add(player.getUniqueId());
-        PlayersTeamJoinEvent joinEvent = new PlayersTeamJoinEvent(this, player);
+        val joinEvent = new PlayersTeamJoinEvent(this, player);
         Bukkit.getServer().getPluginManager().callEvent(joinEvent);
         if (joinEvent.isCancelled())
             members.remove(player.getUniqueId());
@@ -131,11 +131,11 @@ public class PlayersTeam {
      */
     public void leaveTeam(Player player) {
         if (player.getUniqueId().equals(owner)) {
-            PlayersTeamDisappearanceEvent disappearanceEvent = new PlayersTeamDisappearanceEvent(this, player);
+            val disappearanceEvent = new PlayersTeamDisappearanceEvent(this, player);
             Bukkit.getServer().getPluginManager().callEvent(disappearanceEvent);
         } else {
             members.remove(player.getUniqueId());
-            PlayersTeamLeaveEvent leaveEvent = new PlayersTeamLeaveEvent(this, player);
+            val leaveEvent = new PlayersTeamLeaveEvent(this, player);
             Bukkit.getServer().getPluginManager().callEvent(leaveEvent);
             if (leaveEvent.isCancelled())
                 members.add(player.getUniqueId());

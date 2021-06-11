@@ -18,6 +18,7 @@ package page.nafuchoco.soloservercore.data;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import lombok.val;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -42,7 +43,7 @@ public class OfflineSSCPlayer implements SSCPlayer {
         this.id = id;
         this.joinedTeam = (joinedTeamId != null) ? SoloServerApi.getInstance().getPlayersTeam(joinedTeamId) : null;
 
-        JsonObject locationJson = new JsonObject();
+        val locationJson = new JsonObject();
         locationJson.addProperty("World", location.getWorld().getName());
         locationJson.addProperty("X", location.getBlockX());
         locationJson.addProperty("Y", location.getBlockY());

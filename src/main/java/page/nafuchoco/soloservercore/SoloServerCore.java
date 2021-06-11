@@ -18,15 +18,13 @@ package page.nafuchoco.soloservercore;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
+import lombok.val;
 import net.coreprotect.CoreProtect;
 import net.coreprotect.CoreProtectAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -60,15 +58,15 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
     private static SoloServerCore instance;
     private static SoloServerCoreConfig config;
 
-    private static PluginSettingsTable pluginSettingsTable;
-    private static PlayersTable playersTable;
-    private static PlayersTeamsTable playersTeamsTable;
+    private PluginSettingsTable pluginSettingsTable;
+    private PlayersTable playersTable;
+    private PlayersTeamsTable playersTeamsTable;
 
-    private static PluginSettingsManager pluginSettingsManager;
-    private static SpawnPointLoader spawnPointLoader;
-    private static ProtocolManager protocolManager;
-    private static DatabaseConnector connector;
-    private static CoreProtectAPI coreProtectAPI;
+    private PluginSettingsManager pluginSettingsManager;
+    private SpawnPointLoader spawnPointLoader;
+    private ProtocolManager protocolManager;
+    private DatabaseConnector connector;
+    private CoreProtectAPI coreProtectAPI;
 
     public static SoloServerCore getInstance() {
         if (instance == null)
@@ -113,7 +111,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
 
         // Generate random world spawn point
         getLogger().info("Pre-generate spawn points. This often seems to freeze the system, but for the most part it is normal.");
-        World world = Bukkit.getWorld(config.getInitConfig().getSpawnWorld());
+        val world = Bukkit.getWorld(config.getInitConfig().getSpawnWorld());
         spawnPointLoader = new SpawnPointLoader(
                 pluginSettingsManager,
                 new SpawnPointGenerator(world, config.getInitConfig().getGenerateLocationRange()));
@@ -126,7 +124,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
         protocolManager.addPacketListener(new ServerInfoPacketEventListener());
 
         // CoreProtect Init
-        CoreProtect coreProtect = (CoreProtect) getServer().getPluginManager().getPlugin("CoreProtect");
+        val coreProtect = (CoreProtect) getServer().getPluginManager().getPlugin("CoreProtect");
         coreProtectAPI = coreProtect.getAPI();
         if (pluginSettingsManager.isCheckBlock())
             getServer().getPluginManager().registerEvents(new BlockEventListener(new CoreProtectClient(coreProtectAPI), pluginSettingsManager), this);
@@ -146,14 +144,13 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(this, this);
 
         // Command Register
-        SettingsCommand settingsCommand = new SettingsCommand(pluginSettingsManager);
-        TeamCommand teamCommand = new TeamCommand(pluginSettingsManager);
-        ReTeleportCommand reTeleportCommand = new ReTeleportCommand(
+        val settingsCommand = new SettingsCommand(pluginSettingsManager);
+        val teamCommand = new TeamCommand(pluginSettingsManager);
+        val reTeleportCommand = new ReTeleportCommand(
                 playersTable,
-                playersTeamsTable,
                 spawnPointLoader,
                 Bukkit.getWorld(config.getInitConfig().getSpawnWorld()));
-        MaintenanceCommand maintenanceCommand = new MaintenanceCommand(playersTable, playersTeamsTable);
+        val maintenanceCommand = new MaintenanceCommand(playersTable, playersTeamsTable);
         getCommand("settings").setExecutor(settingsCommand);
         getCommand("settings").setTabCompleter(settingsCommand);
         getCommand("team").setExecutor(teamCommand);
@@ -165,8 +162,8 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
 
     private void migrateDatabase() {
         // 初起動は除外する
-        boolean doMigrate = true;
-        int lastMigratedVersion = pluginSettingsManager.getLastMigratedVersion();
+        var doMigrate = true;
+        val lastMigratedVersion = pluginSettingsManager.getLastMigratedVersion();
         if (lastMigratedVersion == 350) {
             try {
                 if (playersTable.getPlayers().isEmpty()) {
@@ -180,31 +177,31 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
 
         if (doMigrate) {
             // Migrationコンフィグの読み込み
-            FileConfiguration migrateConfig =
+            val migrateConfig =
                     YamlConfiguration.loadConfiguration(new InputStreamReader(getResource("migrate.yml")));
-            List<Integer> versions = migrateConfig.getMapList("migrate").stream()
+            val versions = migrateConfig.getMapList("migrate").stream()
                     .map(map -> (String) map.get("version"))
-                    .map(v -> Integer.parseInt(v.replaceAll("\\.", "")))
+                    .map(v -> Integer.parseInt(v.replace(".", "")))
                     .distinct()
                     .sorted()
                     .collect(Collectors.toList());
 
             // 更新がない場合実行しない
-            String[] s = getDescription().getVersion().split("-");
-            int nowVersion = Integer.parseInt(s[0].replaceAll("\\.", ""));
+            val s = getDescription().getVersion().split("-");
+            val nowVersion = Integer.parseInt(s[0].replace(".", ""));
             if (nowVersion == lastMigratedVersion || versions.stream().max(Comparator.naturalOrder()).get() < nowVersion)
                 doMigrate = false;
 
             // processリストの生成
-            int index = versions.indexOf(lastMigratedVersion);
-            List<Integer> processList = index == -1 ? versions : versions.subList(index + 1, versions.size());
+            val index = versions.indexOf(lastMigratedVersion);
+            val processList = index == -1 ? versions : versions.subList(index + 1, versions.size());
             doMigrate = doMigrate && !processList.isEmpty();
 
             if (doMigrate) {
                 getLogger().info("The database structure has been updated. Start the migration process.");
                 processList.forEach(process -> {
                     List<Map<?, ?>> versionProcessMap = migrateConfig.getMapList("migrate").stream()
-                            .filter(map -> Integer.parseInt(((String) map.get("version")).replaceAll("\\.", "")) == process)
+                            .filter(map -> Integer.parseInt(((String) map.get("version")).replace(".", "")) == process)
                             .collect(Collectors.toList());
                     versionProcessMap.forEach(processMap -> {
                         String database = (String) processMap.get("database");
@@ -280,7 +277,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
 
             case "spawn":
                 if (sender instanceof Player) {
-                    Player player = (Player) sender;
+                    val player = (Player) sender;
                     player.teleport(spawnPointLoader.getSpawn(player));
                 } else {
                     Bukkit.getLogger().info("This command must be executed in-game.");
@@ -289,8 +286,8 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
 
             case "home":
                 if (sender instanceof Player) {
-                    Player player = (Player) sender;
-                    Location location = player.getBedSpawnLocation();
+                    val player = (Player) sender;
+                    var location = player.getBedSpawnLocation();
                     if (location == null)
                         location = spawnPointLoader.getSpawn(player);
                     player.teleport(location);
@@ -313,9 +310,9 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
         }
 
         if (playersTable.getPlayerData(event.getPlayer().getUniqueId()) == null) {
-            Location location = spawnPointLoader.getNewLocation();
+            val location = spawnPointLoader.getNewLocation();
             if (location != null) {
-                InGameSSCPlayer sscPlayer = new InGameSSCPlayer(event.getPlayer().getUniqueId(),
+                val sscPlayer = new InGameSSCPlayer(event.getPlayer().getUniqueId(),
                         location,
                         null,
                         event.getPlayer(),
@@ -330,7 +327,6 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
             } else {
                 event.disallow(PlayerLoginEvent.Result.KICK_OTHER, "System is in preparation.");
                 getLogger().warning("There is no stock of teleport coordinates. Please execute regeneration.");
-                return;
             }
         }
     }

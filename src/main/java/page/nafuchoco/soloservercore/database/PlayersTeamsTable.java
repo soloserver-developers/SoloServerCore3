@@ -18,13 +18,15 @@ package page.nafuchoco.soloservercore.database;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
+import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import page.nafuchoco.soloservercore.SoloServerCore;
 import page.nafuchoco.soloservercore.data.PlayersTeam;
 
-import java.sql.*;
+import java.sql.SQLException;
+import java.sql.SQLSyntaxErrorException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -42,12 +44,12 @@ public class PlayersTeamsTable extends DatabaseTable {
     }
 
     public UUID searchTeamFromOwner(@NotNull UUID owner) {
-        try (Connection connection = getConnector().getConnection();
-             PreparedStatement ps = connection.prepareStatement(
+        try (var connection = getConnector().getConnection();
+             var ps = connection.prepareStatement(
                      "SELECT id FROM " + getTablename() + " WHERE owner = ?"
              )) {
             ps.setString(1, owner.toString());
-            try (ResultSet resultSet = ps.executeQuery()) {
+            try (var resultSet = ps.executeQuery()) {
                 while (resultSet.next()) {
                     return UUID.fromString(resultSet.getString("id"));
                 }
@@ -59,17 +61,17 @@ public class PlayersTeamsTable extends DatabaseTable {
     }
 
     public List<PlayersTeam> getPlayersTeams() throws SQLSyntaxErrorException {
-        List<PlayersTeam> playersTeams = new ArrayList<>();
-        try (Connection connection = getConnector().getConnection();
-             PreparedStatement ps = connection.prepareStatement(
+        val playersTeams = new ArrayList<PlayersTeam>();
+        try (var connection = getConnector().getConnection();
+             var ps = connection.prepareStatement(
                      "SELECT * FROM " + getTablename()
              )) {
-            try (ResultSet resultSet = ps.executeQuery()) {
+            try (var resultSet = ps.executeQuery()) {
                 while (resultSet.next()) {
-                    UUID id = UUID.fromString(resultSet.getString("id"));
-                    UUID owner = UUID.fromString(resultSet.getString("owner"));
-                    String members = resultSet.getString("members");
-                    PlayersTeam team = new PlayersTeam(id, owner);
+                    val id = UUID.fromString(resultSet.getString("id"));
+                    val owner = UUID.fromString(resultSet.getString("owner"));
+                    val members = resultSet.getString("members");
+                    val team = new PlayersTeam(id, owner);
                     if (!StringUtils.isEmpty(members))
                         team.setMembers(gson.fromJson(members, new TypeToken<List<UUID>>() {
                         }.getType()));
@@ -86,16 +88,16 @@ public class PlayersTeamsTable extends DatabaseTable {
     }
 
     public PlayersTeam getPlayersTeam(@NotNull UUID id) {
-        try (Connection connection = getConnector().getConnection();
-             PreparedStatement ps = connection.prepareStatement(
+        try (var connection = getConnector().getConnection();
+             var ps = connection.prepareStatement(
                      "SELECT * FROM " + getTablename() + " WHERE id = ?"
              )) {
             ps.setString(1, id.toString());
-            try (ResultSet resultSet = ps.executeQuery()) {
+            try (var resultSet = ps.executeQuery()) {
                 while (resultSet.next()) {
-                    UUID owner = UUID.fromString(resultSet.getString("owner"));
-                    String members = resultSet.getString("members");
-                    PlayersTeam team = new PlayersTeam(id, owner);
+                    val owner = UUID.fromString(resultSet.getString("owner"));
+                    val members = resultSet.getString("members");
+                    val team = new PlayersTeam(id, owner);
                     if (!StringUtils.isEmpty(members))
                         team.setMembers(gson.fromJson(members, new TypeToken<List<UUID>>() {
                         }.getType()));
@@ -110,8 +112,8 @@ public class PlayersTeamsTable extends DatabaseTable {
     }
 
     public void registerTeam(@NotNull PlayersTeam playersTeam) throws SQLException {
-        try (Connection connection = getConnector().getConnection();
-             PreparedStatement ps = connection.prepareStatement(
+        try (var connection = getConnector().getConnection();
+             var ps = connection.prepareStatement(
                      "INSERT INTO " + getTablename() + " (id, owner, team_name, members) VALUES (?, ?, ?, ?)"
              )) {
             ps.setString(1, playersTeam.getId().toString());
@@ -124,8 +126,8 @@ public class PlayersTeamsTable extends DatabaseTable {
     }
 
     public void updateTeamOwner(@NotNull UUID id, @NotNull UUID owner) throws SQLException {
-        try (Connection connection = getConnector().getConnection();
-             PreparedStatement ps = connection.prepareStatement(
+        try (var connection = getConnector().getConnection();
+             var ps = connection.prepareStatement(
                      "UPDATE " + getTablename() + " SET owner = ? WHERE id = ?"
              )) {
             ps.setString(1, owner.toString());
@@ -135,8 +137,8 @@ public class PlayersTeamsTable extends DatabaseTable {
     }
 
     public void updateTeamName(@NotNull UUID id, @Nullable String name) throws SQLException {
-        try (Connection connection = getConnector().getConnection();
-             PreparedStatement ps = connection.prepareStatement(
+        try (var connection = getConnector().getConnection();
+             var ps = connection.prepareStatement(
                      "UPDATE " + getTablename() + " SET team_name = ? WHERE id = ?"
              )) {
             ps.setString(1, name);
@@ -146,8 +148,8 @@ public class PlayersTeamsTable extends DatabaseTable {
     }
 
     public void updateMembers(@NotNull UUID id, @Nullable List<UUID> members) throws SQLException {
-        try (Connection connection = getConnector().getConnection();
-             PreparedStatement ps = connection.prepareStatement(
+        try (var connection = getConnector().getConnection();
+             var ps = connection.prepareStatement(
                      "UPDATE " + getTablename() + " SET members = ? WHERE id = ?"
              )) {
             ps.setString(1, gson.toJson(members));
@@ -157,8 +159,8 @@ public class PlayersTeamsTable extends DatabaseTable {
     }
 
     public void deleteTeam(@NotNull UUID id) throws SQLException {
-        try (Connection connection = getConnector().getConnection();
-             PreparedStatement ps = connection.prepareStatement(
+        try (var connection = getConnector().getConnection();
+             var ps = connection.prepareStatement(
                      "DELETE FROM " + getTablename() + " WHERE id = ?"
              )) {
             ps.setString(1, id.toString());

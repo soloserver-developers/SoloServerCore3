@@ -18,7 +18,6 @@ package page.nafuchoco.soloservercore.database;
 
 import page.nafuchoco.soloservercore.SoloServerCore;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -48,7 +47,7 @@ public abstract class DatabaseTable {
      * @throws SQLException Thrown when creating a table fails.
      */
     public void createTable(String construction) throws SQLException {
-        try (Connection connection = connector.getConnection()) {
+        try (var connection = connector.getConnection()) {
             try (PreparedStatement ps = connection.prepareStatement(
                     "CREATE TABLE IF NOT EXISTS " + tablename + " (" + construction + ")")) {
                 ps.execute();

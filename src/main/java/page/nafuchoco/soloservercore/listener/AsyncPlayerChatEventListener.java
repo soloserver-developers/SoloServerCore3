@@ -16,22 +16,23 @@
 
 package page.nafuchoco.soloservercore.listener;
 
+import lombok.val;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import page.nafuchoco.soloservercore.SoloServerApi;
 import page.nafuchoco.soloservercore.SoloServerCore;
-import page.nafuchoco.soloservercore.data.PlayersTeam;
+
+import java.util.Objects;
 
 public class AsyncPlayerChatEventListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onAsyncPlayerChatEvent(AsyncPlayerChatEvent event) {
-        String message = event.getPlayer().getDisplayName() + " >> " +
+        val message = event.getPlayer().getDisplayName() + " >> " +
                 ChatColor.translateAlternateColorCodes('&', event.getMessage());
         SoloServerCore.getInstance().getLogger().info(message);
 
@@ -39,19 +40,17 @@ public class AsyncPlayerChatEventListener implements Listener {
                 .filter(p -> p.hasPermission("soloservercore.chat.bypass"))
                 .forEach(p -> p.sendMessage(ChatColor.GRAY + "[Chat] " + message));
 
-        PlayersTeam joinedTeam = SoloServerApi.getInstance().getPlayersTeam(event.getPlayer());
+        val joinedTeam = SoloServerApi.getInstance().getPlayersTeam(event.getPlayer());
         if (joinedTeam != null) {
 
-            Player owner = Bukkit.getPlayer(joinedTeam.getOwner());
+            val owner = Bukkit.getPlayer(joinedTeam.getOwner());
             if (owner != null)
                 owner.sendMessage(message);
 
-            joinedTeam.getMembers().forEach(member -> {
-                Player player = Bukkit.getPlayer(member);
-                if (player != null) {
-                    player.sendMessage(message);
-                }
-            });
+            joinedTeam.getMembers().stream()
+                    .map(Bukkit::getPlayer)
+                    .filter(Objects::nonNull)
+                    .forEach(p -> p.sendMessage(message));
         }
         event.setCancelled(true);
     }
