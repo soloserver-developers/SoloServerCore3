@@ -16,6 +16,7 @@
 
 package page.nafuchoco.soloservercore;
 
+import lombok.val;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -34,7 +35,7 @@ public class SpawnPointGenerator {
 
     public void generatePoint(SpawnPointLoader loader, boolean init) {
         Bukkit.getScheduler().runTask(SoloServerCore.getInstance(), () -> {
-            SecureRandom secureRandom = new SecureRandom();
+            var secureRandom = new SecureRandom();
             int x;
             int y = 96;
             int z;
@@ -45,7 +46,7 @@ public class SpawnPointGenerator {
 
                 if (SoloServerCore.getCoreConfig().isDebug())
                     SoloServerCore.getInstance().getLogger().info("[Debug] Start Search: " + world.getName() + ", " + x + ", " + z);
-                Location location = SpawnPointGenerator.this.searchSafeLocation(world, x, y, z);
+                var location = SpawnPointGenerator.this.searchSafeLocation(world, x, y, z);
                 if (location != null) {
                     loader.addSpawnLocation(location);
                     loader.initPoint(init);
@@ -57,7 +58,7 @@ public class SpawnPointGenerator {
 
     private Location searchSafeLocation(World world, int x, int y, int z) {
         do {
-            Location point1 = new Location(world, x, y, z);
+            val point1 = new Location(world, x, y, z);
             point1.getChunk().load(true);
 
             if (SoloServerCore.getCoreConfig().isDebug())
@@ -65,7 +66,7 @@ public class SpawnPointGenerator {
             if (!(world.getBlockAt(point1).getType().equals(Material.AIR) ||
                     world.getBlockAt(point1).getType().equals(Material.WATER) ||
                     world.getBlockAt(point1).getType().equals(Material.LAVA))) {
-                Location point2 = new Location(world, x, y + 2, z);
+                val point2 = new Location(world, x, y + 2, z);
                 if (world.getBlockAt(point2).getType().equals(Material.AIR))
                     return new Location(world, x, y + 1, z);
             }

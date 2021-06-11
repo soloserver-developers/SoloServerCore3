@@ -18,6 +18,7 @@ package page.nafuchoco.soloservercore.data;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import lombok.val;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
@@ -48,11 +49,11 @@ public interface SSCPlayer {
      */
     @NotNull
     default Location getSpawnLocationObject() {
-        JsonObject locationJson = new Gson().fromJson(getSpawnLocation(), JsonObject.class);
-        String world = locationJson.get("World").getAsString();
-        double x = locationJson.get("X").getAsDouble();
-        double y = locationJson.get("Y").getAsDouble();
-        double z = locationJson.get("Z").getAsDouble();
+        val locationJson = new Gson().fromJson(getSpawnLocation(), JsonObject.class);
+        val world = locationJson.get("World").getAsString();
+        val x = locationJson.get("X").getAsDouble();
+        val y = locationJson.get("Y").getAsDouble();
+        val z = locationJson.get("Z").getAsDouble();
         return new Location(Bukkit.getWorld(world), x, y, z);
     }
 

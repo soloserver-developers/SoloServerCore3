@@ -16,6 +16,7 @@
 
 package page.nafuchoco.soloservercore.listener;
 
+import lombok.val;
 import org.apache.commons.lang.text.ExtendedMessageFormat;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -25,7 +26,6 @@ import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import page.nafuchoco.soloservercore.SoloServerApi;
-import page.nafuchoco.soloservercore.data.InGameSSCPlayer;
 import page.nafuchoco.soloservercore.database.PluginSettingsManager;
 
 import java.util.Calendar;
@@ -47,7 +47,7 @@ public class PlayerBedEventListener implements Listener {
         if (!event.isCancelled() && !checkCooldown(event.getPlayer())) {
             if (settingsManager.isBroadcastBedCount()
                     && event.getBedEnterResult().equals(PlayerBedEnterEvent.BedEnterResult.OK)) {
-                long count = event.getBed().getWorld().getPlayers().stream()
+                val count = event.getBed().getWorld().getPlayers().stream()
                         .filter(player -> !isAfk(player))
                         .filter(player -> !player.isSleeping())
                         .filter(player -> !player.equals(event.getPlayer()))
@@ -59,12 +59,12 @@ public class PlayerBedEventListener implements Listener {
                                     + ExtendedMessageFormat.format("あと{0}人がベッドに入ると朝になります。", count)));
                     event.getPlayer().sendMessage(ChatColor.DARK_GRAY + "世界のどこかにいるまだ起きている誰かが眠るのを待っています...");
                 } else if (settingsManager.isUseAfkCount()
-                        && event.getBed().getWorld().getPlayers().stream().filter(player -> isAfk(player)).count() > 0) {
+                        && event.getBed().getWorld().getPlayers().stream().filter(this::isAfk).count() > 0) {
                     event.getPlayer().getWorld().setTime(0);
                 }
             }
 
-            Calendar calendar = Calendar.getInstance();
+            val calendar = Calendar.getInstance();
             calendar.add(Calendar.SECOND, 5);
             cooldownMap.put(event.getPlayer(), calendar.getTime());
         }
@@ -75,7 +75,7 @@ public class PlayerBedEventListener implements Listener {
         if (!checkCooldown(event.getPlayer())
                 && settingsManager.isBroadcastBedCount()
                 && (event.getPlayer().getWorld().getTime() >= 12542 || event.getPlayer().getWorld().hasStorm())) {
-            long count = event.getBed().getWorld().getPlayers().stream()
+            val count = event.getBed().getWorld().getPlayers().stream()
                     .filter(player -> !player.isSleeping())
                     .filter(player -> !player.equals(event.getPlayer()))
                     .count();
@@ -93,9 +93,9 @@ public class PlayerBedEventListener implements Listener {
     }
 
     private boolean checkCooldown(Player player) {
-        Date date = cooldownMap.get(player);
+        val date = cooldownMap.get(player);
         if (date != null) {
-            boolean cooldown = date.after(new Date());
+            val cooldown = date.after(new Date());
             if (!cooldown)
                 cooldownMap.remove(player);
             return cooldown;
@@ -105,9 +105,9 @@ public class PlayerBedEventListener implements Listener {
 
     private boolean isAfk(Player player) {
         if (settingsManager.isUseAfkCount()) {
-            InGameSSCPlayer playerData = SoloServerApi.getInstance().getSSCPlayer(player);
+            val playerData = SoloServerApi.getInstance().getSSCPlayer(player);
 
-            Calendar calendar = Calendar.getInstance();
+            val calendar = Calendar.getInstance();
             calendar.setTime(new Date(playerData.getLatestMoveTime()));
 
             calendar.add(Calendar.MINUTE, settingsManager.getAfkTimeThreshold());

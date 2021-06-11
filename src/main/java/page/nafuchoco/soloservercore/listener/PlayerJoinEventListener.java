@@ -16,9 +16,9 @@
 
 package page.nafuchoco.soloservercore.listener;
 
+import lombok.val;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -26,8 +26,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import page.nafuchoco.soloservercore.SoloServerApi;
 import page.nafuchoco.soloservercore.SoloServerCore;
-import page.nafuchoco.soloservercore.data.InGameSSCPlayer;
-import page.nafuchoco.soloservercore.data.PlayersTeam;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,24 +38,24 @@ public class PlayerJoinEventListener implements Listener {
     public void onPlayerJoinEvent(PlayerJoinEvent event) {
         event.setJoinMessage("");
 
-        InGameSSCPlayer sscPlayer = SoloServerApi.getInstance().getSSCPlayer(event.getPlayer());
+        val sscPlayer = SoloServerApi.getInstance().getSSCPlayer(event.getPlayer());
         if (sscPlayer.isFirstJoined()) {
             // MVとの競合に対する対策
             Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(SoloServerCore.getInstance(),
                     () -> {
-                        Location location = sscPlayer.getSpawnLocationObject();
+                        val location = sscPlayer.getSpawnLocationObject();
                         event.getPlayer().teleport(location);
+                        Object[] perms = {event.getPlayer().getName(),
+                                location.getBlockX(),
+                                location.getBlockY(),
+                                location.getBlockZ()};
                         SoloServerCore.getInstance().getLogger().log(Level.INFO,
-                                event.getPlayer().getName() +
-                                        " has been successfully teleported to " +
-                                        location.getBlockX() + ", " +
-                                        location.getBlockY() + ", " +
-                                        location.getBlockZ());
+                                "{0} has been successfully teleported to {1}, {2}, {3}", perms);
                     }, 10L);
             event.getPlayer().setCompassTarget(sscPlayer.getSpawnLocationObject());
         }
 
-        PlayersTeam joinedTeam = SoloServerApi.getInstance().getPlayersTeam(event.getPlayer());
+        val joinedTeam = SoloServerApi.getInstance().getPlayersTeam(event.getPlayer());
         List<UUID> member;
         if (joinedTeam != null) {
             member = new ArrayList<>(joinedTeam.getMembers());
@@ -76,7 +74,7 @@ public class PlayerJoinEventListener implements Listener {
 
         if (member.contains(event.getPlayer().getUniqueId()))
             member.forEach(m -> {
-                Player player = Bukkit.getPlayer(m);
+                var player = Bukkit.getPlayer(m);
                 if (player != null && !player.equals(event.getPlayer()))
                     player.sendMessage(ChatColor.AQUA + "[Teams] " + event.getPlayer().getDisplayName() + "がログインしました。");
             });

@@ -16,9 +16,9 @@
 
 package page.nafuchoco.soloservercore.command;
 
+import lombok.val;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -30,9 +30,7 @@ import org.jetbrains.annotations.Nullable;
 import page.nafuchoco.soloservercore.SoloServerApi;
 import page.nafuchoco.soloservercore.SoloServerCore;
 import page.nafuchoco.soloservercore.SpawnPointLoader;
-import page.nafuchoco.soloservercore.data.SSCPlayer;
 import page.nafuchoco.soloservercore.database.PlayersTable;
-import page.nafuchoco.soloservercore.database.PlayersTeamsTable;
 import page.nafuchoco.soloservercore.event.PlayerMoveToNewWorldEvent;
 
 import java.sql.SQLException;
@@ -43,14 +41,12 @@ import java.util.logging.Level;
 
 public class ReTeleportCommand implements CommandExecutor, TabCompleter {
     private final PlayersTable playersTable;
-    private final PlayersTeamsTable teamsTable;
     private final SpawnPointLoader loader;
     private final World spawnWorld;
     private final List<Player> waitList;
 
-    public ReTeleportCommand(PlayersTable playersTable, PlayersTeamsTable teamsTable, SpawnPointLoader loader, World spawnWorld) {
+    public ReTeleportCommand(PlayersTable playersTable, SpawnPointLoader loader, World spawnWorld) {
         this.playersTable = playersTable;
-        this.teamsTable = teamsTable;
         this.loader = loader;
         this.spawnWorld = spawnWorld;
         waitList = new ArrayList<>();
@@ -59,11 +55,11 @@ public class ReTeleportCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (sender instanceof Player) {
-            Player player = (Player) sender;
+            val player = (Player) sender;
             if (!sender.hasPermission("soloservercore.reteleport")) {
                 sender.sendMessage(ChatColor.RED + "You can't run this command because you don't have permission.");
             } else if (args.length == 0) {
-                SSCPlayer sscPlayer = SoloServerApi.getInstance().getSSCPlayer(player);
+                val sscPlayer = SoloServerApi.getInstance().getSSCPlayer(player);
                 if (!sscPlayer.getSpawnLocationObject().getWorld().equals(spawnWorld)) {
                     sender.sendMessage(ChatColor.YELLOW + "[SSC] 新しいワールドへ移動します。\n" +
                             "一度移動すると元のワールドに戻ることはできません。\n" +
@@ -96,19 +92,19 @@ public class ReTeleportCommand implements CommandExecutor, TabCompleter {
 
     private void reTeleport(Player player) {
         // チーム情報を確認し所属している場合は脱退
-        SSCPlayer sscPlayer = SoloServerApi.getInstance().getSSCPlayer(player);
+        val sscPlayer = SoloServerApi.getInstance().getSSCPlayer(player);
         if (sscPlayer.getJoinedTeam() != null) {
             sscPlayer.getJoinedTeam().leaveTeam(player);
             player.sendMessage(ChatColor.GREEN + "[Teams] チームから脱退しました。");
         }
 
         // 新規座標への移動
-        Location location = loader.getNewLocation();
+        val location = loader.getNewLocation();
         player.teleport(location);
         player.setCompassTarget(location);
 
         // イベントの発火
-        PlayerMoveToNewWorldEvent moveToNewWorldEvent = new PlayerMoveToNewWorldEvent(player, sscPlayer.getSpawnLocationObject().getWorld(), location.getWorld());
+        val moveToNewWorldEvent = new PlayerMoveToNewWorldEvent(player, sscPlayer.getSpawnLocationObject().getWorld(), location.getWorld());
         Bukkit.getPluginManager().callEvent(moveToNewWorldEvent);
 
         // ベッドスポーンの上書き

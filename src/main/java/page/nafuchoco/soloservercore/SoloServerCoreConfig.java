@@ -16,6 +16,7 @@
 
 package page.nafuchoco.soloservercore;
 
+import lombok.val;
 import org.bukkit.configuration.file.FileConfiguration;
 
 public class SoloServerCoreConfig {
@@ -28,15 +29,15 @@ public class SoloServerCoreConfig {
         FileConfiguration config = instance.getConfig();
 
         if (initConfig == null) {
-            DatabaseType databaseType = DatabaseType.valueOf(config.getString("initialization.database.type"));
-            String address = config.getString("initialization.database.address");
-            int port = config.getInt("initialization.database.port", 3306);
-            String database = config.getString("initialization.database.database");
-            String username = config.getString("initialization.database.username");
-            String password = config.getString("initialization.database.password");
-            String tablePrefix = config.getString("initialization.database.tablePrefix");
-            String spawnWorlds = config.getString("initialization.spawn.spawnWorld");
-            int generateLocationRange = config.getInt("initialization.spawn.generateLocationRange");
+            val databaseType = DatabaseType.valueOf(config.getString("initialization.database.type"));
+            val address = config.getString("initialization.database.address");
+            val port = config.getInt("initialization.database.port", 3306);
+            val database = config.getString("initialization.database.database");
+            val username = config.getString("initialization.database.username");
+            val password = config.getString("initialization.database.password");
+            val tablePrefix = config.getString("initialization.database.tablePrefix");
+            val spawnWorlds = config.getString("initialization.spawn.spawnWorld");
+            val generateLocationRange = config.getInt("initialization.spawn.generateLocationRange");
             initConfig = new InitConfig(databaseType, address, port, database, username, password, tablePrefix, spawnWorlds, generateLocationRange);
             debug = config.getBoolean("debug");
         }

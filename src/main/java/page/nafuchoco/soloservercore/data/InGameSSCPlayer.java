@@ -18,6 +18,7 @@ package page.nafuchoco.soloservercore.data;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import lombok.val;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -46,7 +47,7 @@ public class InGameSSCPlayer implements SSCPlayer {
     public InGameSSCPlayer(@NotNull UUID id, @NotNull Location location, @Nullable UUID joinedTeamId, @NotNull Player player, @NotNull boolean firstJoined) {
         this.id = id;
 
-        JsonObject locationJson = new JsonObject();
+        val locationJson = new JsonObject();
         locationJson.addProperty("World", location.getWorld().getName());
         locationJson.addProperty("X", location.getBlockX());
         locationJson.addProperty("Y", location.getBlockY());

@@ -16,6 +16,7 @@
 
 package page.nafuchoco.soloservercore.database;
 
+import lombok.val;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
@@ -46,7 +47,7 @@ public class PluginSettingsManager {
     }
 
     public boolean isCheckBlock() {
-        String value = settingsTable.getPluginSetting("checkBlock");
+        val value = settingsTable.getPluginSetting("checkBlock");
         if (value == null)
             return CHECK_BLOCK;
         else
@@ -54,7 +55,7 @@ public class PluginSettingsManager {
     }
 
     public int getProtectionPeriod() {
-        String value = settingsTable.getPluginSetting("protectionPeriod");
+        val value = settingsTable.getPluginSetting("protectionPeriod");
         if (value == null)
             return PROTECTION_PERIOD;
         else
@@ -62,7 +63,7 @@ public class PluginSettingsManager {
     }
 
     public boolean isTeamSpawnCollect() {
-        String value = settingsTable.getPluginSetting("teamSpawnCollect");
+        val value = settingsTable.getPluginSetting("teamSpawnCollect");
         if (value == null)
             return TEAM_SPAWN_COLLECT;
         else
@@ -70,7 +71,7 @@ public class PluginSettingsManager {
     }
 
     public int getStockSpawnPoint() {
-        String value = settingsTable.getPluginSetting("stockSpawnPoint");
+        val value = settingsTable.getPluginSetting("stockSpawnPoint");
         if (value == null)
             return STOCK_SPAWN_POINT;
         else
@@ -78,7 +79,7 @@ public class PluginSettingsManager {
     }
 
     public boolean isBroadcastBedCount() {
-        String value = settingsTable.getPluginSetting("broadcastBedCount");
+        val value = settingsTable.getPluginSetting("broadcastBedCount");
         if (value == null)
             return BROADCAST_BED_COUNT;
         else
@@ -86,7 +87,7 @@ public class PluginSettingsManager {
     }
 
     public boolean isUseAfkCount() {
-        String value = settingsTable.getPluginSetting("useAfkCount");
+        val value = settingsTable.getPluginSetting("useAfkCount");
         if (value == null)
             return USE_AFK_COUNT;
         else
@@ -94,7 +95,7 @@ public class PluginSettingsManager {
     }
 
     public int getAfkTimeThreshold() {
-        String value = settingsTable.getPluginSetting("afkTimeThreshold");
+        val value = settingsTable.getPluginSetting("afkTimeThreshold");
         if (value == null)
             return AFK_TIME_THRESHOLD;
         else
@@ -102,8 +103,8 @@ public class PluginSettingsManager {
     }
 
     public int getLastMigratedVersion() {
-        String value = settingsTable.getPluginSetting("lastMigratedVersion");
-        int result = LAST_MIGRATED_VERSION;
+        val value = settingsTable.getPluginSetting("lastMigratedVersion");
+        val result = LAST_MIGRATED_VERSION;
         try {
             if (value != null)
                 Integer.parseInt(value.replaceAll("\\.", ""));
