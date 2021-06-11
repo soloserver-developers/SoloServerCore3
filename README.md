@@ -24,13 +24,13 @@ SoloServerCoreはマルチプレイなのにシングルプレイのようなあ
 
 ## 動作要項
 
-- Spigot 1.16.x
+- Spigot 1.17.x
 - MySQL or MariaDB 5.x ~
 
 ### 前提プラグイン
 
-- ProtocolLib 4.5.x ~
 - CoreProtect 19.1 ~
+- ProtocolLib 4.5.x ~ (**This is optional since v4.2.0.**)
 
 ## Develpment [![](https://jitpack.io/v/soloserver-developers/SoloServerCore3.svg)](https://jitpack.io/#soloserver-developers/SoloServerCore3)
 

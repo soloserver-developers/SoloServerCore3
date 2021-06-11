@@ -120,8 +120,12 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
 
     protected void init() {
         // ProtocolLib Init
-        protocolManager = ProtocolLibrary.getProtocolManager();
-        protocolManager.addPacketListener(new ServerInfoPacketEventListener());
+        try {
+            protocolManager = ProtocolLibrary.getProtocolManager();
+            protocolManager.addPacketListener(new ServerInfoPacketEventListener());
+        } catch (NoClassDefFoundError e) {
+            getLogger().info("Relevant functions have been disabled because ProtocolLib has not been installed.");
+        }
 
         // CoreProtect Init
         val coreProtect = (CoreProtect) getServer().getPluginManager().getPlugin("CoreProtect");
