@@ -74,16 +74,11 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
         return instance;
     }
 
-    public static SoloServerCoreConfig getCoreConfig() {
-        if (config == null)
-            config = new SoloServerCoreConfig();
-        return config;
-    }
-
     @Override
     public void onEnable() {
         // Plugin startup logic
         saveDefaultConfig();
+        config = new SoloServerCoreConfig();
         getCoreConfig().reloadConfig();
 
         getLogger().info("Start the initialization process. This may take some time.");
@@ -151,6 +146,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
         val settingsCommand = new SettingsCommand(pluginSettingsManager);
         val teamCommand = new TeamCommand(pluginSettingsManager);
         val reTeleportCommand = new ReTeleportCommand(
+                pluginSettingsManager,
                 playersTable,
                 spawnPointLoader,
                 Bukkit.getWorld(config.getInitConfig().getSpawnWorld()));
@@ -342,6 +338,10 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
         SoloServerApi.getInstance().dropStoreData(event.getPlayer());
         if (Bukkit.getOnlinePlayers().isEmpty())
             spawnPointLoader.initPoint(false);
+    }
+
+    public SoloServerCoreConfig getCoreConfig() {
+        return config;
     }
 
     PlayersTable getPlayersTable() {

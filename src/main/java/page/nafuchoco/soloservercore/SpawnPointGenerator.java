@@ -44,7 +44,7 @@ public class SpawnPointGenerator {
                 x = secureRandom.nextInt(generateRange * 2) - generateRange;
                 z = secureRandom.nextInt(generateRange * 2) - generateRange;
 
-                if (SoloServerCore.getCoreConfig().isDebug())
+                if (SoloServerApi.getInstance().isDebug())
                     SoloServerCore.getInstance().getLogger().info("[Debug] Start Search: " + world.getName() + ", " + x + ", " + z);
                 var location = SpawnPointGenerator.this.searchSafeLocation(world, x, y, z);
                 if (location != null) {
@@ -61,7 +61,7 @@ public class SpawnPointGenerator {
             val point1 = new Location(world, x, y, z);
             point1.getChunk().load(true);
 
-            if (SoloServerCore.getCoreConfig().isDebug())
+            if (SoloServerApi.getInstance().isDebug())
                 SoloServerCore.getInstance().getLogger().info("[Debug] Searching Y: " + y);
             if (!(world.getBlockAt(point1).getType().equals(Material.AIR) ||
                     world.getBlockAt(point1).getType().equals(Material.WATER) ||
@@ -73,7 +73,7 @@ public class SpawnPointGenerator {
 
             y--;
             if (y <= 5) {
-                if (SoloServerCore.getCoreConfig().isDebug())
+                if (SoloServerApi.getInstance().isDebug())
                     SoloServerCore.getInstance().getLogger().info("[Debug] Safe location were not found.");
                 return null;
             }
