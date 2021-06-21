@@ -10,6 +10,7 @@ SoloServerCore3ではゲーム内コマンドでプラグインの設定を変�
 | broadcastBedCount | bool | ベッドに寝ていない人の数を告知 | true |
 | useAfkCount | bool | AFKプレイヤーの除外機能を有効にします。 | false |
 | afkTimeThreshold | int | AFK判定を行うまでの時間 (分) | 30 |
+| reteleportResetAll | bool | ReTeleport時の初期化 | false |
 
 ## Optionの説明
 ### checkBlock
@@ -37,3 +38,6 @@ AFK中の以外のプレイヤーが就寝すると夜をスキップします�
 
 ### afkTimeThreshold
 AFKとして判定するまでの時間を分単位で指定できます。
+
+### reteleportResetAll
+ReTeleport実行時にインベントリ・エンダーチェスト・経験値・ポーション効果・HP・空腹度を全てリセットします。
