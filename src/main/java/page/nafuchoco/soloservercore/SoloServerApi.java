@@ -46,6 +46,14 @@ public final class SoloServerApi {
         teamsStore = new HashMap<>();
     }
 
+    public String getSpawnWorld() {
+        return soloServerCore.getCoreConfig().getInitConfig().getSpawnWorld();
+    }
+
+    public boolean isDebug() {
+        return soloServerCore.getCoreConfig().isDebug();
+    }
+
     /**
      * SoloServerCore固有のオンラインプレイヤーデータを返します。
      *

@@ -23,7 +23,7 @@ import java.sql.SQLException;
 
 public class PluginSettingsManager {
     private static final String[] settingsKeys =
-            new String[]{"checkBlock", "protectionPeriod", "teamSpawnCollect", "stockSpawnPoint", "broadcastBedCount", "useAfkCount", "afkTimeThreshold", "lastMigratedVersion"};
+            new String[]{"checkBlock", "protectionPeriod", "teamSpawnCollect", "stockSpawnPoint", "broadcastBedCount", "useAfkCount", "afkTimeThreshold", "reteleportResetAll", "lastMigratedVersion"};
 
     public static String[] getSettingsKeys() {
         return settingsKeys;
@@ -40,6 +40,7 @@ public class PluginSettingsManager {
     private static final boolean BROADCAST_BED_COUNT = true;
     private static final boolean USE_AFK_COUNT = false;
     private static final int AFK_TIME_THRESHOLD = 30;
+    private static final boolean RETELEPORT_RESET_ALL = false;
     private static final int LAST_MIGRATED_VERSION = 350;
 
     public PluginSettingsManager(PluginSettingsTable settingsTable) {
@@ -102,6 +103,14 @@ public class PluginSettingsManager {
             return Integer.parseInt(value);
     }
 
+    public boolean isReteleportResetAll() {
+        val value = settingsTable.getPluginSetting("reteleportResetAll");
+        if (value == null)
+            return RETELEPORT_RESET_ALL;
+        else
+            return Boolean.parseBoolean(value);
+    }
+
     public int getLastMigratedVersion() {
         val value = settingsTable.getPluginSetting("lastMigratedVersion");
         val result = LAST_MIGRATED_VERSION;
@@ -140,6 +149,10 @@ public class PluginSettingsManager {
 
     public void setAfkTimeThreshold(@NotNull int afkTimeThreshold) throws SQLException {
         settingsTable.setPluginSetting("afkTimeThreshold", String.valueOf(afkTimeThreshold));
+    }
+
+    public void setReteleportResetAll(@NotNull boolean reteleportResetAll) throws SQLException {
+        settingsTable.setPluginSetting("reteleportResetAll", String.valueOf(reteleportResetAll));
     }
 
     public void setLastMigratedVersion(@NotNull String lastMigratedVersion) throws SQLException {

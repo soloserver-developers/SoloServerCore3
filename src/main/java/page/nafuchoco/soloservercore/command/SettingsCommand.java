@@ -54,7 +54,8 @@ public class SettingsCommand implements CommandExecutor, TabCompleter {
                             "stockSpawnPoint: " + settingsManager.getStockSpawnPoint() + "\n" +
                             "broadcastBedCount: " + settingsManager.isBroadcastBedCount() + "\n" +
                             "useAfkCount: " + settingsManager.isUseAfkCount() + "\n" +
-                            "afkTimeThreshold: " + settingsManager.getAfkTimeThreshold());
+                            "afkTimeThreshold: " + settingsManager.getAfkTimeThreshold() + "\n" +
+                            "reteleportResetAll: " + settingsManager.isReteleportResetAll());
                 } else switch (args[0]) {
                     case "checkBlock":
                         settingsManager.setCheckBlock(Boolean.parseBoolean(args[1]));
@@ -91,13 +92,20 @@ public class SettingsCommand implements CommandExecutor, TabCompleter {
                         sender.sendMessage(UPDATED_MESSAGE);
                         break;
 
+                    case "reteleportResetAll":
+                        settingsManager.setReteleportResetAll(Boolean.parseBoolean(args[1]));
+                        sender.sendMessage(UPDATED_MESSAGE);
+                        break;
+
                     default:
                         sender.sendMessage(ChatColor.RED + "[SSC] Unknown option.");
                         break;
                 }
-            } catch (SQLException throwables) {
+            } catch (SQLException e) {
                 sender.sendMessage(ChatColor.RED + "[SSC] An error occurred while updating the plugin settings.");
-                SoloServerCore.getInstance().getLogger().log(Level.WARNING, "An error occurred while updating the plugin settings.", throwables);
+                SoloServerCore.getInstance().getLogger().log(Level.WARNING, "An error occurred while updating the plugin settings.", e);
+            } catch (NumberFormatException e) {
+                sender.sendMessage(ChatColor.RED + "[SSC] この設定は整数値で指定してください。");
             }
         }
         return true;
@@ -106,7 +114,7 @@ public class SettingsCommand implements CommandExecutor, TabCompleter {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1)
-            return Arrays.asList("checkBlock", "protectionPeriod", "teamSpawnCollect", "stockSpawnPoint", "broadcastBedCount", "useAfkCount", "afkTimeThreshold");
+            return Arrays.asList(PluginSettingsManager.getSettingsKeys());
         return null;
     }
 }

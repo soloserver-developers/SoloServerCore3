@@ -22,7 +22,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public abstract class DatabaseTable {
-    private static final String PREFIX = SoloServerCore.getCoreConfig().getInitConfig().getTablePrefix();
+    private static final String PREFIX = SoloServerCore.getInstance().getCoreConfig().getInitConfig().getTablePrefix();
     private final String tablename;
     private final DatabaseConnector connector;
 

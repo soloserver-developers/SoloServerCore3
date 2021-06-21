@@ -78,5 +78,13 @@ public class PlayerJoinEventListener implements Listener {
                 if (player != null && !player.equals(event.getPlayer()))
                     player.sendMessage(ChatColor.AQUA + "[Teams] " + event.getPlayer().getDisplayName() + "がログインしました。");
             });
+
+        if (!sscPlayer.getSpawnLocationObject().getWorld().getName().equals(SoloServerApi.getInstance().getSpawnWorld())) {
+            event.getPlayer().sendMessage(
+                    ChatColor.YELLOW + "[SSC] 新しいワールドが利用可能になりました！" +
+                            "新しいワールドに移動するには /reteleport を実行してください。\n" +
+                            "新しいワールドに移動すると前のワールドに戻れなくなり、チームから自動的に脱退します。"
+            );
+        }
     }
 }
