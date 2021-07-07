@@ -23,6 +23,7 @@ import org.jetbrains.annotations.Nullable;
 import page.nafuchoco.soloservercore.data.InGameSSCPlayer;
 import page.nafuchoco.soloservercore.data.OfflineSSCPlayer;
 import page.nafuchoco.soloservercore.data.PlayersTeam;
+import page.nafuchoco.soloservercore.database.DatabaseConnector;
 import page.nafuchoco.soloservercore.database.PluginSettingsManager;
 
 import java.sql.SQLException;
@@ -52,6 +53,18 @@ public final class SoloServerApi {
 
     public boolean isDebug() {
         return soloServerCore.getCoreConfig().isDebug();
+    }
+
+    /**
+     * @return SoloServerCoreに登録されているDB情報
+     * @since v4.4
+     */
+    public DatabaseConnector getDatabaseConnector() {
+        return new DatabaseConnector(soloServerCore.getCoreConfig().getInitConfig().getDatabaseType(),
+                soloServerCore.getCoreConfig().getInitConfig().getAddress() + ":" + soloServerCore.getCoreConfig().getInitConfig().getPort(),
+                soloServerCore.getCoreConfig().getInitConfig().getDatabase(),
+                soloServerCore.getCoreConfig().getInitConfig().getUsername(),
+                soloServerCore.getCoreConfig().getInitConfig().getPassword());
     }
 
     /**
