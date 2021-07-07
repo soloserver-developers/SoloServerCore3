@@ -28,6 +28,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -40,6 +41,7 @@ import page.nafuchoco.soloservercore.command.TeamCommand;
 import page.nafuchoco.soloservercore.data.InGameSSCPlayer;
 import page.nafuchoco.soloservercore.data.MoveTimeUpdater;
 import page.nafuchoco.soloservercore.database.*;
+import page.nafuchoco.soloservercore.event.PlayerMoveToNewWorldEvent;
 import page.nafuchoco.soloservercore.listener.*;
 import page.nafuchoco.soloservercore.listener.internal.PlayersTeamEventListener;
 import page.nafuchoco.soloservercore.packet.ServerInfoPacketEventListener;
@@ -342,6 +344,11 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
 
     public SoloServerCoreConfig getCoreConfig() {
         return config;
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerMoveToNewWorldEvent(PlayerMoveToNewWorldEvent event) {
+        SoloServerApi.getInstance().dropStoreData(event.getPlayer());
     }
 
     PlayersTable getPlayersTable() {
