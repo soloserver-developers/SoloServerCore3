@@ -19,3 +19,7 @@ migrate:
     database: settings
     scripts:
       - "ALTER TABLE %TABLENAME% ADD PRIMARY KEY (settings_name)"
+  - version: 4.5.0
+    database: players
+    scripts:
+      "ALTER TABLE %TABLENAME% ADD fixed_home TEXT"

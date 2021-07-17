@@ -31,20 +31,32 @@ public class InGameSSCPlayer implements SSCPlayer {
     private final UUID id;
     private final String spawnLocation;
     private PlayersTeam joinedTeam;
+    private String fixedHomeLocation;
 
     private final Player player;
     private long latestMoveTime;
     private final boolean firstJoined;
 
-    public InGameSSCPlayer(@NotNull UUID id, @NotNull String spawnLocation, @Nullable UUID joinedTeamId, @NotNull Player player, @NotNull boolean firstJoined) {
+    public InGameSSCPlayer(@NotNull UUID id,
+                           @NotNull String spawnLocation,
+                           @Nullable UUID joinedTeamId,
+                           @NotNull Player player,
+                           @NotNull boolean firstJoined,
+                           @Nullable String fixedHomeLocation) {
         this.id = id;
         this.spawnLocation = spawnLocation;
         this.joinedTeam = (joinedTeamId != null) ? SoloServerApi.getInstance().getPlayersTeam(joinedTeamId) : null;
         this.player = player;
         this.firstJoined = firstJoined;
+        this.fixedHomeLocation = fixedHomeLocation;
     }
 
-    public InGameSSCPlayer(@NotNull UUID id, @NotNull Location location, @Nullable UUID joinedTeamId, @NotNull Player player, @NotNull boolean firstJoined) {
+    public InGameSSCPlayer(@NotNull UUID id,
+                           @NotNull Location location,
+                           @Nullable UUID joinedTeamId,
+                           @NotNull Player player,
+                           @NotNull boolean firstJoined,
+                           @Nullable Location fixedHomeLocation) {
         this.id = id;
 
         val locationJson = new JsonObject();
@@ -53,6 +65,13 @@ public class InGameSSCPlayer implements SSCPlayer {
         locationJson.addProperty("Y", location.getBlockY());
         locationJson.addProperty("Z", location.getBlockZ());
         this.spawnLocation = new Gson().toJson(locationJson);
+
+        val fixedHomeJson = new JsonObject();
+        fixedHomeJson.addProperty("World", fixedHomeLocation.getWorld().getName());
+        fixedHomeJson.addProperty("X", fixedHomeLocation.getBlockX());
+        fixedHomeJson.addProperty("Y", fixedHomeLocation.getBlockY());
+        fixedHomeJson.addProperty("Z", fixedHomeLocation.getBlockZ());
+        this.fixedHomeLocation = new Gson().toJson(fixedHomeJson);
 
         this.joinedTeam = (joinedTeamId != null) ? SoloServerApi.getInstance().getPlayersTeam(joinedTeamId) : null;
         this.player = player;
@@ -83,12 +102,26 @@ public class InGameSSCPlayer implements SSCPlayer {
         return joinedTeam;
     }
 
+    @Override
+    public @Nullable String getFixedHomeLocation() {
+        return fixedHomeLocation;
+    }
+
     public boolean isFirstJoined() {
         return firstJoined;
     }
 
     public void setJoinedTeam(PlayersTeam joinedTeam) { // TODO: 2021/04/07 パブリックにしたくない。
         this.joinedTeam = joinedTeam;
+    }
+
+    public void setFixedHomeLocation(@Nullable Location fixedHomeLocation) {
+        val fixedHomeJson = new JsonObject();
+        fixedHomeJson.addProperty("World", fixedHomeLocation.getWorld().getName());
+        fixedHomeJson.addProperty("X", fixedHomeLocation.getBlockX());
+        fixedHomeJson.addProperty("Y", fixedHomeLocation.getBlockY());
+        fixedHomeJson.addProperty("Z", fixedHomeLocation.getBlockZ());
+        this.fixedHomeLocation = new Gson().toJson(fixedHomeJson);
     }
 
     public Player getPlayer() {

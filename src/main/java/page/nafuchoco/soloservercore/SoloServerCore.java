@@ -293,10 +293,22 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
             case "home":
                 if (sender instanceof Player) {
                     val player = (Player) sender;
-                    var location = player.getBedSpawnLocation();
-                    if (location == null)
-                        location = spawnPointLoader.getSpawn(player);
-                    player.teleport(location);
+                    if (args.length >= 1) {
+                        if (args[0].equals("fixed")) {
+                            var location = player.getBedSpawnLocation();
+                            if (location != null)
+                                SoloServerApi.getInstance().getSSCPlayer(player).setFixedHomeLocation(location);
+                            else
+                                player.sendMessage(ChatColor.RED + "[SSC] 固定ホーム地点を設定するにはベッドスポーンの事前設定が必要です。");
+                        }
+                    } else {
+                        var location = SoloServerApi.getInstance().getSSCPlayer(player).getFixedHomeLocationObject();
+                        if (location == null) // 固定Home設定がない場合
+                            location = player.getBedSpawnLocation();
+                        if (location == null) // Bedスポーンがない場合
+                            location = spawnPointLoader.getSpawn(player);
+                        player.teleport(location);
+                    }
                 } else {
                     Bukkit.getLogger().info("This command must be executed in-game.");
                 }
@@ -322,7 +334,8 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                         location,
                         null,
                         event.getPlayer(),
-                        true);
+                        true,
+                        null);
                 try {
                     SoloServerApi.getInstance().registerSSCPlayer(sscPlayer);
                 } catch (SQLException | NullPointerException exception) {
