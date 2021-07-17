@@ -126,6 +126,9 @@ public final class SoloServerApi {
             playersTeam = soloServerCore.getPlayersTeamsTable().getPlayersTeam(id);
             if (playersTeam != null)
                 teamsStore.put(id, playersTeam);
+
+            // Get Team message data
+            playersTeam.setTeamMessages(soloServerCore.getMessagesTable().getAllMessage(playersTeam));
         }
         return playersTeam;
     }

@@ -34,10 +34,7 @@ import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
-import page.nafuchoco.soloservercore.command.MaintenanceCommand;
-import page.nafuchoco.soloservercore.command.ReTeleportCommand;
-import page.nafuchoco.soloservercore.command.SettingsCommand;
-import page.nafuchoco.soloservercore.command.TeamCommand;
+import page.nafuchoco.soloservercore.command.*;
 import page.nafuchoco.soloservercore.data.InGameSSCPlayer;
 import page.nafuchoco.soloservercore.data.MoveTimeUpdater;
 import page.nafuchoco.soloservercore.database.*;
@@ -63,6 +60,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
     private PluginSettingsTable pluginSettingsTable;
     private PlayersTable playersTable;
     private PlayersTeamsTable playersTeamsTable;
+    private MessagesTable messagesTable;
 
     private PluginSettingsManager pluginSettingsManager;
     private SpawnPointLoader spawnPointLoader;
@@ -94,12 +92,14 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
         pluginSettingsTable = new PluginSettingsTable("settings", connector);
         playersTable = new PlayersTable("players", connector);
         playersTeamsTable = new PlayersTeamsTable("teams", connector);
+        messagesTable = new MessagesTable("messages", connector);
         try {
             pluginSettingsTable.createTable();
             playersTable.createTable();
             playersTeamsTable.createTable();
-        } catch (SQLException throwables) {
-            getInstance().getLogger().log(Level.WARNING, "An error occurred while initializing the database table.", throwables);
+            messagesTable.createTable();
+        } catch (SQLException e) {
+            getInstance().getLogger().log(Level.WARNING, "An error occurred while initializing the database table.", e);
         }
 
         pluginSettingsManager = new PluginSettingsManager(pluginSettingsTable);
@@ -134,6 +134,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                         playersTable,
                         playersTeamsTable,
                         pluginSettingsManager,
+                        messagesTable,
                         spawnPointLoader),
                 this);
         getServer().getPluginManager().registerEvents(new PlayerBedEventListener(pluginSettingsManager), this);
@@ -153,6 +154,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                 spawnPointLoader,
                 Bukkit.getWorld(config.getInitConfig().getSpawnWorld()));
         val maintenanceCommand = new MaintenanceCommand(playersTable, playersTeamsTable);
+        val messageCommand = new MessageCommand();
         getCommand("settings").setExecutor(settingsCommand);
         getCommand("settings").setTabCompleter(settingsCommand);
         getCommand("team").setExecutor(teamCommand);
@@ -160,6 +162,8 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
         getCommand("reteleport").setExecutor(reTeleportCommand);
         getCommand("reteleport").setTabCompleter(reTeleportCommand);
         getCommand("maintenance").setExecutor(maintenanceCommand);
+        getCommand("messageboard").setExecutor(messageCommand);
+        getCommand("messageboard").setTabCompleter(messageCommand);
     }
 
     private void migrateDatabase() {
@@ -361,5 +365,9 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
 
     PluginSettingsTable getPluginSettingsTable() {
         return pluginSettingsTable;
+    }
+
+    MessagesTable getMessagesTable() {
+        return messagesTable;
     }
 }
