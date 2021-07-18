@@ -21,10 +21,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import page.nafuchoco.soloservercore.event.PlayersTeamDisappearanceEvent;
-import page.nafuchoco.soloservercore.event.PlayersTeamJoinEvent;
-import page.nafuchoco.soloservercore.event.PlayersTeamLeaveEvent;
-import page.nafuchoco.soloservercore.event.PlayersTeamStatusUpdateEvent;
+import page.nafuchoco.soloservercore.event.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +33,8 @@ public class PlayersTeam {
 
     private String teamName;
     private List<UUID> members = new ArrayList<>();
+
+    private List<TeamMessage> messages = new ArrayList<>();
 
     public PlayersTeam(UUID id, UUID owner) {
         this.id = id;
@@ -82,6 +81,25 @@ public class PlayersTeam {
         return members;
     }
 
+    /**
+     * 登録されているチームメッセージ一覧を返します。
+     *
+     * @return 登録されているチームメッセージ一覧
+     * @since v4.5
+     */
+    @NotNull
+    public List<TeamMessage> getMessages() {
+        return messages;
+    }
+
+    /**
+     * チーム名を設定します。
+     *
+     * @param teamName チーム名
+     * @deprecated このメソッドはデータベースとの同期を行わず、データの不整合が発生する可能性があります。
+     * 通常は{@link #setTeamName(String)}を使用してください。
+     */
+    @Deprecated
     public void setTeamName(@Nullable String teamName) {
         this.teamName = teamName;
     }
@@ -96,6 +114,19 @@ public class PlayersTeam {
     @Deprecated
     public void setMembers(@NotNull List<UUID> members) {
         this.members = members;
+    }
+
+    /**
+     * チームメッセージを登録します。
+     *
+     * @param messages チームメッセージ一覧のList
+     * @since v4.5
+     * @deprecated このメソッドはデータベースとの同期を行わず、データの不整合が発生する可能性があります。
+     * 通常は{@link #addTeamMessage(TeamMessage)}, {@link #deleteTeamMessage(TeamMessage)}を使用してください。
+     */
+    @Deprecated
+    public void setTeamMessages(@NotNull List<TeamMessage> messages) {
+        this.messages = messages;
     }
 
     /**
@@ -140,6 +171,32 @@ public class PlayersTeam {
             if (leaveEvent.isCancelled())
                 members.add(player.getUniqueId());
         }
+    }
+
+    /**
+     * チームメッセージを登録します。
+     *
+     * @param message 登録するチームメッセージ
+     * @since v4.5
+     */
+    public void addTeamMessage(TeamMessage message) {
+        messages.add(message);
+        val messageCreateEvent =
+                new PlayersTeamMessageCreateEvent(this, Bukkit.getPlayer(message.getSenderPlayer()), message);
+        Bukkit.getServer().getPluginManager().callEvent(messageCreateEvent);
+    }
+
+    /**
+     * チームメッセージを削除します。
+     *
+     * @param message 削除するチームメッセージ
+     * @since v4.5
+     */
+    public void deleteTeamMessage(TeamMessage message) {
+        messages.remove(message);
+        val messageDeleteEvent =
+                new PlayersTeamMessageDeleteEvent(this, Bukkit.getPlayer(message.getSenderPlayer()), message);
+        Bukkit.getServer().getPluginManager().callEvent(messageDeleteEvent);
     }
 
     @Override

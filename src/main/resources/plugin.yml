@@ -34,6 +34,10 @@ commands:
   maintenance:
     description: Perform system maintenance.
 
+  messageboard:
+    description: Message Board.
+    aliases: [ board ]
+
 permissions:
   soloservercore.*:
     description: Grant all permissions for SoloServerCore.
@@ -50,9 +54,17 @@ permissions:
       soloservercore.team.leave: true
       soloservercore.team.confirm: true
       soloservercore.team.transfer: true
+      soloservercore.team.name: true
       soloservercore.protect.bypass: true
       soloservercore.reteleport: true
       soloservercore.maintenance: true
+      messageboard.create: true
+      messageboard.subject: true
+      messageboard.message: true
+      messageboard.send: true
+      messageboard.check: true
+      messageboard.read: true
+      messageboard.delete: true
 
   soloservercore.team.*:
     description: Grant all permissions for SoloServerCore team functions.
@@ -64,3 +76,28 @@ permissions:
       soloservercore.team.confirm: true
       soloservercore.team.transfer: true
       soloservercore.team.name: true
+      messageboard.create: true
+      messageboard.subject: true
+      messageboard.message: true
+      messageboard.send: true
+      messageboard.check: true
+      messageboard.read: true
+      messageboard.delete: true
+
+  messageboard.*:
+    description: Grant all permissions for TeamMessageBoard.
+    children:
+      messageboard.create: true
+      messageboard.subject: true
+      messageboard.message: true
+      messageboard.send: true
+      messageboard.check: true
+      messageboard.read: true
+      messageboard.delete: true
+
+  messageboard.edit:
+    children:
+      messageboard.create: true
+      messageboard.subject: true
+      messageboard.message: true
+      messageboard.send: true

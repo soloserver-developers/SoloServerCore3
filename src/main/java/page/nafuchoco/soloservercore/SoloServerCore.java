@@ -34,10 +34,7 @@ import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
-import page.nafuchoco.soloservercore.command.MaintenanceCommand;
-import page.nafuchoco.soloservercore.command.ReTeleportCommand;
-import page.nafuchoco.soloservercore.command.SettingsCommand;
-import page.nafuchoco.soloservercore.command.TeamCommand;
+import page.nafuchoco.soloservercore.command.*;
 import page.nafuchoco.soloservercore.data.InGameSSCPlayer;
 import page.nafuchoco.soloservercore.data.MoveTimeUpdater;
 import page.nafuchoco.soloservercore.database.*;
@@ -63,6 +60,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
     private PluginSettingsTable pluginSettingsTable;
     private PlayersTable playersTable;
     private PlayersTeamsTable playersTeamsTable;
+    private MessagesTable messagesTable;
 
     private PluginSettingsManager pluginSettingsManager;
     private SpawnPointLoader spawnPointLoader;
@@ -94,12 +92,14 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
         pluginSettingsTable = new PluginSettingsTable("settings", connector);
         playersTable = new PlayersTable("players", connector);
         playersTeamsTable = new PlayersTeamsTable("teams", connector);
+        messagesTable = new MessagesTable("messages", connector);
         try {
             pluginSettingsTable.createTable();
             playersTable.createTable();
             playersTeamsTable.createTable();
-        } catch (SQLException throwables) {
-            getInstance().getLogger().log(Level.WARNING, "An error occurred while initializing the database table.", throwables);
+            messagesTable.createTable();
+        } catch (SQLException e) {
+            getInstance().getLogger().log(Level.WARNING, "An error occurred while initializing the database table.", e);
         }
 
         pluginSettingsManager = new PluginSettingsManager(pluginSettingsTable);
@@ -134,6 +134,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                         playersTable,
                         playersTeamsTable,
                         pluginSettingsManager,
+                        messagesTable,
                         spawnPointLoader),
                 this);
         getServer().getPluginManager().registerEvents(new PlayerBedEventListener(pluginSettingsManager), this);
@@ -153,6 +154,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                 spawnPointLoader,
                 Bukkit.getWorld(config.getInitConfig().getSpawnWorld()));
         val maintenanceCommand = new MaintenanceCommand(playersTable, playersTeamsTable);
+        val messageCommand = new MessageCommand();
         getCommand("settings").setExecutor(settingsCommand);
         getCommand("settings").setTabCompleter(settingsCommand);
         getCommand("team").setExecutor(teamCommand);
@@ -160,12 +162,15 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
         getCommand("reteleport").setExecutor(reTeleportCommand);
         getCommand("reteleport").setTabCompleter(reTeleportCommand);
         getCommand("maintenance").setExecutor(maintenanceCommand);
+        getCommand("messageboard").setExecutor(messageCommand);
+        getCommand("messageboard").setTabCompleter(messageCommand);
     }
 
     private void migrateDatabase() {
         // 初起動は除外する
         var doMigrate = true;
         val lastMigratedVersion = pluginSettingsManager.getLastMigratedVersion();
+        getLogger().info("Starting database migrate check... Now database version: " + lastMigratedVersion);
         if (lastMigratedVersion == 350) {
             try {
                 if (playersTable.getPlayers().isEmpty()) {
@@ -194,9 +199,17 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
             if (nowVersion == lastMigratedVersion || versions.stream().max(Comparator.naturalOrder()).get() < nowVersion)
                 doMigrate = false;
 
+            if (doMigrate)
+                getLogger().info("Find migration script, Start migration.");
+
             // processリストの生成
-            val index = versions.indexOf(lastMigratedVersion);
-            val processList = index == -1 ? versions : versions.subList(index + 1, versions.size());
+            int index = 0;
+            while (versions.size() > index) {
+                if (versions.get(index) > lastMigratedVersion)
+                    break;
+                index++;
+            }
+            val processList = index == 0 ? versions : versions.subList(index, versions.size());
             doMigrate = doMigrate && !processList.isEmpty();
 
             if (doMigrate) {
@@ -222,12 +235,18 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                                 databaseTable = pluginSettingsTable;
                                 break;
 
+                            case "messages":
+                                databaseTable = messagesTable;
+                                break;
+
                             default:
                                 databaseTable = null;
                                 break;
                         }
 
                         scripts.forEach(script -> {
+                            if (SoloServerApi.getInstance().isDebug())
+                                getLogger().info("Migration...: " + script);
                             try (Connection connection = connector.getConnection();
                                  PreparedStatement ps = connection.prepareStatement(
                                          script.replace("%TABLENAME%", databaseTable.getTablename())
@@ -289,10 +308,39 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
             case "home":
                 if (sender instanceof Player) {
                     val player = (Player) sender;
-                    var location = player.getBedSpawnLocation();
-                    if (location == null)
-                        location = spawnPointLoader.getSpawn(player);
-                    player.teleport(location);
+                    if (args.length >= 1) {
+                        if (args[0].equals("fixed")) {
+                            var location = player.getBedSpawnLocation();
+                            if (location != null) {
+                                SoloServerApi.getInstance().getSSCPlayer(player).setFixedHomeLocation(location);
+                                try {
+                                    getPlayersTable().updateFixedHome(player.getUniqueId(),
+                                            SoloServerApi.getInstance().getSSCPlayer(player).getFixedHomeLocation());
+                                } catch (SQLException e) {
+                                    getLogger().log(Level.WARNING, "Failed to update the player data.", e);
+                                }
+                                player.sendMessage(ChatColor.GREEN + "[SSC] 固定ホーム地点を設定しました。");
+                            } else {
+                                player.sendMessage(ChatColor.RED + "[SSC] 固定ホーム地点を設定するにはベッドスポーンの事前設定が必要です。");
+                            }
+                        } else if (args[0].equals("reset")) {
+                            SoloServerApi.getInstance().getSSCPlayer(player).setFixedHomeLocation(player.getBedSpawnLocation());
+                            try {
+                                getPlayersTable().updateFixedHome(player.getUniqueId(),
+                                        SoloServerApi.getInstance().getSSCPlayer(player).getFixedHomeLocation());
+                            } catch (SQLException e) {
+                                getLogger().log(Level.WARNING, "Failed to update the player data.", e);
+                            }
+                            player.sendMessage(ChatColor.GREEN + "[SSC] 固定ホーム地点を解除しました。");
+                        }
+                    } else {
+                        var location = SoloServerApi.getInstance().getSSCPlayer(player).getFixedHomeLocationObject();
+                        if (location == null) // 固定Home設定がない場合
+                            location = player.getBedSpawnLocation();
+                        if (location == null) // Bedスポーンがない場合
+                            location = spawnPointLoader.getSpawn(player);
+                        player.teleport(location);
+                    }
                 } else {
                     Bukkit.getLogger().info("This command must be executed in-game.");
                 }
@@ -318,7 +366,8 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                         location,
                         null,
                         event.getPlayer(),
-                        true);
+                        true,
+                        null);
                 try {
                     SoloServerApi.getInstance().registerSSCPlayer(sscPlayer);
                 } catch (SQLException | NullPointerException exception) {
@@ -361,5 +410,9 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
 
     PluginSettingsTable getPluginSettingsTable() {
         return pluginSettingsTable;
+    }
+
+    MessagesTable getMessagesTable() {
+        return messagesTable;
     }
 }

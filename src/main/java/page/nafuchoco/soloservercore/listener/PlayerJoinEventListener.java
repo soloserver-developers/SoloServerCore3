@@ -17,6 +17,8 @@
 package page.nafuchoco.soloservercore.listener;
 
 import lombok.val;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -31,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public class PlayerJoinEventListener implements Listener {
 
@@ -78,6 +81,23 @@ public class PlayerJoinEventListener implements Listener {
                 if (player != null && !player.equals(event.getPlayer()))
                     player.sendMessage(ChatColor.AQUA + "[Teams] " + event.getPlayer().getDisplayName() + "がログインしました。");
             });
+
+        if (joinedTeam != null) {
+            val newMessages = joinedTeam.getMessages().stream()
+                    .filter(message -> message.getSentDate().getTime() > event.getPlayer().getLastPlayed())
+                    .collect(Collectors.toList());
+            if (!newMessages.isEmpty()) {
+                event.getPlayer().sendMessage(ChatColor.AQUA + "====== New Team Message! ======");
+                newMessages.forEach(message -> {
+                    TextComponent component = new TextComponent();
+                    component.setText("[" + message.getId().toString().split("-")[0] + "] ");
+                    component.setBold(true);
+                    component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/messageboard read " + message.getId()));
+                    component.addExtra(message.getSubject());
+                    event.getPlayer().spigot().sendMessage(component);
+                });
+            }
+        }
 
         if (!sscPlayer.getSpawnLocationObject().getWorld().getName().equals(SoloServerApi.getInstance().getSpawnWorld())) {
             event.getPlayer().sendMessage(

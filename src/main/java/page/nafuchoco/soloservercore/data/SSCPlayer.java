@@ -38,12 +38,12 @@ public interface SSCPlayer {
     /**
      * プレイヤーに割り当てられたスポーン地点の座標をJson形式で返します。
      *
-     * @return プレイヤーに割り当てられたスポーン地点の座標のJson
+     * @return プレイヤーに割り当てられたスポーン地点の座標Json
      */
     @NotNull String getSpawnLocation();
 
     /**
-     * プレイヤーに割り当てられたスポーン地点のLocationオブジェクトで返します。
+     * プレイヤーに割り当てられたスポーン地点のLocationオブジェクトを返します。
      *
      * @return レイヤーに割り当てられたスポーン地点のLocationオブジェクト
      */
@@ -72,5 +72,30 @@ public interface SSCPlayer {
     @Nullable
     default UUID getJoinedTeamId() {
         return getJoinedTeam() != null ? getJoinedTeam().getId() : null;
+    }
+
+    /**
+     * 固定されたホーム地点の座標をJson形式で返します。
+     *
+     * @return 固定されたホーム地点の座標Json
+     */
+    @Nullable String getFixedHomeLocation();
+
+    /**
+     * 固定されたホーム地点のLocationオブジェクトを返します。
+     *
+     * @return 固定されたホーム地点のLocationオブジェクト
+     */
+    @Nullable
+    default Location getFixedHomeLocationObject() {
+        val locationJson = new Gson().fromJson(getFixedHomeLocation(), JsonObject.class);
+        if (locationJson != null) {
+            val world = locationJson.get("World").getAsString();
+            val x = locationJson.get("X").getAsDouble();
+            val y = locationJson.get("Y").getAsDouble();
+            val z = locationJson.get("Z").getAsDouble();
+            return new Location(Bukkit.getWorld(world), x, y, z);
+        }
+        return null;
     }
 }

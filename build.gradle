@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'page.nafuchoco'
-version = '4.4.0'
+version = '4.5.0'
 
 java {
     toolchain {
@@ -76,14 +76,14 @@ dependencies {
 
     compileOnly 'org.spigotmc:spigot-api:1.17-R0.1-SNAPSHOT'
     compileOnly 'com.sk89q.worldedit:worldedit-bukkit:7.2.2'
-    compileOnly 'net.coreprotect:coreprotect:19.5'
-    compileOnly 'com.comphenix.protocol:ProtocolLib:4.6.0'
+    compileOnly 'net.coreprotect:coreprotect:20.0'
+    compileOnly 'com.comphenix.protocol:ProtocolLib:4.7.0'
 
     implementation 'com.google.code.gson:gson:2.8.7'
     implementation 'org.apache.commons:commons-lang3:3.12.0'
 
     implementation 'team.aura_dev.lib.slf4j-plugin.spigot:slf4j-plugin-spigot:1.2.0.39:1.7.25'
-    implementation 'com.zaxxer:HikariCP:4.0.3'
+    implementation 'com.zaxxer:HikariCP:5.0.0'
     implementation 'mysql:mysql-connector-java:8.0.25'
     implementation 'org.mariadb.jdbc:mariadb-java-client:2.7.3'
 }

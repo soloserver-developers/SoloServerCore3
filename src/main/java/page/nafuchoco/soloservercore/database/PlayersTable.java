@@ -39,7 +39,7 @@ public class PlayersTable extends DatabaseTable {
     }
 
     public void createTable() throws SQLException {
-        super.createTable("id VARCHAR(36) PRIMARY KEY, spawn_location TEXT NOT NULL, joined_team VARCHAR(36)");
+        super.createTable("id VARCHAR(36) PRIMARY KEY, spawn_location TEXT NOT NULL, joined_team VARCHAR(36), fixed_home TEXT");
     }
 
     public List<OfflineSSCPlayer> getPlayers() {
@@ -56,7 +56,8 @@ public class PlayersTable extends DatabaseTable {
                     val teamUUID = resultSet.getString("joined_team");
                     if (teamUUID != null)
                         joinedTeam = UUID.fromString(teamUUID);
-                    players.add(new OfflineSSCPlayer(id, spawnLocation, joinedTeam));
+                    val fixedHomeLocation = resultSet.getString("fixed_home");
+                    players.add(new OfflineSSCPlayer(id, spawnLocation, joinedTeam, fixedHomeLocation));
                 }
             }
         } catch (SQLException e) {
@@ -78,7 +79,8 @@ public class PlayersTable extends DatabaseTable {
                     val teamUUID = resultSet.getString("joined_team");
                     if (teamUUID != null)
                         joinedTeam = UUID.fromString(teamUUID);
-                    return new OfflineSSCPlayer(uuid, spawnLocation, joinedTeam);
+                    val fixedHomeLocation = resultSet.getString("fixed_home");
+                    return new OfflineSSCPlayer(uuid, spawnLocation, joinedTeam, fixedHomeLocation);
                 }
             }
         } catch (SQLException e) {
@@ -129,6 +131,20 @@ public class PlayersTable extends DatabaseTable {
             ps.setString(2, uuid.toString());
             if (joinedTeam != null)
                 ps.setString(1, joinedTeam.toString());
+            else
+                ps.setString(1, null);
+            ps.execute();
+        }
+    }
+
+    public void updateFixedHome(@NotNull UUID uuid, @Nullable String fixedHomeLocation) throws SQLException {
+        try (var connection = getConnector().getConnection();
+             var ps = connection.prepareStatement(
+                     "UPDATE " + getTablename() + " SET fixed_home = ? WHERE id = ?"
+             )) {
+            ps.setString(2, uuid.toString());
+            if (fixedHomeLocation != null)
+                ps.setString(1, fixedHomeLocation);
             else
                 ps.setString(1, null);
             ps.execute();

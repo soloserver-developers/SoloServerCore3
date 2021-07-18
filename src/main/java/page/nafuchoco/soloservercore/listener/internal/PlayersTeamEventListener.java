@@ -25,6 +25,7 @@ import page.nafuchoco.soloservercore.SoloServerApi;
 import page.nafuchoco.soloservercore.SoloServerCore;
 import page.nafuchoco.soloservercore.SpawnPointLoader;
 import page.nafuchoco.soloservercore.data.PlayersTeam;
+import page.nafuchoco.soloservercore.database.MessagesTable;
 import page.nafuchoco.soloservercore.database.PlayersTable;
 import page.nafuchoco.soloservercore.database.PlayersTeamsTable;
 import page.nafuchoco.soloservercore.database.PluginSettingsManager;
@@ -38,16 +39,18 @@ public class PlayersTeamEventListener implements Listener {
     private final PlayersTable playersTable;
     private final PlayersTeamsTable teamsTable;
     private final PluginSettingsManager settingsManager;
+    private final MessagesTable messagesTable;
     private final SpawnPointLoader loader;
 
     public PlayersTeamEventListener(
             PlayersTable playersTable,
             PlayersTeamsTable teamsTable,
             PluginSettingsManager settingsManager,
-            SpawnPointLoader loader) {
+            MessagesTable messagesTable, SpawnPointLoader loader) {
         this.playersTable = playersTable;
         this.teamsTable = teamsTable;
         this.settingsManager = settingsManager;
+        this.messagesTable = messagesTable;
         this.loader = loader;
     }
 
@@ -129,6 +132,32 @@ public class PlayersTeamEventListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayersTeamMessageCreate(PlayersTeamMessageCreateEvent event) {
+        if (!event.isCancelled()) {
+            try {
+                messagesTable.registerMessage(event.getCreateTeamMessage());
+            } catch (SQLException e) {
+                SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to update the team data.", e);
+                event.setCancelled(true);
+                return;
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayersTeamMessageDelete(PlayersTeamMessageDeleteEvent event) {
+        if (!event.isCancelled()) {
+            try {
+                messagesTable.deleteMessage(event.getDeleteMessage().getId());
+            } catch (SQLException e) {
+                SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to update the team data.", e);
+                event.setCancelled(true);
+                return;
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayersTeamDisappearanceEvent(PlayersTeamDisappearanceEvent event) {
         try {
             playersTable.updateJoinedTeam(event.getPlayer().getUniqueId(), null);
@@ -156,6 +185,7 @@ public class PlayersTeamEventListener implements Listener {
                 }
             });
             teamsTable.deleteTeam(event.getPlayersTeam().getId());
+            messagesTable.deleteAllMessages(event.getPlayersTeam().getId());
         } catch (SQLException e) {
             SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to update the team data.", e);
         }

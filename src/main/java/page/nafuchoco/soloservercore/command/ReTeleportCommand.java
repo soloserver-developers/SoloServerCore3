@@ -112,6 +112,7 @@ public class ReTeleportCommand implements CommandExecutor, TabCompleter {
 
         // ベッドスポーンの上書き
         player.setBedSpawnLocation(null);
+        sscPlayer.setFixedHomeLocation(null);
 
         // プレイヤーの初期化
         if (settingsManager.isReteleportResetAll()) {
