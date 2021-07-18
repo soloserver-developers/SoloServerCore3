@@ -82,19 +82,21 @@ public class PlayerJoinEventListener implements Listener {
                     player.sendMessage(ChatColor.AQUA + "[Teams] " + event.getPlayer().getDisplayName() + "がログインしました。");
             });
 
-        val newMessages = joinedTeam.getMessages().stream()
-                .filter(message -> message.getSentDate().getTime() > event.getPlayer().getLastPlayed())
-                .collect(Collectors.toList());
-        if (!newMessages.isEmpty()) {
-            event.getPlayer().sendMessage(ChatColor.AQUA + "====== New Team Message! ======");
-            newMessages.forEach(message -> {
-                TextComponent component = new TextComponent();
-                component.setText("[" + message.getId().toString().split("-")[0] + "] ");
-                component.setBold(true);
-                component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/messageboard read " + message.getId()));
-                component.addExtra(message.getSubject());
-                event.getPlayer().spigot().sendMessage(component);
-            });
+        if (joinedTeam != null) {
+            val newMessages = joinedTeam.getMessages().stream()
+                    .filter(message -> message.getSentDate().getTime() > event.getPlayer().getLastPlayed())
+                    .collect(Collectors.toList());
+            if (!newMessages.isEmpty()) {
+                event.getPlayer().sendMessage(ChatColor.AQUA + "====== New Team Message! ======");
+                newMessages.forEach(message -> {
+                    TextComponent component = new TextComponent();
+                    component.setText("[" + message.getId().toString().split("-")[0] + "] ");
+                    component.setBold(true);
+                    component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/messageboard read " + message.getId()));
+                    component.addExtra(message.getSubject());
+                    event.getPlayer().spigot().sendMessage(component);
+                });
+            }
         }
 
         if (!sscPlayer.getSpawnLocationObject().getWorld().getName().equals(SoloServerApi.getInstance().getSpawnWorld())) {

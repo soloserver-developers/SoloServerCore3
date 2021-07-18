@@ -116,12 +116,16 @@ public class InGameSSCPlayer implements SSCPlayer {
     }
 
     public void setFixedHomeLocation(@Nullable Location fixedHomeLocation) {
-        val fixedHomeJson = new JsonObject();
-        fixedHomeJson.addProperty("World", fixedHomeLocation.getWorld().getName());
-        fixedHomeJson.addProperty("X", fixedHomeLocation.getBlockX());
-        fixedHomeJson.addProperty("Y", fixedHomeLocation.getBlockY());
-        fixedHomeJson.addProperty("Z", fixedHomeLocation.getBlockZ());
-        this.fixedHomeLocation = new Gson().toJson(fixedHomeJson);
+        if (fixedHomeLocation != null) {
+            val fixedHomeJson = new JsonObject();
+            fixedHomeJson.addProperty("World", fixedHomeLocation.getWorld().getName());
+            fixedHomeJson.addProperty("X", fixedHomeLocation.getBlockX());
+            fixedHomeJson.addProperty("Y", fixedHomeLocation.getBlockY());
+            fixedHomeJson.addProperty("Z", fixedHomeLocation.getBlockZ());
+            this.fixedHomeLocation = new Gson().toJson(fixedHomeJson);
+        } else {
+            this.fixedHomeLocation = null;
+        }
     }
 
     public Player getPlayer() {

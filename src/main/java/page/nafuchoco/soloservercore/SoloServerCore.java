@@ -311,10 +311,27 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                     if (args.length >= 1) {
                         if (args[0].equals("fixed")) {
                             var location = player.getBedSpawnLocation();
-                            if (location != null)
+                            if (location != null) {
                                 SoloServerApi.getInstance().getSSCPlayer(player).setFixedHomeLocation(location);
-                            else
+                                try {
+                                    getPlayersTable().updateFixedHome(player.getUniqueId(),
+                                            SoloServerApi.getInstance().getSSCPlayer(player).getFixedHomeLocation());
+                                } catch (SQLException e) {
+                                    getLogger().log(Level.WARNING, "Failed to update the player data.", e);
+                                }
+                                player.sendMessage(ChatColor.GREEN + "[SSC] 固定ホーム地点を設定しました。");
+                            } else {
                                 player.sendMessage(ChatColor.RED + "[SSC] 固定ホーム地点を設定するにはベッドスポーンの事前設定が必要です。");
+                            }
+                        } else if (args[0].equals("reset")) {
+                            SoloServerApi.getInstance().getSSCPlayer(player).setFixedHomeLocation(player.getBedSpawnLocation());
+                            try {
+                                getPlayersTable().updateFixedHome(player.getUniqueId(),
+                                        SoloServerApi.getInstance().getSSCPlayer(player).getFixedHomeLocation());
+                            } catch (SQLException e) {
+                                getLogger().log(Level.WARNING, "Failed to update the player data.", e);
+                            }
+                            player.sendMessage(ChatColor.GREEN + "[SSC] 固定ホーム地点を解除しました。");
                         }
                     } else {
                         var location = SoloServerApi.getInstance().getSSCPlayer(player).getFixedHomeLocationObject();
