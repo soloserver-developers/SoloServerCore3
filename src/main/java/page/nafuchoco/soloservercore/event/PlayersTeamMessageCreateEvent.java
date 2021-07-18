@@ -30,6 +30,7 @@ public class PlayersTeamMessageCreateEvent extends PlayersTeamEvent implements C
 
     public PlayersTeamMessageCreateEvent(PlayersTeam playersTeam, Player player, TeamMessage message) {
         super(playersTeam, player);
+        teamMessage = message;
     }
 
     public TeamMessage getCreateTeamMessage() {

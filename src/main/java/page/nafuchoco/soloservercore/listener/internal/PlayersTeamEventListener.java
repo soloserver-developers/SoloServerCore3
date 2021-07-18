@@ -133,7 +133,7 @@ public class PlayersTeamEventListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayersTeamMessageCreate(PlayersTeamMessageCreateEvent event) {
-        if (event.isCancelled()) {
+        if (!event.isCancelled()) {
             try {
                 messagesTable.registerMessage(event.getCreateTeamMessage());
             } catch (SQLException e) {
@@ -146,7 +146,7 @@ public class PlayersTeamEventListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayersTeamMessageDelete(PlayersTeamMessageDeleteEvent event) {
-        if (event.isCancelled()) {
+        if (!event.isCancelled()) {
             try {
                 messagesTable.deleteMessage(event.getDeleteMessage().getId());
             } catch (SQLException e) {

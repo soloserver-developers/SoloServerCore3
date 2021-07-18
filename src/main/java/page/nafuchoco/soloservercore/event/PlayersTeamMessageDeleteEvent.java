@@ -30,6 +30,7 @@ public class PlayersTeamMessageDeleteEvent extends PlayersTeamEvent implements C
 
     public PlayersTeamMessageDeleteEvent(PlayersTeam playersTeam, Player player, TeamMessage message) {
         super(playersTeam, player);
+        teamMessage = message;
     }
 
     public TeamMessage getDeleteMessage() {
