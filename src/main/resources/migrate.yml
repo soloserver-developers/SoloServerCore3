@@ -22,4 +22,4 @@ migrate:
   - version: 4.5.0
     database: players
     scripts:
-      "ALTER TABLE %TABLENAME% ADD fixed_home TEXT"
+      - "ALTER TABLE %TABLENAME% ADD fixed_home TEXT"

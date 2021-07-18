@@ -113,10 +113,10 @@ public class PluginSettingsManager {
 
     public int getLastMigratedVersion() {
         val value = settingsTable.getPluginSetting("lastMigratedVersion");
-        val result = LAST_MIGRATED_VERSION;
+        var result = LAST_MIGRATED_VERSION;
         try {
             if (value != null)
-                Integer.parseInt(value.replaceAll("\\.", ""));
+                result = Integer.parseInt(value.replaceAll("\\.", ""));
         } catch (NumberFormatException e) {
             // nothing
         }

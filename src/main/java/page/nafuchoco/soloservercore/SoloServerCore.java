@@ -170,6 +170,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
         // 初起動は除外する
         var doMigrate = true;
         val lastMigratedVersion = pluginSettingsManager.getLastMigratedVersion();
+        getLogger().info("Starting database migrate check... Now database version: " + lastMigratedVersion);
         if (lastMigratedVersion == 350) {
             try {
                 if (playersTable.getPlayers().isEmpty()) {
@@ -198,9 +199,17 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
             if (nowVersion == lastMigratedVersion || versions.stream().max(Comparator.naturalOrder()).get() < nowVersion)
                 doMigrate = false;
 
+            if (doMigrate)
+                getLogger().info("Find migration script, Start migration.");
+
             // processリストの生成
-            val index = versions.indexOf(lastMigratedVersion);
-            val processList = index == -1 ? versions : versions.subList(index + 1, versions.size());
+            int index = 0;
+            while (versions.size() > index) {
+                if (versions.get(index) > lastMigratedVersion)
+                    break;
+                index++;
+            }
+            val processList = index == 0 ? versions : versions.subList(index, versions.size());
             doMigrate = doMigrate && !processList.isEmpty();
 
             if (doMigrate) {
@@ -226,12 +235,18 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                                 databaseTable = pluginSettingsTable;
                                 break;
 
+                            case "messages":
+                                databaseTable = messagesTable;
+                                break;
+
                             default:
                                 databaseTable = null;
                                 break;
                         }
 
                         scripts.forEach(script -> {
+                            if (SoloServerApi.getInstance().isDebug())
+                                getLogger().info("Migration...: " + script);
                             try (Connection connection = connector.getConnection();
                                  PreparedStatement ps = connection.prepareStatement(
                                          script.replace("%TABLENAME%", databaseTable.getTablename())
