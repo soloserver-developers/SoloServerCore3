@@ -85,6 +85,7 @@ public class InGameSSCPlayer implements SSCPlayer {
                 SoloServerApi.getInstance().getPlayersTeam(offlineSSCPlayer.getJoinedTeamId()) : null;
         this.player = player;
         this.firstJoined = firstJoined;
+        this.fixedHomeLocation = offlineSSCPlayer.getFixedHomeLocation();
     }
 
     @Override
