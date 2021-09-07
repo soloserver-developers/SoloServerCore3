@@ -389,6 +389,8 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
         SoloServerApi.getInstance().dropStoreData(event.getPlayer());
         if (Bukkit.getOnlinePlayers().isEmpty())
             spawnPointLoader.initPoint(false);
+        else
+            Bukkit.getOnlinePlayers().forEach(player -> player.showPlayer(this, event.getPlayer()));
     }
 
     public SoloServerCoreConfig getCoreConfig() {
