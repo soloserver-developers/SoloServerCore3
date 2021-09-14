@@ -195,8 +195,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
 
             // 更新がない場合実行しない
             val s = getDescription().getVersion().split("-");
-            val nowVersion = Integer.parseInt(s[0].replace(".", ""));
-            if (nowVersion == lastMigratedVersion || versions.stream().max(Comparator.naturalOrder()).get() < nowVersion)
+            if (versions.stream().max(Comparator.naturalOrder()).get() <= lastMigratedVersion)
                 doMigrate = false;
 
             if (doMigrate)
