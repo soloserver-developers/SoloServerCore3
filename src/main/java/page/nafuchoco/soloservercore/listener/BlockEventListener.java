@@ -64,29 +64,32 @@ public class BlockEventListener implements Listener {
 
     private boolean checkEditRights(Block block, Player player) {
         // Permission Check
-        if (!player.hasPermission("soloservercore.protect.bypass")) {
-            String actionPlayer = coreProtect.getAction(block, settingsManager.getProtectionPeriod());
-            // Action Player Check
-            if (actionPlayer != null && !actionPlayer.startsWith("#") && !player.getName().equals(actionPlayer)) {
-                val sscPlayer = SoloServerApi.getInstance().getSSCPlayer(player);
-                if (sscPlayer.getJoinedTeam() != null) {
-                    val joinedTeam = sscPlayer.getJoinedTeam();
-                    val members = new ArrayList<UUID>();
-                    members.addAll(joinedTeam.getMembers());
-                    members.add(joinedTeam.getOwner());
-                    // Action Team Member Check
-                    for (val uuid : members) {
-                        val member = Bukkit.getOfflinePlayer(uuid).getName();
-                        if (member.equals(actionPlayer))
-                            return true;
+        if (block.getWorld().equals(SoloServerApi.getInstance().getSSCPlayer(player).getSpawnLocationObject().getWorld())) {
+            if (!player.hasPermission("soloservercore.protect.bypass")) {
+                String actionPlayer = coreProtect.getAction(block, settingsManager.getProtectionPeriod());
+                // Action Player Check
+                if (actionPlayer != null && !actionPlayer.startsWith("#") && !player.getName().equals(actionPlayer)) {
+                    val sscPlayer = SoloServerApi.getInstance().getSSCPlayer(player);
+                    if (sscPlayer.getJoinedTeam() != null) {
+                        val joinedTeam = sscPlayer.getJoinedTeam();
+                        val members = new ArrayList<UUID>();
+                        members.addAll(joinedTeam.getMembers());
+                        members.add(joinedTeam.getOwner());
+                        // Action Team Member Check
+                        for (val uuid : members) {
+                            val member = Bukkit.getOfflinePlayer(uuid).getName();
+                            if (member.equals(actionPlayer))
+                                return true;
+                        }
                     }
+                } else {
+                    return true;
                 }
+                return false;
             } else {
                 return true;
             }
-            return false;
-        } else {
-            return true;
         }
+        return true;
     }
 }
