@@ -285,7 +285,19 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
             sender.sendMessage(ChatColor.RED + "You can't run this command because you don't have permission.");
         } else switch (command.getName()) {
             case "status":
-                sender.sendMessage("Remaining spawn points: " + spawnPointLoader.getPointRemaining());
+                sender.sendMessage(ChatColor.AQUA + "======== SoloServerCore System Information ========");
+                sender.sendMessage("Plugin Version: " + getDescription().getVersion());
+                sender.sendMessage("Stocked spawn point: " + spawnPointLoader.getPointRemaining());
+                sender.sendMessage("");
+                sender.sendMessage("CHECK_BLOCK: " + pluginSettingsManager.isCheckBlock());
+                sender.sendMessage("PROTECTION_PERIOD: " + pluginSettingsManager.getProtectionPeriod());
+                sender.sendMessage("TEAM_SPAWN_COLLECT: " + pluginSettingsManager.isTeamSpawnCollect());
+                sender.sendMessage("STOCK_SPAWN_POINT: " + pluginSettingsManager.getStockSpawnPoint());
+                sender.sendMessage("BROADCAST_BED_COUNT: " + pluginSettingsManager.isBroadcastBedCount());
+                sender.sendMessage("USE_AFK_COUNT: " + pluginSettingsManager.isUseAfkCount());
+                sender.sendMessage("AFK_TIME_THRESHOLD: " + pluginSettingsManager.getAfkTimeThreshold());
+                sender.sendMessage("RETELEPORT_RESET_ALL: " + pluginSettingsManager.isReteleportResetAll());
+                sender.sendMessage("LAST_MIGRATED_VERSION: " + pluginSettingsManager.getLastMigratedVersion());
                 break;
 
             case "charge":
