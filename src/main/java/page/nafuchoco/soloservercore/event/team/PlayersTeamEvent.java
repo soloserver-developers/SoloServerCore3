@@ -14,48 +14,50 @@
  * limitations under the License.
  */
 
-package page.nafuchoco.soloservercore.event;
+package page.nafuchoco.soloservercore.event.team;
 
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
+import page.nafuchoco.soloservercore.SoloServerApi;
+import page.nafuchoco.soloservercore.data.InGameSSCPlayer;
 import page.nafuchoco.soloservercore.data.PlayersTeam;
 
-public class PlayersTeamStatusUpdateEvent extends PlayersTeamEvent {
+public abstract class PlayersTeamEvent extends Event {
     private static final HandlerList handlers = new HandlerList();
-    private final UpdatedState state;
-    private final Object before;
-    private final Object after;
 
-    public PlayersTeamStatusUpdateEvent(PlayersTeam playersTeam, Player player, UpdatedState state, Object before, Object after) {
-        super(playersTeam, player);
-        this.state = state;
-        this.before = before;
-        this.after = after;
+    private final PlayersTeam playersTeam;
+    private final InGameSSCPlayer player;
+
+    protected PlayersTeamEvent(PlayersTeam playersTeam, Player player) {
+        this.playersTeam = playersTeam;
+        this.player = SoloServerApi.getInstance().getSSCPlayer(player);
     }
 
-    public UpdatedState getState() {
-        return state;
-    }
-
-    public Object getBefore() {
-        return before;
-    }
-
-    public Object getAfter() {
-        return after;
+    protected PlayersTeamEvent(PlayersTeam playersTeam, InGameSSCPlayer player) {
+        this.playersTeam = playersTeam;
+        this.player = player;
     }
 
     public static HandlerList getHandlerList() {
         return handlers;
     }
 
+    public PlayersTeam getPlayersTeam() {
+        return playersTeam;
+    }
+
+    public InGameSSCPlayer getPlayer() {
+        return player;
+    }
+
+    public Player getBukkitPlayer() {
+        return player.getPlayer();
+    }
+
     @Override
     public @NotNull HandlerList getHandlers() {
         return handlers;
-    }
-
-    public enum UpdatedState {
-        NAME, OWNER
     }
 }

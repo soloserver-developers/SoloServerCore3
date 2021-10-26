@@ -61,32 +61,31 @@ public class MaintenanceCommand implements CommandExecutor, TabCompleter {
                         val targetPlayer = Bukkit.getPlayer(playerId);
                         if (targetPlayer != null)
                             targetPlayer.kickPlayer("[SSC] The player data has been deleted by the administrator.");
-                        try {
-                            // チームに所属している場合は脱退、オーナーの場合はチームの削除
-                            if (target.getJoinedTeam() != null) {
-                                val joinedTeam = soloServerApi.getPlayersTeam(target.getJoinedTeamId());
-                                if (joinedTeam.getOwner().equals(target.getId())) {
-                                    teamsTable.deleteTeam(joinedTeam.getId());
-                                    joinedTeam.getMembers().forEach(m -> {
-                                                try {
-                                                    playersTable.updateJoinedTeam(m, null);
-                                                } catch (SQLException e) {
-                                                    SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to update the team data.", e);
-                                                }
+
+                        // チームに所属している場合は脱退、オーナーの場合はチームの削除
+                        if (target.getJoinedTeam() != null) {
+                            val joinedTeam = soloServerApi.getPlayersTeam(target.getJoinedTeamId());
+                            if (joinedTeam.getOwner().equals(target.getId())) {
+                                teamsTable.deleteTeam(joinedTeam.getId());
+                                joinedTeam.getMembers().forEach(m -> {
+                                            try {
+                                                playersTable.updateJoinedTeam(m, null);
+                                            } catch (SQLException e) {
+                                                SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to update the team data.", e);
                                             }
-                                    );
-                                } else {
-                                    val members = joinedTeam.getMembers();
-                                    members.remove(playerId);
-                                    teamsTable.updateMembers(joinedTeam.getId(), members);
-                                }
+                                        }
+                                );
+                            } else {
+                                val members = joinedTeam.getMembers();
+                                members.remove(playerId);
+                                teamsTable.updateMembers(joinedTeam.getId(), members);
                             }
-                            playersTable.deletePlayer(target);
-                            sender.sendMessage(ChatColor.GREEN + "Player data has been deleted.");
-                        } catch (SQLException e) {
-                            SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to update the team data.", e);
                         }
+                        playersTable.deletePlayer(target);
+                        sender.sendMessage(ChatColor.GREEN + "Player data has been deleted.");
                     }
+                } catch (SQLException e) {
+                    SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to update the team data.", e);
                 } catch (IllegalArgumentException e) {
                     sender.sendMessage(ChatColor.RED + "You must specify the exact UUID of the player whose data you want to delete.");
                 }
@@ -94,7 +93,7 @@ public class MaintenanceCommand implements CommandExecutor, TabCompleter {
 
             case "show":
                 val offlinePlayer = Bukkit.getOfflinePlayer(args[1]);
-                if (offlinePlayer != null) {
+                if (offlinePlayer.hasPlayedBefore()) {
                     val player = soloServerApi.getOfflineSSCPlayer(offlinePlayer.getUniqueId());
                     if (player != null) {
                         val sb = new StringBuilder();

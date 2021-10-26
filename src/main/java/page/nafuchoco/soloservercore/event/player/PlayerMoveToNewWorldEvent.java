@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 NAFU_at
+ * Copyright 2021 NAFU_at
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,35 +14,35 @@
  * limitations under the License.
  */
 
-package page.nafuchoco.soloservercore.event;
+package page.nafuchoco.soloservercore.event.player;
 
+import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
-import page.nafuchoco.soloservercore.data.PlayersTeam;
 
-public abstract class PlayersTeamEvent extends Event {
+public class PlayerMoveToNewWorldEvent extends PlayerStatusUpdateEvent {
     private static final HandlerList handlers = new HandlerList();
 
-    private final PlayersTeam playersTeam;
-    private final Player player;
+    private final World oldWorld;
+    private final World newWorld;
 
-    public PlayersTeamEvent(PlayersTeam playersTeam, Player player) {
-        this.playersTeam = playersTeam;
-        this.player = player;
+    public PlayerMoveToNewWorldEvent(Player player, World oldWorld, World newWorld) {
+        super(player);
+        this.oldWorld = oldWorld;
+        this.newWorld = newWorld;
+    }
+
+    public World getOldWorld() {
+        return oldWorld;
+    }
+
+    public World getNewWorld() {
+        return newWorld;
     }
 
     public static HandlerList getHandlerList() {
         return handlers;
-    }
-
-    public PlayersTeam getPlayersTeam() {
-        return playersTeam;
-    }
-
-    public Player getPlayer() {
-        return player;
     }
 
     @Override

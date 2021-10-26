@@ -52,12 +52,18 @@ public class OfflineSSCPlayer implements SSCPlayer {
         locationJson.addProperty("Z", location.getBlockZ());
         this.spawnLocation = new Gson().toJson(locationJson);
 
-        val fixedHomeJson = new JsonObject();
-        fixedHomeJson.addProperty("World", fixedHomeLocation.getWorld().getName());
-        fixedHomeJson.addProperty("X", fixedHomeLocation.getBlockX());
-        fixedHomeJson.addProperty("Y", fixedHomeLocation.getBlockY());
-        fixedHomeJson.addProperty("Z", fixedHomeLocation.getBlockZ());
-        this.fixedHomeLocation = new Gson().toJson(fixedHomeJson);
+        if (fixedHomeLocation != null) {
+            val fixedHomeJson = new JsonObject();
+            fixedHomeJson.addProperty("World", fixedHomeLocation.getWorld().getName());
+            fixedHomeJson.addProperty("X", fixedHomeLocation.getBlockX());
+            fixedHomeJson.addProperty("Y", fixedHomeLocation.getBlockY());
+            fixedHomeJson.addProperty("Z", fixedHomeLocation.getBlockZ());
+            this.fixedHomeLocation = new Gson().toJson(fixedHomeJson);
+        } else {
+            this.fixedHomeLocation = null;
+        }
+
+        this.peacefulMode = peacefulMode;
     }
 
     @Override
