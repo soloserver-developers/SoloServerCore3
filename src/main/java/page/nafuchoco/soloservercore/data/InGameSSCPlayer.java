@@ -98,6 +98,7 @@ public class InGameSSCPlayer implements SSCPlayer {
         this.player = player;
         this.firstJoined = firstJoined;
         this.fixedHomeLocation = offlineSSCPlayer.getFixedHomeLocation();
+        this.peacefulMode = offlineSSCPlayer.isPeacefulMode();
     }
 
     @Override
@@ -126,9 +127,9 @@ public class InGameSSCPlayer implements SSCPlayer {
     }
 
     public void setPeacefulMode(boolean peacefulMode) {
+        this.peacefulMode = peacefulMode;
         val peacefulModeChangeEvent = new PlayerPeacefulModeChangeEvent(this);
         Bukkit.getPluginManager().callEvent(peacefulModeChangeEvent);
-        this.peacefulMode = peacefulMode;
     }
 
     public boolean isFirstJoined() {

@@ -22,10 +22,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityPotionEffectEvent;
-import org.bukkit.event.entity.FoodLevelChangeEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import page.nafuchoco.soloservercore.SoloServerApi;
@@ -33,12 +30,25 @@ import page.nafuchoco.soloservercore.SoloServerApi;
 public class PeacefulModeEventListener implements Listener {
 
     @EventHandler
+    public void onEntityTargetEvent(EntityTargetEvent event) {
+        if (event.getTarget() instanceof Player player && event.getEntity() instanceof Monster) {
+            val sscPlayer = SoloServerApi.getInstance().getSSCPlayer(player);
+            if (sscPlayer.isPeacefulMode()) {
+                if (event.getReason() == EntityTargetEvent.TargetReason.CLOSEST_PLAYER
+                        || event.getReason() == EntityTargetEvent.TargetReason.TARGET_ATTACKED_ENTITY
+                        || event.getReason() == EntityTargetEvent.TargetReason.TARGET_ATTACKED_NEARBY_ENTITY)
+                    event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
     public void onEntityDamageEvent(EntityDamageEvent event) {
         if (event.getEntity() instanceof Player player) {
             val sscPlayer = SoloServerApi.getInstance().getSSCPlayer(player);
             if (sscPlayer.isPeacefulMode()) {
-                if (player.getHealth() < 20.0) {
-                    val effect = new PotionEffect(PotionEffectType.HEAL, 200, 1, false, false, false);
+                if (player.getHealth() - event.getDamage() < 20.0) {
+                    val effect = new PotionEffect(PotionEffectType.REGENERATION, 100, 2, false, false, false);
                     player.addPotionEffect(effect);
                 }
             }
@@ -50,14 +60,9 @@ public class PeacefulModeEventListener implements Listener {
         if (event.getEntity() instanceof Player player) {
             val sscPlayer = SoloServerApi.getInstance().getSSCPlayer(player);
             if (sscPlayer.isPeacefulMode()) {
-                boolean cancelled = event.isCancelled();
-                if (event.getDamager() instanceof Monster monster) {
+                boolean cancelled = event.isCancelled(); // 今後追加の可能性
+                if (event.getDamager() instanceof TNTPrimed) // TNT爆破の無効化
                     cancelled = true;
-
-                    monster.setTarget(null); // 攻撃対象から外す
-                } else if (event.getDamager() instanceof TNTPrimed) {
-                    cancelled = true;
-                }
 
                 event.setCancelled(cancelled);
             }
@@ -66,12 +71,14 @@ public class PeacefulModeEventListener implements Listener {
 
     @EventHandler
     public void onEntityPotionEffectEvent(EntityPotionEffectEvent event) {
-        PotionEffectType type = event.getNewEffect().getType();
-        if (PotionEffectType.POISON.equals(type)
-                || PotionEffectType.WITHER.equals(type)
-                || PotionEffectType.HUNGER.equals(type)
-                || PotionEffectType.CONFUSION.equals(type)) {
-            event.setCancelled(true);
+        if (event.getNewEffect() != null) {
+            val effectType = event.getNewEffect().getType();
+            if (PotionEffectType.POISON.equals(effectType)
+                    || PotionEffectType.WITHER.equals(effectType)
+                    || PotionEffectType.HUNGER.equals(effectType)
+                    || PotionEffectType.CONFUSION.equals(effectType)) {
+                event.setCancelled(true);
+            }
         }
     }
 
@@ -81,7 +88,7 @@ public class PeacefulModeEventListener implements Listener {
             val sscPlayer = SoloServerApi.getInstance().getSSCPlayer(player);
             if (sscPlayer.isPeacefulMode()) {
                 if (event.getFoodLevel() < 20) { // 空腹度の回復
-                    val effect = new PotionEffect(PotionEffectType.SATURATION, 200, 1, false, false, false);
+                    val effect = new PotionEffect(PotionEffectType.SATURATION, 40, 0, false, false, false);
                     player.addPotionEffect(effect);
                 }
             }

@@ -63,7 +63,7 @@ public class SpawnPointGenerator {
             point1.getChunk().load(true);
 
             if (SoloServerApi.getInstance().isDebug())
-                SoloServerCore.getInstance().getLogger().log(Level.INFO, "[Debug] Searching Y: {0)", y);
+                SoloServerCore.getInstance().getLogger().log(Level.INFO, "[Debug] Searching Y: {0}", y);
             if (!(world.getBlockAt(point1).getType().equals(Material.AIR) ||
                     world.getBlockAt(point1).getType().equals(Material.WATER) ||
                     world.getBlockAt(point1).getType().equals(Material.LAVA))) {
