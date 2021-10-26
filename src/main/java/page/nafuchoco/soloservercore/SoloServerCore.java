@@ -39,6 +39,7 @@ import page.nafuchoco.soloservercore.data.InGameSSCPlayer;
 import page.nafuchoco.soloservercore.data.MoveTimeUpdater;
 import page.nafuchoco.soloservercore.database.*;
 import page.nafuchoco.soloservercore.event.player.PlayerMoveToNewWorldEvent;
+import page.nafuchoco.soloservercore.event.player.PlayerPeacefulModeChangeEvent;
 import page.nafuchoco.soloservercore.listener.*;
 import page.nafuchoco.soloservercore.listener.internal.PlayersTeamEventListener;
 import page.nafuchoco.soloservercore.packet.ServerInfoPacketEventListener;
@@ -144,6 +145,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new AsyncPlayerChatEventListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerDeathEventListener(), this);
         getServer().getPluginManager().registerEvents(new MoveTimeUpdater(), this);
+        getServer().getPluginManager().registerEvents(new PeacefulModeEventListener(), this);
         getServer().getPluginManager().registerEvents(this, this);
 
         // Command Register
@@ -358,6 +360,14 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                 }
                 break;
 
+            case "peaceful":
+                if (sender instanceof Player player) {
+                    val sscPlayer = SoloServerApi.getInstance().getSSCPlayer(player);
+                    sscPlayer.setPeacefulMode(!sscPlayer.isPeacefulMode());
+                    player.sendMessage(ChatColor.GREEN + "[SSC] ピースフルモードを切り替えました。: " + sscPlayer.isPeacefulMode());
+                }
+                break;
+
             default:
                 return false;
         }
@@ -379,7 +389,8 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                         null,
                         event.getPlayer(),
                         true,
-                        null);
+                        null,
+                        false);
                 try {
                     SoloServerApi.getInstance().registerSSCPlayer(sscPlayer);
                 } catch (SQLException | NullPointerException exception) {
@@ -412,6 +423,15 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerMoveToNewWorldEvent(PlayerMoveToNewWorldEvent event) {
         SoloServerApi.getInstance().dropStoreData(event.getBukkitPlayer());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerPeacefulModeChangeEvent(PlayerPeacefulModeChangeEvent event) {
+        try {
+            playersTable.updatePeacefulMode(event.getPlayer().getId(), event.getPlayer().isPeacefulMode());
+        } catch (SQLException e) {
+            SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to update the player data.", e);
+        }
     }
 
     PlayersTable getPlayersTable() {
