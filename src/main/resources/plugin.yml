@@ -52,6 +52,7 @@ permissions:
       soloservercore.spawn: true
       soloservercore.home: true
       soloservercore.peaceful: true
+      soloservercore.peaceful.bypass: true
       soloservercore.team.create: true
       soloservercore.team.invite: true
       soloservercore.team.accept: true

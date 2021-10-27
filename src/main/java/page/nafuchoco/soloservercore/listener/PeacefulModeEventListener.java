@@ -34,9 +34,10 @@ public class PeacefulModeEventListener implements Listener {
         if (event.getTarget() instanceof Player player && event.getEntity() instanceof Monster) {
             val sscPlayer = SoloServerApi.getInstance().getSSCPlayer(player);
             if (sscPlayer.isPeacefulMode()) {
-                if (event.getReason() == EntityTargetEvent.TargetReason.CLOSEST_PLAYER
+                if (event.getEntity() instanceof Monster
+                        && (event.getReason() == EntityTargetEvent.TargetReason.CLOSEST_PLAYER
                         || event.getReason() == EntityTargetEvent.TargetReason.TARGET_ATTACKED_ENTITY
-                        || event.getReason() == EntityTargetEvent.TargetReason.TARGET_ATTACKED_NEARBY_ENTITY)
+                        || event.getReason() == EntityTargetEvent.TargetReason.TARGET_ATTACKED_NEARBY_ENTITY))
                     event.setCancelled(true);
             }
         }
@@ -57,16 +58,22 @@ public class PeacefulModeEventListener implements Listener {
 
     @EventHandler
     public void onEntityDamageByEntityEvent(EntityDamageByEntityEvent event) {
+        boolean cancelled = event.isCancelled(); // 今後追加の可能性
+        // プレイヤーに対する攻撃に関する処理
         if (event.getEntity() instanceof Player player) {
             val sscPlayer = SoloServerApi.getInstance().getSSCPlayer(player);
             if (sscPlayer.isPeacefulMode()) {
-                boolean cancelled = event.isCancelled(); // 今後追加の可能性
                 if (event.getDamager() instanceof TNTPrimed) // TNT爆破の無効化
                     cancelled = true;
-
-                event.setCancelled(cancelled);
             }
+        } else if (event.getDamager() instanceof Player player
+                && event.getEntity() instanceof Monster) { // プレイヤーによる攻撃に関する処理
+            val sscPlayer = SoloServerApi.getInstance().getSSCPlayer(player);
+            if (sscPlayer.isPeacefulMode() && !player.hasPermission("soloservercore.peaceful.bypass"))
+                cancelled = true;
         }
+
+        event.setCancelled(cancelled);
     }
 
     @EventHandler
