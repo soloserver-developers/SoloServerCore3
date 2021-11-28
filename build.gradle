@@ -7,11 +7,11 @@ plugins {
 }
 
 group = 'page.nafuchoco'
-version = '5.0.0-SNAPSHOT-2'
+version = '5.0.0-SNAPSHOT-3'
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(16)
+        languageVersion = JavaLanguageVersion.of(17)
     }
 }
 shadowJar {
@@ -48,8 +48,8 @@ publishing {
 repositories {
     mavenCentral()
     maven {
-        name = 'spigotmc-repo'
-        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+        name = 'papermc-repo'
+        url = 'https://papermc.io/repo/repository/maven-public/'
     }
     maven {
         name = 'sonatype'
@@ -74,7 +74,7 @@ dependencies {
     compileOnly 'org.projectlombok:lombok:1.18.22'
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
 
-    compileOnly 'org.spigotmc:spigot-api:1.17-R0.1-SNAPSHOT'
+    compileOnly 'io.papermc.paper:paper-api:1.18-rc3-R0.1-SNAPSHOT'
     compileOnly 'com.sk89q.worldedit:worldedit-bukkit:7.2.2'
     compileOnly 'net.coreprotect:coreprotect:20.0'
     compileOnly 'com.comphenix.protocol:ProtocolLib:4.7.0'
