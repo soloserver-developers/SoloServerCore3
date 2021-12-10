@@ -38,7 +38,7 @@ public class SpawnPointGenerator {
         Bukkit.getScheduler().runTask(SoloServerCore.getInstance(), () -> {
             var secureRandom = new SecureRandom();
             int x;
-            int y = 96;
+            int y = 120;
             int z;
 
             do {
@@ -73,7 +73,7 @@ public class SpawnPointGenerator {
             }
 
             y--;
-            if (y <= 5) {
+            if (y <= 60) {
                 if (SoloServerApi.getInstance().isDebug())
                     SoloServerCore.getInstance().getLogger().info("[Debug] Safe location were not found.");
                 return null;
