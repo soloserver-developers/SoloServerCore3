@@ -74,7 +74,7 @@ dependencies {
     compileOnly 'org.projectlombok:lombok:1.18.22'
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
 
-    compileOnly 'io.papermc.paper:paper-api:1.18-rc3-R0.1-SNAPSHOT'
+    compileOnly 'io.papermc.paper:paper-api:1.18-R0.1-SNAPSHOT'
     compileOnly 'net.coreprotect:coreprotect:20.1'
     compileOnly 'com.comphenix.protocol:ProtocolLib:4.7.0'
 
