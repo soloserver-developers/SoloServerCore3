@@ -31,7 +31,6 @@ import page.nafuchoco.soloservercore.SoloServerApi;
 import page.nafuchoco.soloservercore.database.PluginSettingsManager;
 
 import java.util.ArrayList;
-import java.util.UUID;
 
 /**
  * Cancel changes to the block if a record of changes is found that meets the condition.<br>
@@ -72,8 +71,7 @@ public class BlockEventListener implements Listener {
                     val sscPlayer = SoloServerApi.getInstance().getSSCPlayer(player);
                     if (sscPlayer.getJoinedTeam() != null) {
                         val joinedTeam = sscPlayer.getJoinedTeam();
-                        val members = new ArrayList<UUID>();
-                        members.addAll(joinedTeam.getMembers());
+                        val members = new ArrayList<>(joinedTeam.getMembers());
                         members.add(joinedTeam.getOwner());
                         // Action Team Member Check
                         for (val uuid : members) {

@@ -21,8 +21,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import page.nafuchoco.soloservercore.SoloServerApi;
 import page.nafuchoco.soloservercore.SoloServerCore;
-import page.nafuchoco.soloservercore.SpawnPointLoader;
 import page.nafuchoco.soloservercore.data.PlayersTeam;
 import page.nafuchoco.soloservercore.database.MessagesTable;
 import page.nafuchoco.soloservercore.database.PlayersTable;
@@ -39,18 +39,16 @@ public class PlayersTeamEventListener implements Listener {
     private final PlayersTeamsTable teamsTable;
     private final PluginSettingsManager settingsManager;
     private final MessagesTable messagesTable;
-    private final SpawnPointLoader loader;
 
     public PlayersTeamEventListener(
             PlayersTable playersTable,
             PlayersTeamsTable teamsTable,
             PluginSettingsManager settingsManager,
-            MessagesTable messagesTable, SpawnPointLoader loader) {
+            MessagesTable messagesTable) {
         this.playersTable = playersTable;
         this.teamsTable = teamsTable;
         this.settingsManager = settingsManager;
         this.messagesTable = messagesTable;
-        this.loader = loader;
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -96,7 +94,7 @@ public class PlayersTeamEventListener implements Listener {
             });
 
             if (settingsManager.isTeamSpawnCollect())
-                event.getBukkitPlayer().teleport(loader.getSpawn(event.getPlayersTeam().getOwner()));
+                event.getBukkitPlayer().teleport(SoloServerApi.getInstance().getSpawn(event.getPlayersTeam().getOwner()));
         }
     }
 
@@ -115,7 +113,7 @@ public class PlayersTeamEventListener implements Listener {
 
             var owner = Bukkit.getPlayer(event.getPlayersTeam().getOwner());
             if (owner != null) {
-                owner.sendMessage(ChatColor.RED + "[Teams] あなたのチームから" + event.getBukkitPlayer().getDisplayName() + "が脱退しました。");
+                owner.sendMessage(ChatColor.RED + "[Teams] あなたのチームから" + event.getBukkitPlayer().displayName() + "が脱退しました。");
                 event.getBukkitPlayer().hidePlayer(SoloServerCore.getInstance(), owner);
                 owner.hidePlayer(SoloServerCore.getInstance(), event.getBukkitPlayer());
             }

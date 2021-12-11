@@ -59,7 +59,7 @@ public class PlayerBedEventListener implements Listener {
                                     + ExtendedMessageFormat.format("あと{0}人がベッドに入ると朝になります。", count)));
                     event.getPlayer().sendMessage(ChatColor.DARK_GRAY + "世界のどこかにいるまだ起きている誰かが眠るのを待っています...");
                 } else if (settingsManager.isUseAfkCount()
-                        && event.getBed().getWorld().getPlayers().stream().filter(this::isAfk).count() > 0) {
+                        && event.getBed().getWorld().getPlayers().stream().anyMatch(this::isAfk)) {
                     event.getPlayer().getWorld().setTime(0);
                 }
             }

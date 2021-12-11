@@ -27,9 +27,9 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import page.nafuchoco.soloservercore.AsyncSafeLocationUtil;
 import page.nafuchoco.soloservercore.SoloServerApi;
 import page.nafuchoco.soloservercore.SoloServerCore;
-import page.nafuchoco.soloservercore.SpawnPointLoader;
 import page.nafuchoco.soloservercore.database.PlayersTable;
 import page.nafuchoco.soloservercore.database.PluginSettingsManager;
 import page.nafuchoco.soloservercore.event.player.PlayerMoveToNewWorldEvent;
@@ -38,19 +38,18 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 public class ReTeleportCommand implements CommandExecutor, TabCompleter {
     private final PluginSettingsManager settingsManager;
     private final PlayersTable playersTable;
-    private final SpawnPointLoader loader;
     private final World spawnWorld;
     private final List<Player> waitList;
 
-    public ReTeleportCommand(PluginSettingsManager settingsManager, PlayersTable playersTable, SpawnPointLoader loader, World spawnWorld) {
+    public ReTeleportCommand(PluginSettingsManager settingsManager, PlayersTable playersTable, World spawnWorld) {
         this.settingsManager = settingsManager;
         this.playersTable = playersTable;
-        this.loader = loader;
         this.spawnWorld = spawnWorld;
         waitList = new ArrayList<>();
     }
@@ -93,52 +92,56 @@ public class ReTeleportCommand implements CommandExecutor, TabCompleter {
     }
 
     private void reTeleport(Player player) {
-        // チーム情報を確認し所属している場合は脱退
         val sscPlayer = SoloServerApi.getInstance().getSSCPlayer(player);
+        // チーム情報を確認し所属している場合は脱退
         if (sscPlayer.getJoinedTeam() != null) {
             sscPlayer.getJoinedTeam().leaveTeam(player);
             player.sendMessage(ChatColor.GREEN + "[Teams] チームから脱退しました。");
         }
 
-        // 新規座標への移動
-        val location = loader.getNewLocation();
-        player.teleport(location);
-        player.setCompassTarget(location);
+        CompletableFuture.supplyAsync(AsyncSafeLocationUtil::generateNewRandomLocation)
+                .thenAccept(location -> Bukkit.getScheduler().callSyncMethod(SoloServerCore.getInstance(), () -> {
+                    // 新規座標への移動
+                    player.teleport(location);
+                    player.setCompassTarget(location);
 
-        // イベントの発火
-        val moveToNewWorldEvent = new PlayerMoveToNewWorldEvent(player, sscPlayer.getSpawnLocationObject().getWorld(), location.getWorld());
-        Bukkit.getPluginManager().callEvent(moveToNewWorldEvent);
+                    // イベントの発火
+                    val moveToNewWorldEvent = new PlayerMoveToNewWorldEvent(player, sscPlayer.getSpawnLocationObject().getWorld(), location.getWorld());
+                    Bukkit.getPluginManager().callEvent(moveToNewWorldEvent);
 
-        // ベッドスポーンの上書き
-        player.setBedSpawnLocation(null);
-        sscPlayer.setFixedHomeLocation(null);
+                    // ベッドスポーンの上書き
+                    player.setBedSpawnLocation(null);
+                    sscPlayer.setFixedHomeLocation(null);
 
-        // プレイヤーの初期化
-        if (settingsManager.isReteleportResetAll()) {
-            player.getInventory().clear();
-            player.getEnderChest().clear();
-            player.setLevel(0);
-            player.setExp(0F);
-            player.getActivePotionEffects().forEach(e -> player.removePotionEffect(e.getType()));
-            player.setFireTicks(0);
-            player.setHealth(20D);
-            player.setFoodLevel(20);
-            player.setSaturation(20F);
-        }
+                    // プレイヤーの初期化
+                    if (settingsManager.isReteleportResetAll()) {
+                        player.getInventory().clear();
+                        player.getEnderChest().clear();
+                        player.setLevel(0);
+                        player.setExp(0F);
+                        player.getActivePotionEffects().forEach(e -> player.removePotionEffect(e.getType()));
+                        player.setFireTicks(0);
+                        player.setHealth(20D);
+                        player.setFoodLevel(20);
+                        player.setSaturation(20F);
+                    }
 
-        // データの上書き
-        try {
-            playersTable.updateSpawnLocation(player.getUniqueId(), location);
-        } catch (SQLException e) {
-            SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to update the player data.", e);
-        }
+                    // データの上書き
+                    try {
+                        playersTable.updateSpawnLocation(player.getUniqueId(), location);
+                    } catch (SQLException e) {
+                        SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to update the player data.", e);
+                    }
 
-        // ログの出力
-        SoloServerCore.getInstance().getLogger().log(Level.INFO,
-                player.getName() +
-                        " has been successfully teleported to " +
-                        location.getBlockX() + ", " +
-                        location.getBlockY() + ", " +
-                        location.getBlockZ());
+                    // ログの出力
+                    SoloServerCore.getInstance().getLogger().log(Level.INFO,
+                            player.getName() +
+                                    " has been successfully teleported to " +
+                                    location.getBlockX() + ", " +
+                                    location.getBlockY() + ", " +
+                                    location.getBlockZ());
+
+                    return location;
+                }));
     }
 }

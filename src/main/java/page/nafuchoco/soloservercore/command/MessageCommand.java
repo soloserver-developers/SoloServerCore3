@@ -75,7 +75,7 @@ public class MessageCommand implements CommandExecutor, TabCompleter {
                 case "message":
                     if (args.length >= 3) {
                         switch (args[1]) {
-                            case "add": {
+                            case "add" -> {
                                 TeamMessage.TeamMessageBuilder builder = makingMessage.get(player);
                                 if (builder != null) {
                                     builder.addMessageLine(args[2]);
@@ -84,9 +84,7 @@ public class MessageCommand implements CommandExecutor, TabCompleter {
                                     player.sendMessage(ChatColor.YELLOW + "[Teams] 先にメッセージの作成を開始して下さい！");
                                 }
                             }
-                            break;
-
-                            case "remove": {
+                            case "remove" -> {
                                 TeamMessage.TeamMessageBuilder builder = makingMessage.get(player);
                                 if (builder != null) {
                                     try {
@@ -99,10 +97,8 @@ public class MessageCommand implements CommandExecutor, TabCompleter {
                                     player.sendMessage(ChatColor.YELLOW + "[Teams] 先にメッセージの作成を開始して下さい！");
                                 }
                             }
-                            break;
-
-                            default:
-                                break;
+                            default -> {
+                            }
                         }
                     } else if (args[1].equals("add")) {
                         TeamMessage.TeamMessageBuilder builder = makingMessage.get(player);

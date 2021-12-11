@@ -17,12 +17,14 @@
 package page.nafuchoco.soloservercore;
 
 import lombok.val;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import page.nafuchoco.soloservercore.data.InGameSSCPlayer;
 import page.nafuchoco.soloservercore.data.OfflineSSCPlayer;
 import page.nafuchoco.soloservercore.data.PlayersTeam;
+import page.nafuchoco.soloservercore.data.SSCPlayer;
 import page.nafuchoco.soloservercore.database.DatabaseConnector;
 import page.nafuchoco.soloservercore.database.PluginSettingsManager;
 
@@ -97,6 +99,24 @@ public final class SoloServerApi {
         return soloServerCore.getPlayersTable().getPlayerData(uuid);
     }
 
+    public Location getPlayerSpawn(Player player) {
+        return getSpawn(player.getUniqueId());
+    }
+
+    public Location getSpawn(UUID uuid) {
+        if (soloServerCore.getPluginSettingsManager().isTeamSpawnCollect()) {
+            SSCPlayer sscPlayer = SoloServerApi.getInstance().getOfflineSSCPlayer(uuid);
+
+            if (sscPlayer.getJoinedTeam() != null) {
+                SSCPlayer ownerPlayer = SoloServerApi.getInstance().getOfflineSSCPlayer(sscPlayer.getJoinedTeam().getOwner());
+                return ownerPlayer.getSpawnLocationObject();
+            }
+        }
+
+        SSCPlayer sscPlayer = SoloServerApi.getInstance().getOfflineSSCPlayer(uuid);
+        return sscPlayer.getSpawnLocationObject();
+    }
+
     /**
      * 指定したプレイヤーが所有するPlayersTeamを検索します。
      *
@@ -162,7 +182,7 @@ public final class SoloServerApi {
      * @throws SQLException プラグイン設定の保存中にエラーが発生した場合にスローされます。
      */
     public void setPluginSetting(@NotNull String key, @NotNull String value) throws SQLException {
-        if (Arrays.stream(PluginSettingsManager.getSettingsKeys()).anyMatch(s -> s.equals(key)))
+        if (Arrays.asList(PluginSettingsManager.getSettingsKeys()).contains(key))
             throw new IllegalArgumentException("The settings name used by the system cannot be used.");
         soloServerCore.getPluginSettingsTable().setPluginSetting(key, value);
     }

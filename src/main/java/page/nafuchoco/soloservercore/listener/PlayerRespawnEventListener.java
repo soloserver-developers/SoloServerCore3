@@ -21,14 +21,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import page.nafuchoco.soloservercore.SoloServerApi;
-import page.nafuchoco.soloservercore.SpawnPointLoader;
 
 public class PlayerRespawnEventListener implements Listener {
-    private final SpawnPointLoader loader;
-
-    public PlayerRespawnEventListener(SpawnPointLoader loader) {
-        this.loader = loader;
-    }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerRespawnEvent(PlayerRespawnEvent event) {
@@ -36,7 +30,7 @@ public class PlayerRespawnEventListener implements Listener {
         if (!event.isBedSpawn()) {
             var location = SoloServerApi.getInstance().getSSCPlayer(event.getPlayer()).getFixedHomeLocationObject();
             if (location == null)
-                location = loader.getSpawn(event.getPlayer());
+                location = SoloServerApi.getInstance().getPlayerSpawn(event.getPlayer());
             event.setRespawnLocation(location);
         }
     }
