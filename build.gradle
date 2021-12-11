@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'page.nafuchoco'
-version = '5.0.0-SNAPSHOT-3'
+version = '5.0.0-SNAPSHOT-4'
 
 java {
     toolchain {
