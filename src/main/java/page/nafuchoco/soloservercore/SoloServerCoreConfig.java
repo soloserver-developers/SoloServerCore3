@@ -72,29 +72,10 @@ public class SoloServerCoreConfig {
         }
     }
 
-    public static class InitConfig {
-        private final DatabaseType databaseType;
-        private final String address;
-        private final int port;
-        private final String database;
-        private final String username;
-        private final String password;
-        private final String tablePrefix;
-
-        private final String spawnWorld;
-        private final int generateLocationRange;
-
-        public InitConfig(DatabaseType databaseType, String address, int port, String database, String username, String password, String tablePrefix, String spawnWorld, int generateLocationRange) {
-            this.databaseType = databaseType;
-            this.address = address;
-            this.port = port;
-            this.database = database;
-            this.username = username;
-            this.password = password;
-            this.tablePrefix = tablePrefix;
-            this.spawnWorld = spawnWorld;
-            this.generateLocationRange = generateLocationRange;
-        }
+    public record InitConfig(DatabaseType databaseType,
+                             String address, int port, String database, String username,
+                             String password, String tablePrefix, String spawnWorld,
+                             int generateLocationRange) {
 
         public DatabaseType getDatabaseType() {
             return databaseType;

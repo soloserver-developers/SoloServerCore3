@@ -11,9 +11,11 @@ SoloServerCore3は外部プラグインから受信可能なイベントが用�
     - PlayersTeamDisappearanceEvent: オーナーがチームから退出したことによりチームが消滅した場合に呼び出されます。
     - PlayersTeamStatusUpdateEvent: チームの情報が更新された際に呼び出されます。
 
-### Others
+### PlayersEvent
 
+- PlayerStatusUpdateEvent:
 - PlayerMoveToNewWorldEvent: プレイヤーが新しいワールドに移動した場合に呼び出されます。
+- PlayerPeacefulModeChangeEvent:
 
 ## 注意事項
 

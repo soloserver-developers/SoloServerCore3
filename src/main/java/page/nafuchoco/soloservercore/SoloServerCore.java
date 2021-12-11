@@ -38,7 +38,8 @@ import page.nafuchoco.soloservercore.command.*;
 import page.nafuchoco.soloservercore.data.InGameSSCPlayer;
 import page.nafuchoco.soloservercore.data.MoveTimeUpdater;
 import page.nafuchoco.soloservercore.database.*;
-import page.nafuchoco.soloservercore.event.PlayerMoveToNewWorldEvent;
+import page.nafuchoco.soloservercore.event.player.PlayerMoveToNewWorldEvent;
+import page.nafuchoco.soloservercore.event.player.PlayerPeacefulModeChangeEvent;
 import page.nafuchoco.soloservercore.listener.*;
 import page.nafuchoco.soloservercore.listener.internal.PlayersTeamEventListener;
 import page.nafuchoco.soloservercore.packet.ServerInfoPacketEventListener;
@@ -55,7 +56,8 @@ import java.util.stream.Collectors;
 
 public final class SoloServerCore extends JavaPlugin implements Listener {
     private static SoloServerCore instance;
-    private static SoloServerCoreConfig config;
+
+    private SoloServerCoreConfig config;
 
     private PluginSettingsTable pluginSettingsTable;
     private PlayersTable playersTable;
@@ -143,6 +145,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new AsyncPlayerChatEventListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerDeathEventListener(), this);
         getServer().getPluginManager().registerEvents(new MoveTimeUpdater(), this);
+        getServer().getPluginManager().registerEvents(new PeacefulModeEventListener(), this);
         getServer().getPluginManager().registerEvents(this, this);
 
         // Command Register
@@ -170,7 +173,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
         // 初起動は除外する
         var doMigrate = true;
         val lastMigratedVersion = pluginSettingsManager.getLastMigratedVersion();
-        getLogger().info("Starting database migrate check... Now database version: " + lastMigratedVersion);
+        getLogger().log(Level.INFO, "Starting database migrate check... Now database version: {0}", lastMigratedVersion);
         if (lastMigratedVersion == 350) {
             try {
                 if (playersTable.getPlayers().isEmpty()) {
@@ -263,9 +266,11 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                     getLogger().info("Migration process is completed.");
                 } catch (SQLException e) {
                     getLogger().log(Level.WARNING,
-                            "The migration process was completed successfully, \n" +
-                                    "but the results could not be saved. \n" +
-                                    "An error may be displayed the next time you start the program.",
+                            """
+                                    The migration process was completed successfully, 
+                                    but the results could not be saved. 
+                                    An error may be displayed the next time you start the program.
+                                    """,
                             e);
                 }
             }
@@ -308,8 +313,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                 break;
 
             case "spawn":
-                if (sender instanceof Player) {
-                    val player = (Player) sender;
+                if (sender instanceof Player player) {
                     player.teleport(spawnPointLoader.getSpawn(player));
                 } else {
                     Bukkit.getLogger().info("This command must be executed in-game.");
@@ -317,8 +321,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                 break;
 
             case "home":
-                if (sender instanceof Player) {
-                    val player = (Player) sender;
+                if (sender instanceof Player player) {
                     if (args.length >= 1) {
                         if (args[0].equals("fixed")) {
                             var location = player.getBedSpawnLocation();
@@ -357,6 +360,14 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                 }
                 break;
 
+            case "peaceful":
+                if (sender instanceof Player player) {
+                    val sscPlayer = SoloServerApi.getInstance().getSSCPlayer(player);
+                    sscPlayer.setPeacefulMode(!sscPlayer.isPeacefulMode());
+                    player.sendMessage(ChatColor.GREEN + "[SSC] ピースフルモードを切り替えました。: " + sscPlayer.isPeacefulMode());
+                }
+                break;
+
             default:
                 return false;
         }
@@ -378,7 +389,8 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                         null,
                         event.getPlayer(),
                         true,
-                        null);
+                        null,
+                        false);
                 try {
                     SoloServerApi.getInstance().registerSSCPlayer(sscPlayer);
                 } catch (SQLException | NullPointerException exception) {
@@ -410,7 +422,16 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerMoveToNewWorldEvent(PlayerMoveToNewWorldEvent event) {
-        SoloServerApi.getInstance().dropStoreData(event.getPlayer());
+        SoloServerApi.getInstance().dropStoreData(event.getBukkitPlayer());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerPeacefulModeChangeEvent(PlayerPeacefulModeChangeEvent event) {
+        try {
+            playersTable.updatePeacefulMode(event.getPlayer().getId(), event.getPlayer().isPeacefulMode());
+        } catch (SQLException e) {
+            SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to update the player data.", e);
+        }
     }
 
     PlayersTable getPlayersTable() {

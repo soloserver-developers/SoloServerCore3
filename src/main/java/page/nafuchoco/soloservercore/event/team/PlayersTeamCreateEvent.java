@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package page.nafuchoco.soloservercore.event;
+package page.nafuchoco.soloservercore.event.team;
 
-import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
+import page.nafuchoco.soloservercore.data.InGameSSCPlayer;
 import page.nafuchoco.soloservercore.data.PlayersTeam;
 
 public class PlayersTeamCreateEvent extends PlayersTeamEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
     private boolean cancelled;
 
-    public PlayersTeamCreateEvent(PlayersTeam playersTeam, Player player) {
+    public PlayersTeamCreateEvent(PlayersTeam playersTeam, InGameSSCPlayer player) {
         super(playersTeam, player);
     }
 

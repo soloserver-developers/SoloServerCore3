@@ -34,14 +34,25 @@ public class OfflineSSCPlayer implements SSCPlayer {
     private final PlayersTeam joinedTeam;
     private final String fixedHomeLocation;
 
-    public OfflineSSCPlayer(@NotNull UUID id, @NotNull String spawnLocation, @Nullable UUID joinedTeamId, @Nullable String fixedHomeLocation) {
+    private final boolean peacefulMode;
+
+    public OfflineSSCPlayer(@NotNull UUID id,
+                            @NotNull String spawnLocation,
+                            @Nullable UUID joinedTeamId,
+                            @Nullable String fixedHomeLocation,
+                            boolean peacefulMode) {
         this.id = id;
         this.spawnLocation = spawnLocation;
         this.joinedTeam = (joinedTeamId != null) ? SoloServerApi.getInstance().getPlayersTeam(joinedTeamId) : null;
         this.fixedHomeLocation = fixedHomeLocation;
+        this.peacefulMode = peacefulMode;
     }
 
-    public OfflineSSCPlayer(@NotNull UUID id, @NotNull Location location, @Nullable UUID joinedTeamId, @Nullable Location fixedHomeLocation) {
+    public OfflineSSCPlayer(@NotNull UUID id,
+                            @NotNull Location location,
+                            @Nullable UUID joinedTeamId,
+                            @Nullable Location fixedHomeLocation,
+                            boolean peacefulMode) {
         this.id = id;
         this.joinedTeam = (joinedTeamId != null) ? SoloServerApi.getInstance().getPlayersTeam(joinedTeamId) : null;
 
@@ -52,12 +63,18 @@ public class OfflineSSCPlayer implements SSCPlayer {
         locationJson.addProperty("Z", location.getBlockZ());
         this.spawnLocation = new Gson().toJson(locationJson);
 
-        val fixedHomeJson = new JsonObject();
-        fixedHomeJson.addProperty("World", fixedHomeLocation.getWorld().getName());
-        fixedHomeJson.addProperty("X", fixedHomeLocation.getBlockX());
-        fixedHomeJson.addProperty("Y", fixedHomeLocation.getBlockY());
-        fixedHomeJson.addProperty("Z", fixedHomeLocation.getBlockZ());
-        this.fixedHomeLocation = new Gson().toJson(fixedHomeJson);
+        if (fixedHomeLocation != null) {
+            val fixedHomeJson = new JsonObject();
+            fixedHomeJson.addProperty("World", fixedHomeLocation.getWorld().getName());
+            fixedHomeJson.addProperty("X", fixedHomeLocation.getBlockX());
+            fixedHomeJson.addProperty("Y", fixedHomeLocation.getBlockY());
+            fixedHomeJson.addProperty("Z", fixedHomeLocation.getBlockZ());
+            this.fixedHomeLocation = new Gson().toJson(fixedHomeJson);
+        } else {
+            this.fixedHomeLocation = null;
+        }
+
+        this.peacefulMode = peacefulMode;
     }
 
     @Override
@@ -78,5 +95,10 @@ public class OfflineSSCPlayer implements SSCPlayer {
     @Override
     public @Nullable String getFixedHomeLocation() {
         return fixedHomeLocation;
+    }
+
+    @Override
+    public boolean isPeacefulMode() {
+        return peacefulMode;
     }
 }

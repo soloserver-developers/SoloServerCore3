@@ -32,7 +32,7 @@ import page.nafuchoco.soloservercore.SoloServerCore;
 import page.nafuchoco.soloservercore.SpawnPointLoader;
 import page.nafuchoco.soloservercore.database.PlayersTable;
 import page.nafuchoco.soloservercore.database.PluginSettingsManager;
-import page.nafuchoco.soloservercore.event.PlayerMoveToNewWorldEvent;
+import page.nafuchoco.soloservercore.event.player.PlayerMoveToNewWorldEvent;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -57,8 +57,7 @@ public class ReTeleportCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (sender instanceof Player) {
-            val player = (Player) sender;
+        if (sender instanceof Player player) {
             if (!sender.hasPermission("soloservercore.reteleport")) {
                 sender.sendMessage(ChatColor.RED + "You can't run this command because you don't have permission.");
             } else if (args.length == 0) {

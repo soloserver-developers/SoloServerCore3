@@ -39,7 +39,7 @@ public class PlayersTable extends DatabaseTable {
     }
 
     public void createTable() throws SQLException {
-        super.createTable("id VARCHAR(36) PRIMARY KEY, spawn_location TEXT NOT NULL, joined_team VARCHAR(36), fixed_home TEXT");
+        super.createTable("id VARCHAR(36) PRIMARY KEY, spawn_location TEXT NOT NULL, joined_team VARCHAR(36), fixed_home TEXT, peaceful_mode BOOL");
     }
 
     public List<OfflineSSCPlayer> getPlayers() {
@@ -57,7 +57,8 @@ public class PlayersTable extends DatabaseTable {
                     if (teamUUID != null)
                         joinedTeam = UUID.fromString(teamUUID);
                     val fixedHomeLocation = resultSet.getString("fixed_home");
-                    players.add(new OfflineSSCPlayer(id, spawnLocation, joinedTeam, fixedHomeLocation));
+                    val peacefulMode = resultSet.getBoolean("peaceful_mode");
+                    players.add(new OfflineSSCPlayer(id, spawnLocation, joinedTeam, fixedHomeLocation, peacefulMode));
                 }
             }
         } catch (SQLException e) {
@@ -80,7 +81,8 @@ public class PlayersTable extends DatabaseTable {
                     if (teamUUID != null)
                         joinedTeam = UUID.fromString(teamUUID);
                     val fixedHomeLocation = resultSet.getString("fixed_home");
-                    return new OfflineSSCPlayer(uuid, spawnLocation, joinedTeam, fixedHomeLocation);
+                    val peacefulMode = resultSet.getBoolean("peaceful_mode");
+                    return new OfflineSSCPlayer(uuid, spawnLocation, joinedTeam, fixedHomeLocation, peacefulMode);
                 }
             }
         } catch (SQLException e) {
@@ -92,8 +94,8 @@ public class PlayersTable extends DatabaseTable {
     public void registerPlayer(@NotNull SSCPlayer sscPlayer) throws SQLException {
         try (var connection = getConnector().getConnection();
              var ps = connection.prepareStatement(
-                     "INSERT INTO " + getTablename() + " (id, spawn_location, joined_team) " +
-                             "VALUES (?, ?, ?)"
+                     "INSERT INTO " + getTablename() + " (id, spawn_location, joined_team, peaceful_mode) " +
+                             "VALUES (?, ?, ?, ?)"
              )) {
             ps.setString(1, sscPlayer.getId().toString());
             ps.setString(2, sscPlayer.getSpawnLocation());
@@ -101,6 +103,7 @@ public class PlayersTable extends DatabaseTable {
                 ps.setString(3, sscPlayer.getJoinedTeamId().toString());
             else
                 ps.setString(3, null);
+            ps.setBoolean(4, sscPlayer.isPeacefulMode());
             ps.execute();
         }
     }
@@ -143,10 +146,18 @@ public class PlayersTable extends DatabaseTable {
                      "UPDATE " + getTablename() + " SET fixed_home = ? WHERE id = ?"
              )) {
             ps.setString(2, uuid.toString());
-            if (fixedHomeLocation != null)
-                ps.setString(1, fixedHomeLocation);
-            else
-                ps.setString(1, null);
+            ps.setString(1, fixedHomeLocation);
+            ps.execute();
+        }
+    }
+
+    public void updatePeacefulMode(@NotNull UUID uuid, boolean peacefulMode) throws SQLException {
+        try (var connection = getConnector().getConnection();
+             var ps = connection.prepareStatement(
+                     "UPDATE " + getTablename() + " SET peaceful_mode = ? WHERE id = ?"
+             )) {
+            ps.setString(2, uuid.toString());
+            ps.setBoolean(1, peacefulMode);
             ps.execute();
         }
     }

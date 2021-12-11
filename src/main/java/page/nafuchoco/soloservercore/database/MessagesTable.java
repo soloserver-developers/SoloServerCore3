@@ -106,8 +106,7 @@ public class MessagesTable extends DatabaseTable {
                     String subject = resultSet.getString("subject");
                     List<String> message = gson.fromJson(resultSet.getString("message"), new TypeToken<List<String>>() {
                     }.getType());
-                    TeamMessage teamMessage = new TeamMessage(id, senderId, targetTeam, sentDate, subject, message);
-                    return teamMessage;
+                    return new TeamMessage(id, senderId, targetTeam, sentDate, subject, message);
                 }
             }
             return null;

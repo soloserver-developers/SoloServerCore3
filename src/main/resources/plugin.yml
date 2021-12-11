@@ -28,6 +28,9 @@ commands:
   home:
     description: Teleport to your bed or spawn point.
 
+  peaceful:
+    description: Experience a simulated Peaceful Mode.
+
   reteleport:
     description: When a new world is ready, you will be moved to the new world.
 
@@ -48,6 +51,8 @@ permissions:
       soloservercore.settings: true
       soloservercore.spawn: true
       soloservercore.home: true
+      soloservercore.peaceful: true
+      soloservercore.peaceful.bypass: true
       soloservercore.team.create: true
       soloservercore.team.invite: true
       soloservercore.team.accept: true
