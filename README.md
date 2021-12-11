@@ -24,8 +24,12 @@ SoloServerCoreはマルチプレイなのにシングルプレイのようなあ
 
 ## 動作要項
 
-- Spigot 1.18.x (**PaperMC 1.18-66 Tested**)
+- PaperMC 1.18.x (**PaperMC 1.18-66 Tested**)
 - MySQL or MariaDB 5.x ~
+
+**重要なお知らせ**  
+SoloServerCore3 v5.0.0よりPaperMCおよびそのフォークに最適化されています。    
+通常のSpigotやPaperMCのフォークでないサーバーアプリケーションでは動作速度が低下する可能性があります。
 
 ### 前提プラグイン
 
