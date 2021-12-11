@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'page.nafuchoco'
-version = '5.0.0-SNAPSHOT-4'
+version = '5.0.0-Beta.1'
 
 java {
     toolchain {
@@ -75,6 +75,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
 
     compileOnly 'io.papermc.paper:paper-api:1.18-R0.1-SNAPSHOT'
+    implementation "io.papermc:paperlib:1.0.7"
     compileOnly 'net.coreprotect:coreprotect:20.1'
     compileOnly 'com.comphenix.protocol:ProtocolLib:4.7.0'
 
