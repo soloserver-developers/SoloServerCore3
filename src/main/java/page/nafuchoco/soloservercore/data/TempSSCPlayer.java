@@ -19,25 +19,13 @@ package page.nafuchoco.soloservercore.data;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import lombok.val;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.UUID;
 
 public class TempSSCPlayer extends InGameSSCPlayer {
 
     public TempSSCPlayer(@NotNull Player player) {
         super(player.getUniqueId(), getDefaultSpawnLocation(player), null, player, false, null, false);
-    }
-
-    public TempSSCPlayer(@NotNull Location location,
-                         @Nullable UUID joinedTeamId,
-                         @NotNull Player player,
-                         @Nullable Location fixedHomeLocation,
-                         boolean peacefulMode) {
-        super(player.getUniqueId(), player.getWorld().getSpawnLocation(), null, player, false, null, false);
     }
 
     public TempSSCPlayer(@NotNull OfflineSSCPlayer offlineSSCPlayer,
