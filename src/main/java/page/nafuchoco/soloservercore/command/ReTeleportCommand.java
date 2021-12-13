@@ -30,6 +30,7 @@ import org.jetbrains.annotations.Nullable;
 import page.nafuchoco.soloservercore.AsyncSafeLocationUtil;
 import page.nafuchoco.soloservercore.SoloServerApi;
 import page.nafuchoco.soloservercore.SoloServerCore;
+import page.nafuchoco.soloservercore.data.TempSSCPlayer;
 import page.nafuchoco.soloservercore.database.PlayersTable;
 import page.nafuchoco.soloservercore.database.PluginSettingsManager;
 import page.nafuchoco.soloservercore.event.player.PlayerMoveToNewWorldEvent;
@@ -61,22 +62,24 @@ public class ReTeleportCommand implements CommandExecutor, TabCompleter {
                 sender.sendMessage(ChatColor.RED + "You can't run this command because you don't have permission.");
             } else if (args.length == 0) {
                 val sscPlayer = SoloServerApi.getInstance().getSSCPlayer(player);
-                if (!sscPlayer.getSpawnLocationObject().getWorld().equals(spawnWorld)) {
-                    sender.sendMessage(ChatColor.YELLOW + "[SSC] 新しいワールドへ移動します。\n" +
-                            "一度移動すると元のワールドに戻ることはできません。\n" +
-                            "本当によろしいですか？移動する場合は /reteleport confirm を実行して下さい。");
-                    waitList.add(player);
-                } else {
-                    sender.sendMessage(ChatColor.RED + "[SSC] 新しいワールドが用意された場合のみ実行することができます。");
-                }
-            } else switch (args[0].toLowerCase()) {
-                case "confirm":
-                    if (waitList.contains(player))
-                        reTeleport(player);
-                    break;
+                if (!(sscPlayer instanceof TempSSCPlayer)) {
+                    if (!sscPlayer.getSpawnLocationObject().getWorld().equals(spawnWorld)) {
+                        sender.sendMessage(ChatColor.YELLOW + "[SSC] 新しいワールドへ移動します。\n" +
+                                "一度移動すると元のワールドに戻ることはできません。\n" +
+                                "本当によろしいですか？移動する場合は /reteleport confirm を実行して下さい。");
+                        waitList.add(player);
+                    } else {
+                        sender.sendMessage(ChatColor.RED + "[SSC] 新しいワールドが用意された場合のみ実行することができます。");
+                    }
+                } else switch (args[0].toLowerCase()) {
+                    case "confirm":
+                        if (waitList.contains(player))
+                            reTeleport(player);
+                        break;
 
-                default:
-                    break;
+                    default:
+                        break;
+                }
             }
         } else {
             Bukkit.getLogger().info("This command must be executed in-game.");

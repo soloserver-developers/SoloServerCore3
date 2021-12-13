@@ -141,7 +141,7 @@ public class InGameSSCPlayer implements SSCPlayer {
     }
 
     public void setFixedHomeLocation(@Nullable Location fixedHomeLocation) {
-        if (fixedHomeLocation != null) {
+        if (fixedHomeLocation != null) { // TODO: 2021/12/13 イベント化する
             val fixedHomeJson = new JsonObject();
             fixedHomeJson.addProperty("World", fixedHomeLocation.getWorld().getName());
             fixedHomeJson.addProperty("X", fixedHomeLocation.getBlockX());

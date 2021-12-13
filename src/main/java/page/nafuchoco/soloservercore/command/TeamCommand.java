@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import page.nafuchoco.soloservercore.SoloServerApi;
 import page.nafuchoco.soloservercore.data.PlayersTeam;
+import page.nafuchoco.soloservercore.data.TempSSCPlayer;
 import page.nafuchoco.soloservercore.database.PluginSettingsManager;
 import page.nafuchoco.soloservercore.event.team.PlayersTeamCreateEvent;
 import page.nafuchoco.soloservercore.event.team.PlayersTeamStatusUpdateEvent;
@@ -51,9 +52,13 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (sender instanceof Player player) {
             val soloServerApi = SoloServerApi.getInstance();
+            val sscPlayer = soloServerApi.getSSCPlayer(player);
+            if (sscPlayer instanceof TempSSCPlayer) {
+                return true;
+            }
+
             if (args.length == 0) {
                 // Show Team Status
-                val sscPlayer = soloServerApi.getSSCPlayer(player);
                 if (sscPlayer.getJoinedTeam() != null) {
                     val team = sscPlayer.getJoinedTeam();
                     sender.sendMessage(ChatColor.AQUA + "======== PlayersTeam Infomation ========");
@@ -78,7 +83,6 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
             } else switch (args[0]) {
                 case "create": {
                     // すでにチームに所属している場合は
-                    val sscPlayer = soloServerApi.getSSCPlayer(player);
                     if (sscPlayer.getJoinedTeam() != null) {
                         val team = sscPlayer.getJoinedTeam();
                         if (player.getUniqueId().equals(team.getOwner())) {
@@ -135,7 +139,6 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                     val invitedTeam = invited.remove((player).getUniqueId());
                     if (invitedTeam != null) {
                         // すでにチームに所属している場合は
-                        val sscPlayer = soloServerApi.getSSCPlayer(player);
                         if (sscPlayer.getJoinedTeam() != null) {
                             sscPlayer.getJoinedTeam().leaveTeam(player);
                             sender.sendMessage(ChatColor.GREEN + "[Teams] これまで入っていたチームから脱退しました。");
@@ -148,7 +151,6 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                     break;
 
                 case "leave": {
-                    val sscPlayer = soloServerApi.getSSCPlayer(player);
                     if (sscPlayer.getJoinedTeam() != null) {
                         val team = sscPlayer.getJoinedTeam();
                         if (settingsManager.isTeamSpawnCollect()
@@ -168,7 +170,6 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                 break;
 
                 case "confirm": {
-                    val sscPlayer = soloServerApi.getSSCPlayer(player);
                     if (sscPlayer.getJoinedTeam() != null && invited.remove(sscPlayer.getJoinedTeamId()) != null) {
                         val team = sscPlayer.getJoinedTeam();
                         team.leaveTeam(player);
@@ -183,13 +184,14 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                         if (originalTeam != null) {
                             val target = Bukkit.getPlayer(args[1]);
                             if (target != null && !player.equals(target)) {
-                                val sscPlayer = soloServerApi.getSSCPlayer(target);
-                                if (originalTeam.getId().equals(sscPlayer.getJoinedTeamId())) {
+                                val targetPlayer = soloServerApi.getSSCPlayer(target);
+                                if (!(targetPlayer instanceof TempSSCPlayer)
+                                        && originalTeam.getId().equals(targetPlayer.getJoinedTeamId())) {
                                     val transferredTeam = new PlayersTeam(originalTeam.getId(), target.getUniqueId());
                                     transferredTeam.setMembers(originalTeam.getMembers());
                                     val updateEvent = new PlayersTeamStatusUpdateEvent(
                                             originalTeam,
-                                            sscPlayer,
+                                            targetPlayer,
                                             PlayersTeamStatusUpdateEvent.UpdatedState.OWNER,
                                             originalTeam,
                                             transferredTeam);

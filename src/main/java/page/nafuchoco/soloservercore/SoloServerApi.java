@@ -21,10 +21,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import page.nafuchoco.soloservercore.data.InGameSSCPlayer;
-import page.nafuchoco.soloservercore.data.OfflineSSCPlayer;
-import page.nafuchoco.soloservercore.data.PlayersTeam;
-import page.nafuchoco.soloservercore.data.SSCPlayer;
+import page.nafuchoco.soloservercore.data.*;
 import page.nafuchoco.soloservercore.database.DatabaseConnector;
 import page.nafuchoco.soloservercore.database.PluginSettingsManager;
 
@@ -161,7 +158,10 @@ public final class SoloServerApi {
      */
     @Nullable
     public PlayersTeam getPlayersTeam(@NotNull Player player) {
-        return getSSCPlayer(player).getJoinedTeam();
+        val sscPlayer = getSSCPlayer(player);
+        if (sscPlayer instanceof TempSSCPlayer)
+            return null;
+        return sscPlayer.getJoinedTeam();
     }
 
     /**
@@ -190,6 +190,10 @@ public final class SoloServerApi {
     void registerSSCPlayer(InGameSSCPlayer sscPlayer) throws SQLException {
         soloServerCore.getPlayersTable().registerPlayer(sscPlayer);
         playerStore.put(sscPlayer.getPlayer(), sscPlayer);
+    }
+
+    void registerTempPlayer(TempSSCPlayer tempSSCPlayer) {
+        playerStore.put(tempSSCPlayer.getPlayer(), tempSSCPlayer);
     }
 
     void dropStoreData(Player player) {

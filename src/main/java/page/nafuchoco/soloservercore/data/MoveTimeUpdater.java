@@ -33,9 +33,10 @@ public class MoveTimeUpdater implements Listener {
                 && event.getFrom().getBlockZ() == event.getTo().getBlockZ()
                 && event.getFrom().getBlockY() == event.getTo().getBlockY())) {
             val sscPlayer = SoloServerApi.getInstance().getSSCPlayer(event.getPlayer());
-            if (sscPlayer == null)
-                return;
-            sscPlayer.setLatestMoveTime(new Date().getTime());
+            if (sscPlayer instanceof TempSSCPlayer)
+                event.setCancelled(true);
+            else
+                sscPlayer.setLatestMoveTime(new Date().getTime());
         }
     }
 }

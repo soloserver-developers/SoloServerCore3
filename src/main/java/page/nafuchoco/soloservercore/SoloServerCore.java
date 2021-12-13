@@ -40,6 +40,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import page.nafuchoco.soloservercore.command.*;
 import page.nafuchoco.soloservercore.data.MoveTimeUpdater;
+import page.nafuchoco.soloservercore.data.TempSSCPlayer;
 import page.nafuchoco.soloservercore.database.*;
 import page.nafuchoco.soloservercore.event.player.PlayerMoveToNewWorldEvent;
 import page.nafuchoco.soloservercore.event.player.PlayerPeacefulModeChangeEvent;
@@ -264,6 +265,9 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!sender.hasPermission("soloservercore." + command.getName())) {
             sender.sendMessage(ChatColor.RED + "You can't run this command because you don't have permission.");
+        } else if (sender instanceof Player player
+                && SoloServerApi.getInstance().getSSCPlayer(player) instanceof TempSSCPlayer) {
+            return true;
         } else switch (command.getName()) {
             case "status":
                 sender.sendMessage(ChatColor.AQUA + "======== SoloServerCore System Information ========");
@@ -346,6 +350,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onPlayerLoginEvent(PlayerLoginEvent event) {
+        SoloServerApi.getInstance().registerTempPlayer(new TempSSCPlayer(event.getPlayer()));
         loggingInPlayers.put(event.getPlayer(), AsyncLoginManager.login(event.getPlayer()));
     }
 
@@ -359,6 +364,9 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                 event.getPlayer().kickPlayer(result.message());
                 return result;
             }
+
+            if (result.status() != AsyncLoginManager.ResultStatus.FIRST_JOINED)
+                SoloServerApi.getInstance().dropStoreData(event.getPlayer());
 
             val sscPlayer = SoloServerApi.getInstance().getSSCPlayer(event.getPlayer());
             if (result.status() == AsyncLoginManager.ResultStatus.FIRST_JOINED) {
