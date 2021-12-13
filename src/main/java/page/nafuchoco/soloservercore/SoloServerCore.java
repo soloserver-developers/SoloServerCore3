@@ -29,6 +29,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -460,6 +461,17 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
     public void onPlayerPeacefulModeChangeEvent(PlayerPeacefulModeChangeEvent event) {
         try {
             playersTable.updatePeacefulMode(event.getPlayer().getId(), event.getPlayer().isPeacefulMode());
+            if (event.getPlayer().isPeacefulMode()) {
+                event.getBukkitPlayer().getNearbyEntities(40, 40, 40).forEach(
+                        entity -> {
+                            // 既にターゲット中のMobのターゲットを解除
+                            if (entity instanceof Monster monster
+                                    && monster.getTarget() instanceof Player target
+                                    && target.equals(event.getBukkitPlayer()))
+                                monster.setTarget(null);
+                        }
+                );
+            }
         } catch (SQLException e) {
             SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to update the player data.", e);
         }
