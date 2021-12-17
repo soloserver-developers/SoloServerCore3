@@ -76,7 +76,7 @@ dependencies {
 
     compileOnly 'io.papermc.paper:paper-api:1.18-R0.1-SNAPSHOT'
     implementation "io.papermc:paperlib:1.0.7"
-    compileOnly 'net.coreprotect:coreprotect:20.1'
+    compileOnly 'net.coreprotect:coreprotect:20.2'
     compileOnly 'com.comphenix.protocol:ProtocolLib:4.7.0'
 
     implementation 'com.google.code.gson:gson:2.8.9'
