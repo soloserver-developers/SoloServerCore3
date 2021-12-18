@@ -18,6 +18,7 @@ package page.nafuchoco.soloservercore.listener;
 
 import lombok.val;
 import org.bukkit.entity.Monster;
+import org.bukkit.entity.Phantom;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
@@ -32,7 +33,8 @@ public class PeacefulModeEventListener implements Listener {
 
     @EventHandler
     public void onEntityTargetEvent(EntityTargetEvent event) {
-        if (event.getTarget() instanceof Player player && event.getEntity() instanceof Monster) {
+        if (event.getTarget() instanceof Player player
+                && (event.getEntity() instanceof Monster || event.getEntity() instanceof Phantom)) {
             val sscPlayer = SoloServerApi.getInstance().getSSCPlayer(player);
             if (sscPlayer instanceof TempSSCPlayer) {
                 event.setCancelled(true);
@@ -74,7 +76,7 @@ public class PeacefulModeEventListener implements Listener {
                     cancelled = true;
             }
         } else if (event.getDamager() instanceof Player player
-                && event.getEntity() instanceof Monster) { // プレイヤーによる攻撃に関する処理
+                && (event.getEntity() instanceof Monster || event.getEntity() instanceof Phantom)) { // プレイヤーによる攻撃に関する処理
             val sscPlayer = SoloServerApi.getInstance().getSSCPlayer(player);
             if (sscPlayer.isPeacefulMode() && !player.hasPermission("soloservercore.peaceful.bypass"))
                 cancelled = true;
