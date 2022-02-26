@@ -37,7 +37,6 @@ import page.nafuchoco.soloservercore.event.player.PlayerMoveToNewWorldEvent;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
@@ -85,7 +84,7 @@ public class ReTeleportCommand implements CommandExecutor, TabCompleter {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1)
-            return Arrays.asList("confirm");
+            return List.of("confirm");
         return null;
     }
 

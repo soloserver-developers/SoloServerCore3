@@ -211,8 +211,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                 getLogger().info("The database structure has been updated. Start the migration process.");
                 processList.forEach(process -> {
                     List<Map<?, ?>> versionProcessMap = migrateConfig.getMapList("migrate").stream()
-                            .filter(map -> Integer.parseInt(((String) map.get("version")).replace(".", "")) == process)
-                            .collect(Collectors.toList());
+                            .filter(map -> Integer.parseInt(((String) map.get("version")).replace(".", "")) == process).toList();
                     versionProcessMap.forEach(processMap -> {
                         String database = (String) processMap.get("database");
                         List<String> scripts = (List<String>) processMap.get("scripts");
@@ -412,8 +411,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
 
             if (joinedTeam != null) {
                 val newMessages = joinedTeam.getMessages().stream()
-                        .filter(message -> message.getSentDate().getTime() > event.getPlayer().getLastPlayed())
-                        .collect(Collectors.toList());
+                        .filter(message -> message.getSentDate().getTime() > event.getPlayer().getLastPlayed()).toList();
                 if (!newMessages.isEmpty()) {
                     event.getPlayer().sendMessage(ChatColor.AQUA + "====== New Team Message! ======");
                     newMessages.forEach(message -> {

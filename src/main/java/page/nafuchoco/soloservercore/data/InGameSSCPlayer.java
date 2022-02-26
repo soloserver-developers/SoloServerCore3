@@ -45,7 +45,7 @@ public class InGameSSCPlayer implements SSCPlayer {
                            @NotNull String spawnLocation,
                            @Nullable UUID joinedTeamId,
                            @NotNull Player player,
-                           @NotNull boolean firstJoined,
+                           boolean firstJoined,
                            @Nullable String fixedHomeLocation,
                            boolean peacefulMode) {
         this.id = id;
@@ -61,7 +61,7 @@ public class InGameSSCPlayer implements SSCPlayer {
                            @NotNull Location location,
                            @Nullable UUID joinedTeamId,
                            @NotNull Player player,
-                           @NotNull boolean firstJoined,
+                           boolean firstJoined,
                            @Nullable Location fixedHomeLocation,
                            boolean peacefulMode) {
         this.id = id;
@@ -90,7 +90,7 @@ public class InGameSSCPlayer implements SSCPlayer {
         this.firstJoined = firstJoined;
     }
 
-    public InGameSSCPlayer(@NotNull OfflineSSCPlayer offlineSSCPlayer, @NotNull Player player, @NotNull boolean firstJoined) {
+    public InGameSSCPlayer(@NotNull OfflineSSCPlayer offlineSSCPlayer, @NotNull Player player, boolean firstJoined) {
         this.id = offlineSSCPlayer.getId();
         this.spawnLocation = offlineSSCPlayer.getSpawnLocation();
         this.joinedTeam = (offlineSSCPlayer.getJoinedTeamId() != null) ?

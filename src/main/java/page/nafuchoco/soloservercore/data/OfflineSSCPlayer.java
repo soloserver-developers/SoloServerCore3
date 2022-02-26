@@ -27,8 +27,6 @@ import page.nafuchoco.soloservercore.SoloServerApi;
 import java.util.UUID;
 
 public class OfflineSSCPlayer implements SSCPlayer {
-    private static final Gson gson = new Gson();
-
     private final UUID id;
     private final String spawnLocation;
     private final PlayersTeam joinedTeam;
@@ -78,12 +76,12 @@ public class OfflineSSCPlayer implements SSCPlayer {
     }
 
     @Override
-    public UUID getId() {
+    public @NotNull UUID getId() {
         return id;
     }
 
     @Override
-    public String getSpawnLocation() {
+    public @NotNull String getSpawnLocation() {
         return spawnLocation;
     }
 
