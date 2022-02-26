@@ -98,4 +98,11 @@ public interface SSCPlayer {
         }
         return null;
     }
+
+    /**
+     * ピースフルモードの状態を返します。
+     *
+     * @return ピースフルモードの状態
+     */
+    boolean isPeacefulMode();
 }

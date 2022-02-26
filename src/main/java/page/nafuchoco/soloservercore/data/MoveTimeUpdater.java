@@ -16,6 +16,7 @@
 
 package page.nafuchoco.soloservercore.data;
 
+import lombok.val;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -31,7 +32,11 @@ public class MoveTimeUpdater implements Listener {
         if (!(event.getFrom().getBlockX() == event.getTo().getBlockX()
                 && event.getFrom().getBlockZ() == event.getTo().getBlockZ()
                 && event.getFrom().getBlockY() == event.getTo().getBlockY())) {
-            SoloServerApi.getInstance().getSSCPlayer(event.getPlayer()).setLatestMoveTime(new Date().getTime());
+            val sscPlayer = SoloServerApi.getInstance().getSSCPlayer(event.getPlayer());
+            if (sscPlayer instanceof TempSSCPlayer)
+                event.setCancelled(true);
+            else
+                sscPlayer.setLatestMoveTime(new Date().getTime());
         }
     }
 }

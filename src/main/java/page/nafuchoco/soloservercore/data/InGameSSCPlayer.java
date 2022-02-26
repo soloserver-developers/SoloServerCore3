@@ -19,11 +19,13 @@ package page.nafuchoco.soloservercore.data;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import lombok.val;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import page.nafuchoco.soloservercore.SoloServerApi;
+import page.nafuchoco.soloservercore.event.player.PlayerPeacefulModeChangeEvent;
 
 import java.util.UUID;
 
@@ -33,6 +35,8 @@ public class InGameSSCPlayer implements SSCPlayer {
     private PlayersTeam joinedTeam;
     private String fixedHomeLocation;
 
+    private boolean peacefulMode;
+
     private final Player player;
     private long latestMoveTime;
     private final boolean firstJoined;
@@ -41,22 +45,25 @@ public class InGameSSCPlayer implements SSCPlayer {
                            @NotNull String spawnLocation,
                            @Nullable UUID joinedTeamId,
                            @NotNull Player player,
-                           @NotNull boolean firstJoined,
-                           @Nullable String fixedHomeLocation) {
+                           boolean firstJoined,
+                           @Nullable String fixedHomeLocation,
+                           boolean peacefulMode) {
         this.id = id;
         this.spawnLocation = spawnLocation;
         this.joinedTeam = (joinedTeamId != null) ? SoloServerApi.getInstance().getPlayersTeam(joinedTeamId) : null;
         this.player = player;
         this.firstJoined = firstJoined;
         this.fixedHomeLocation = fixedHomeLocation;
+        this.peacefulMode = peacefulMode;
     }
 
     public InGameSSCPlayer(@NotNull UUID id,
                            @NotNull Location location,
                            @Nullable UUID joinedTeamId,
                            @NotNull Player player,
-                           @NotNull boolean firstJoined,
-                           @Nullable Location fixedHomeLocation) {
+                           boolean firstJoined,
+                           @Nullable Location fixedHomeLocation,
+                           boolean peacefulMode) {
         this.id = id;
 
         val locationJson = new JsonObject();
@@ -66,19 +73,24 @@ public class InGameSSCPlayer implements SSCPlayer {
         locationJson.addProperty("Z", location.getBlockZ());
         this.spawnLocation = new Gson().toJson(locationJson);
 
-        val fixedHomeJson = new JsonObject();
-        fixedHomeJson.addProperty("World", fixedHomeLocation.getWorld().getName());
-        fixedHomeJson.addProperty("X", fixedHomeLocation.getBlockX());
-        fixedHomeJson.addProperty("Y", fixedHomeLocation.getBlockY());
-        fixedHomeJson.addProperty("Z", fixedHomeLocation.getBlockZ());
-        this.fixedHomeLocation = new Gson().toJson(fixedHomeJson);
+        if (fixedHomeLocation != null) {
+            val fixedHomeJson = new JsonObject();
+            fixedHomeJson.addProperty("World", fixedHomeLocation.getWorld().getName());
+            fixedHomeJson.addProperty("X", fixedHomeLocation.getBlockX());
+            fixedHomeJson.addProperty("Y", fixedHomeLocation.getBlockY());
+            fixedHomeJson.addProperty("Z", fixedHomeLocation.getBlockZ());
+            this.fixedHomeLocation = new Gson().toJson(fixedHomeJson);
+        } else {
+            this.fixedHomeLocation = null;
+        }
+        this.peacefulMode = peacefulMode;
 
         this.joinedTeam = (joinedTeamId != null) ? SoloServerApi.getInstance().getPlayersTeam(joinedTeamId) : null;
         this.player = player;
         this.firstJoined = firstJoined;
     }
 
-    public InGameSSCPlayer(@NotNull OfflineSSCPlayer offlineSSCPlayer, @NotNull Player player, @NotNull boolean firstJoined) {
+    public InGameSSCPlayer(@NotNull OfflineSSCPlayer offlineSSCPlayer, @NotNull Player player, boolean firstJoined) {
         this.id = offlineSSCPlayer.getId();
         this.spawnLocation = offlineSSCPlayer.getSpawnLocation();
         this.joinedTeam = (offlineSSCPlayer.getJoinedTeamId() != null) ?
@@ -86,6 +98,7 @@ public class InGameSSCPlayer implements SSCPlayer {
         this.player = player;
         this.firstJoined = firstJoined;
         this.fixedHomeLocation = offlineSSCPlayer.getFixedHomeLocation();
+        this.peacefulMode = offlineSSCPlayer.isPeacefulMode();
     }
 
     @Override
@@ -108,6 +121,17 @@ public class InGameSSCPlayer implements SSCPlayer {
         return fixedHomeLocation;
     }
 
+    @Override
+    public boolean isPeacefulMode() {
+        return peacefulMode;
+    }
+
+    public void setPeacefulMode(boolean peacefulMode) {
+        this.peacefulMode = peacefulMode;
+        val peacefulModeChangeEvent = new PlayerPeacefulModeChangeEvent(this);
+        Bukkit.getPluginManager().callEvent(peacefulModeChangeEvent);
+    }
+
     public boolean isFirstJoined() {
         return firstJoined;
     }
@@ -117,7 +141,7 @@ public class InGameSSCPlayer implements SSCPlayer {
     }
 
     public void setFixedHomeLocation(@Nullable Location fixedHomeLocation) {
-        if (fixedHomeLocation != null) {
+        if (fixedHomeLocation != null) { // TODO: 2021/12/13 イベント化する
             val fixedHomeJson = new JsonObject();
             fixedHomeJson.addProperty("World", fixedHomeLocation.getWorld().getName());
             fixedHomeJson.addProperty("X", fixedHomeLocation.getBlockX());

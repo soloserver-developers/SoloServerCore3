@@ -36,19 +36,18 @@ import java.util.*;
 
 public class MessageCommand implements CommandExecutor, TabCompleter {
     private final Map<Player, TeamMessage.TeamMessageBuilder> makingMessage = new HashMap<>();
-    
+
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (sender instanceof Player) {
-            Player player = (Player) sender;
+        if (sender instanceof Player player) {
             val soloServerApi = SoloServerApi.getInstance();
             if (args.length == 0) {
-
+                // TODO: 2021/10/26 Add Help
             } else if (!sender.hasPermission("messageboard." + args[0])) {
                 sender.sendMessage(ChatColor.RED + "You can't run this command because you don't have permission.");
             } else switch (args[0]) {
                 case "create": {
-                    PlayersTeam joinedTeam = soloServerApi.getPlayersTeam(player);
+                    val joinedTeam = soloServerApi.getPlayersTeam(player);
                     if (joinedTeam != null) {
                         TeamMessage.TeamMessageBuilder builder = new TeamMessage.TeamMessageBuilder(player.getUniqueId());
                         builder.setTargetTeam(joinedTeam);
@@ -76,7 +75,7 @@ public class MessageCommand implements CommandExecutor, TabCompleter {
                 case "message":
                     if (args.length >= 3) {
                         switch (args[1]) {
-                            case "add": {
+                            case "add" -> {
                                 TeamMessage.TeamMessageBuilder builder = makingMessage.get(player);
                                 if (builder != null) {
                                     builder.addMessageLine(args[2]);
@@ -85,9 +84,7 @@ public class MessageCommand implements CommandExecutor, TabCompleter {
                                     player.sendMessage(ChatColor.YELLOW + "[Teams] 先にメッセージの作成を開始して下さい！");
                                 }
                             }
-                            break;
-
-                            case "remove": {
+                            case "remove" -> {
                                 TeamMessage.TeamMessageBuilder builder = makingMessage.get(player);
                                 if (builder != null) {
                                     try {
@@ -100,7 +97,8 @@ public class MessageCommand implements CommandExecutor, TabCompleter {
                                     player.sendMessage(ChatColor.YELLOW + "[Teams] 先にメッセージの作成を開始して下さい！");
                                 }
                             }
-                            break;
+                            default -> {
+                            }
                         }
                     } else if (args[1].equals("add")) {
                         TeamMessage.TeamMessageBuilder builder = makingMessage.get(player);
@@ -165,6 +163,8 @@ public class MessageCommand implements CommandExecutor, TabCompleter {
                 }
                 break;
 
+                default:
+                    break;
             }
         } else {
             sender.sendMessage(ChatColor.RED + "This command must be executed in-game.");
@@ -178,13 +178,12 @@ public class MessageCommand implements CommandExecutor, TabCompleter {
         if (args.length == 1) {
             return Arrays.asList("create", "subject", "message", "send", "check", "read", "delete");
         } else if (args.length >= 2 && (args[0].equals("check") || args[0].equals("delete"))) {
-            List ids = new LinkedList();
-            if (sender instanceof Player) {
-                Player player = (Player) sender;
+            List<String> ids = new LinkedList<>();
+            if (sender instanceof Player player) {
                 PlayersTeam joinedTeam = SoloServerApi.getInstance().getPlayersTeam(player);
                 if (joinedTeam != null) {
                     List<TeamMessage> messages = joinedTeam.getMessages();
-                    messages.forEach(message -> ids.add(message.getId()));
+                    messages.forEach(message -> ids.add(message.getId().toString()));
                     return ids;
                 }
             }
@@ -200,7 +199,7 @@ public class MessageCommand implements CommandExecutor, TabCompleter {
         player.sendMessage("Subject: " + builder.getSubject());
         player.sendMessage("------");
         player.sendMessage("Message:");
-        builder.getMessage().forEach(message -> player.sendMessage(message));
+        builder.getMessage().forEach(player::sendMessage);
     }
 
     public void sendMessageViewer(Player player, TeamMessage message) {
@@ -210,7 +209,7 @@ public class MessageCommand implements CommandExecutor, TabCompleter {
         player.sendMessage("Subject: " + message.getSubject());
         player.sendMessage("------");
         player.sendMessage("Message:");
-        message.getMessage().forEach(text -> player.sendMessage(text));
+        message.getMessage().forEach(player::sendMessage);
     }
 
     public void sendMessageList(Player player, List<TeamMessage> messages) {
@@ -218,7 +217,7 @@ public class MessageCommand implements CommandExecutor, TabCompleter {
         if (joinedTeam != null) {
             player.sendMessage(ChatColor.AQUA + "====== Team Message! ======");
             messages.forEach(message -> {
-                TextComponent component = new TextComponent();
+                val component = new TextComponent();
                 component.setText("[" + message.getId().toString().split("-")[0] + "] ");
                 component.setBold(true);
                 component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/messageboard read " + message.getId()));

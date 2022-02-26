@@ -26,6 +26,7 @@ import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import page.nafuchoco.soloservercore.SoloServerApi;
+import page.nafuchoco.soloservercore.data.TempSSCPlayer;
 import page.nafuchoco.soloservercore.database.PluginSettingsManager;
 
 import java.util.Calendar;
@@ -59,7 +60,7 @@ public class PlayerBedEventListener implements Listener {
                                     + ExtendedMessageFormat.format("あと{0}人がベッドに入ると朝になります。", count)));
                     event.getPlayer().sendMessage(ChatColor.DARK_GRAY + "世界のどこかにいるまだ起きている誰かが眠るのを待っています...");
                 } else if (settingsManager.isUseAfkCount()
-                        && event.getBed().getWorld().getPlayers().stream().filter(this::isAfk).count() > 0) {
+                        && event.getBed().getWorld().getPlayers().stream().anyMatch(this::isAfk)) {
                     event.getPlayer().getWorld().setTime(0);
                 }
             }
@@ -106,6 +107,8 @@ public class PlayerBedEventListener implements Listener {
     private boolean isAfk(Player player) {
         if (settingsManager.isUseAfkCount()) {
             val playerData = SoloServerApi.getInstance().getSSCPlayer(player);
+            if (playerData instanceof TempSSCPlayer)
+                return true;
 
             val calendar = Calendar.getInstance();
             calendar.setTime(new Date(playerData.getLatestMoveTime()));

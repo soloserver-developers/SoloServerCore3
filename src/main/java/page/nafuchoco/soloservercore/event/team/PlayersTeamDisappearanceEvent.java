@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 NAFU_at
+ * Copyright 2021 NAFU_at
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,22 @@
  * limitations under the License.
  */
 
-package page.nafuchoco.soloservercore.event;
+package page.nafuchoco.soloservercore.event.team;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
+import page.nafuchoco.soloservercore.data.InGameSSCPlayer;
 import page.nafuchoco.soloservercore.data.PlayersTeam;
 
 public class PlayersTeamDisappearanceEvent extends PlayersTeamEvent {
     private static final HandlerList handlers = new HandlerList();
 
     public PlayersTeamDisappearanceEvent(PlayersTeam playersTeam, Player player) {
+        super(playersTeam, player);
+    }
+
+    public PlayersTeamDisappearanceEvent(PlayersTeam playersTeam, InGameSSCPlayer player) {
         super(playersTeam, player);
     }
 

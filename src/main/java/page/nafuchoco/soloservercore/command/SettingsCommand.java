@@ -51,55 +51,40 @@ public class SettingsCommand implements CommandExecutor, TabCompleter {
                     sender.sendMessage("checkBlock: " + settingsManager.isCheckBlock() + "\n" +
                             "protectionPeriod: " + settingsManager.getProtectionPeriod() + "\n" +
                             "teamSpawnCollect: " + settingsManager.isTeamSpawnCollect() + "\n" +
-                            "stockSpawnPoint: " + settingsManager.getStockSpawnPoint() + "\n" +
                             "broadcastBedCount: " + settingsManager.isBroadcastBedCount() + "\n" +
                             "useAfkCount: " + settingsManager.isUseAfkCount() + "\n" +
                             "afkTimeThreshold: " + settingsManager.getAfkTimeThreshold() + "\n" +
                             "reteleportResetAll: " + settingsManager.isReteleportResetAll());
                 } else switch (args[0]) {
-                    case "checkBlock":
+                    case "checkBlock" -> {
                         settingsManager.setCheckBlock(Boolean.parseBoolean(args[1]));
                         sender.sendMessage(UPDATED_MESSAGE);
-                        break;
-
-                    case "protectionPeriod":
+                    }
+                    case "protectionPeriod" -> {
                         settingsManager.setProtectionPeriod(Integer.parseInt(args[1]));
                         sender.sendMessage(UPDATED_MESSAGE);
-                        break;
-
-                    case "teamSpawnCollect":
+                    }
+                    case "teamSpawnCollect" -> {
                         settingsManager.setTeamSpawnCollect(Boolean.parseBoolean(args[1]));
                         sender.sendMessage(UPDATED_MESSAGE);
-                        break;
-
-                    case "stockSpawnPoint":
-                        settingsManager.setStockSpawnPoint(Integer.parseInt(args[1]));
-                        sender.sendMessage(UPDATED_MESSAGE);
-                        break;
-
-                    case "broadcastBedCount":
+                    }
+                    case "broadcastBedCount" -> {
                         settingsManager.setBroadcastBedCount(Boolean.parseBoolean(args[1]));
                         sender.sendMessage(UPDATED_MESSAGE);
-                        break;
-
-                    case "useAfkCount":
+                    }
+                    case "useAfkCount" -> {
                         settingsManager.setUseAfkCount(Boolean.parseBoolean(args[1]));
                         sender.sendMessage(UPDATED_MESSAGE);
-                        break;
-
-                    case "afkTimeThreshold":
+                    }
+                    case "afkTimeThreshold" -> {
                         settingsManager.setAfkTimeThreshold(Integer.parseInt(args[1]));
                         sender.sendMessage(UPDATED_MESSAGE);
-                        break;
-
-                    case "reteleportResetAll":
+                    }
+                    case "reteleportResetAll" -> {
                         settingsManager.setReteleportResetAll(Boolean.parseBoolean(args[1]));
                         sender.sendMessage(UPDATED_MESSAGE);
-                        break;
-
-                    default:
-                        sender.sendMessage(ChatColor.RED + "[SSC] Unknown option.");
-                        break;
+                    }
+                    default -> sender.sendMessage(ChatColor.RED + "[SSC] Unknown option.");
                 }
             } catch (SQLException e) {
                 sender.sendMessage(ChatColor.RED + "[SSC] An error occurred while updating the plugin settings.");

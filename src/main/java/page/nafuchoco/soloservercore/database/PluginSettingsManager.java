@@ -71,14 +71,6 @@ public class PluginSettingsManager {
             return Boolean.parseBoolean(value);
     }
 
-    public int getStockSpawnPoint() {
-        val value = settingsTable.getPluginSetting("stockSpawnPoint");
-        if (value == null)
-            return STOCK_SPAWN_POINT;
-        else
-            return Integer.parseInt(value);
-    }
-
     public boolean isBroadcastBedCount() {
         val value = settingsTable.getPluginSetting("broadcastBedCount");
         if (value == null)
@@ -133,10 +125,6 @@ public class PluginSettingsManager {
 
     public void setTeamSpawnCollect(@NotNull boolean teamSpawnCollect) throws SQLException {
         settingsTable.setPluginSetting("teamSpawnCollect", String.valueOf(teamSpawnCollect));
-    }
-
-    public void setStockSpawnPoint(@NotNull int stockSpawnPoint) throws SQLException {
-        settingsTable.setPluginSetting("stockSpawnPoint", String.valueOf(stockSpawnPoint));
     }
 
     public void setBroadcastBedCount(@NotNull boolean broadcastBedCount) throws SQLException {

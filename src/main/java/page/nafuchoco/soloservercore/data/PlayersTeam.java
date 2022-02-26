@@ -21,7 +21,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import page.nafuchoco.soloservercore.event.*;
+import page.nafuchoco.soloservercore.event.team.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -203,11 +203,10 @@ public class PlayersTeam {
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
-        } else if (!(obj instanceof PlayersTeam)) {
-            return false;
-        } else {
-            PlayersTeam team = (PlayersTeam) obj;
+        } else if (obj instanceof PlayersTeam team) {
             return id.equals(team.id);
+        } else {
+            return false;
         }
     }
 }
