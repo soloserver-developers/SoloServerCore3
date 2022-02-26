@@ -71,15 +71,10 @@ public class ReTeleportCommand implements CommandExecutor, TabCompleter {
                     } else {
                         sender.sendMessage(ChatColor.RED + "[SSC] 新しいワールドが用意された場合のみ実行することができます。");
                     }
-                } else switch (args[0].toLowerCase()) {
-                    case "confirm":
-                        if (waitList.contains(player))
-                            reTeleport(player);
-                        break;
-
-                    default:
-                        break;
                 }
+            } else if ("confirm".equalsIgnoreCase(args[0])) {
+                if (waitList.contains(player))
+                    reTeleport(player);
             }
         } else {
             Bukkit.getLogger().info("This command must be executed in-game.");
