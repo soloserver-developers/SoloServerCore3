@@ -45,6 +45,7 @@ permissions:
   soloservercore.*:
     description: Grant all permissions for SoloServerCore.
     children:
+      soloservercore.invisible.bypass: true
       soloservercore.chat.bypass: true
       soloservercore.status: true
       soloservercore.charge: true
