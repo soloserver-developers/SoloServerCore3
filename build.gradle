@@ -71,7 +71,7 @@ repositories {
 
 dependencies {
     compileOnly 'org.jetbrains:annotations:23.0.0'
-    compileOnly 'org.projectlombok:lombok:1.18.22'
+    compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
 
     compileOnly 'io.papermc.paper:paper-api:1.18-R0.1-SNAPSHOT'
