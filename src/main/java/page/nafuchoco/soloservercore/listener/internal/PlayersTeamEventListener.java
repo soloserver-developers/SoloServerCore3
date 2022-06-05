@@ -21,6 +21,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import page.nafuchoco.soloservercore.MessageManager;
 import page.nafuchoco.soloservercore.SoloServerApi;
 import page.nafuchoco.soloservercore.SoloServerCore;
 import page.nafuchoco.soloservercore.data.PlayersTeam;
@@ -80,14 +81,14 @@ public class PlayersTeamEventListener implements Listener {
 
             var owner = Bukkit.getPlayer(event.getPlayersTeam().getOwner());
             if (owner != null) {
-                owner.sendMessage(ChatColor.GREEN + "[Teams] あなたのチームに" + event.getBukkitPlayer().getDisplayName() + "が加わりました！");
+                owner.sendMessage(MessageManager.format(SoloServerCore.getMessage(owner, "teams.join.announce.owner"), event.getBukkitPlayer().getDisplayName()));
                 event.getBukkitPlayer().showPlayer(SoloServerCore.getInstance(), owner);
                 owner.showPlayer(SoloServerCore.getInstance(), event.getBukkitPlayer());
             }
             event.getPlayersTeam().getMembers().forEach(uuid -> {
                 var player = Bukkit.getPlayer(uuid);
                 if (player != null) {
-                    player.sendMessage(ChatColor.GREEN + "[Teams] " + event.getBukkitPlayer().getDisplayName() + "がチームに加わりました！");
+                    player.sendMessage(MessageManager.format(SoloServerCore.getMessage(player, "teams.join.announce"), event.getBukkitPlayer().getDisplayName()));
                     event.getBukkitPlayer().showPlayer(SoloServerCore.getInstance(), player);
                     player.showPlayer(SoloServerCore.getInstance(), event.getBukkitPlayer());
                 }
@@ -113,14 +114,14 @@ public class PlayersTeamEventListener implements Listener {
 
             var owner = Bukkit.getPlayer(event.getPlayersTeam().getOwner());
             if (owner != null) {
-                owner.sendMessage(ChatColor.RED + "[Teams] あなたのチームから" + event.getBukkitPlayer().displayName() + "が脱退しました。");
+                owner.sendMessage(MessageManager.format(SoloServerCore.getMessage(owner, "teams.leave.announce.owner"), event.getBukkitPlayer().getDisplayName()));
                 event.getBukkitPlayer().hidePlayer(SoloServerCore.getInstance(), owner);
                 owner.hidePlayer(SoloServerCore.getInstance(), event.getBukkitPlayer());
             }
             event.getPlayersTeam().getMembers().forEach(uuid -> {
                 var player = Bukkit.getPlayer(uuid);
                 if (player != null) {
-                    player.sendMessage(ChatColor.RED + "[Teams] " + event.getBukkitPlayer().getDisplayName() + "がチームから脱退しました。");
+                    player.sendMessage(MessageManager.format(SoloServerCore.getMessage(player, "teams.leave.announce"), event.getBukkitPlayer().getDisplayName()));
                     event.getBukkitPlayer().hidePlayer(SoloServerCore.getInstance(), player);
                     player.hidePlayer(SoloServerCore.getInstance(), event.getBukkitPlayer());
                 }
@@ -190,16 +191,17 @@ public class PlayersTeamEventListener implements Listener {
     public void onPlayersTeamStatusUpdateEvent(PlayersTeamStatusUpdateEvent event) {
         try {
             switch (event.getState()) {
-                case NAME -> teamsTable.updateTeamName(event.getPlayersTeam().getId(), event.getPlayersTeam().getTeamName());
+                case NAME ->
+                        teamsTable.updateTeamName(event.getPlayersTeam().getId(), event.getPlayersTeam().getTeamName());
                 case OWNER -> {
                     var ownerPlayer = Bukkit.getPlayer(((PlayersTeam) event.getAfter()).getOwner());
                     teamsTable.updateTeamOwner(event.getPlayersTeam().getId(), ownerPlayer.getUniqueId());
-                    ownerPlayer.sendMessage(ChatColor.GREEN + "[Teams] チームのオーナが" + ownerPlayer.getDisplayName() + "に譲渡されました。");
+                    ownerPlayer.sendMessage(MessageManager.format(SoloServerCore.getMessage(ownerPlayer, "teams.transfer.announce"), ownerPlayer.getDisplayName()));
                     event.getPlayersTeam().getMembers().stream()
                             .map(Bukkit::getPlayer)
                             .filter(Objects::nonNull)
                             .forEach(member ->
-                                    member.sendMessage(ChatColor.GREEN + "[Teams] チームのオーナが" + ownerPlayer.getDisplayName() + "に譲渡されました。"));
+                                    member.sendMessage(MessageManager.format(SoloServerCore.getMessage(member, "teams.transfer.announce"), ownerPlayer.getDisplayName())));
                 }
             }
         } catch (SQLException e) {

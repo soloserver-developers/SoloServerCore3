@@ -18,7 +18,6 @@ package page.nafuchoco.soloservercore.listener;
 
 import lombok.val;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -28,6 +27,7 @@ import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import page.nafuchoco.soloservercore.CoreProtectClient;
 import page.nafuchoco.soloservercore.SoloServerApi;
+import page.nafuchoco.soloservercore.SoloServerCore;
 import page.nafuchoco.soloservercore.data.TempSSCPlayer;
 import page.nafuchoco.soloservercore.database.PluginSettingsManager;
 
@@ -51,7 +51,7 @@ public class BlockEventListener implements Listener {
         if (SoloServerApi.getInstance().getSSCPlayer(event.getPlayer()) instanceof TempSSCPlayer) {
             event.setCancelled(true);
         } else if (!checkEditRights(event.getBlock(), event.getPlayer())) {
-            event.getPlayer().sendMessage(ChatColor.GRAY + "どうやら誰かの手によって作られた人工物のようだ...");
+            event.getPlayer().sendMessage(SoloServerCore.getMessage(event.getPlayer(), "system.artifact"));
             event.setCancelled(true);
         }
     }
@@ -61,7 +61,7 @@ public class BlockEventListener implements Listener {
         if (SoloServerApi.getInstance().getSSCPlayer(event.getPlayer()) instanceof TempSSCPlayer) {
             event.setCancelled(true);
         } else if (!checkEditRights(event.getBlock(), event.getPlayer())) {
-            event.getPlayer().sendMessage(ChatColor.GRAY + "どうやら誰かの手によって作られた人工物のようだ...");
+            event.getPlayer().sendMessage(SoloServerCore.getMessage(event.getPlayer(), "system.artifact"));
             event.setCancelled(true);
         }
     }
