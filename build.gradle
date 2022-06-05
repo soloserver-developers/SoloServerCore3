@@ -4,6 +4,7 @@ plugins {
     id 'java'
     id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id "io.freefair.lombok" version "6.4.3"
 }
 
 group = 'page.nafuchoco'
@@ -71,8 +72,6 @@ repositories {
 
 dependencies {
     compileOnly 'org.jetbrains:annotations:23.0.0'
-    compileOnly 'org.projectlombok:lombok:1.18.24'
-    annotationProcessor 'org.projectlombok:lombok:1.18.22'
 
     compileOnly 'io.papermc.paper:paper-api:1.18-R0.1-SNAPSHOT'
     implementation "io.papermc:paperlib:1.0.7"
