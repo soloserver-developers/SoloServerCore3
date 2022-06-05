@@ -397,7 +397,8 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
             List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
             players.forEach(player -> {
                 if (!player.equals(event.getPlayer()) && !member.contains(player.getUniqueId())) {
-                    event.getPlayer().hidePlayer(SoloServerCore.getInstance(), player);
+                    if (!event.getPlayer().hasPermission("soloservercore.invisible.bypass"))
+                        event.getPlayer().hidePlayer(SoloServerCore.getInstance(), player);
                     player.hidePlayer(SoloServerCore.getInstance(), event.getPlayer());
                 }
             });

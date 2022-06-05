@@ -33,8 +33,8 @@ SoloServerCore3 v5.0.0よりPaperMCおよびそのフォークに最適化され
 
 ### 前提プラグイン
 
-- CoreProtect 19.1 ~
-- ProtocolLib 4.5.x ~ (**This is optional since v4.2.0.**)
+- CoreProtect 21.2 ~
+- ProtocolLib 4.8.x ~ (**This is optional since v4.2.0.**)
 
 ## Develpment [![](https://jitpack.io/v/soloserver-developers/SoloServerCore3.svg)](https://jitpack.io/#soloserver-developers/SoloServerCore3)
 
