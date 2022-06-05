@@ -96,13 +96,21 @@ public class ReTeleportCommand implements CommandExecutor, TabCompleter {
 
         CompletableFuture.supplyAsync(AsyncSafeLocationUtil::generateNewRandomLocation)
                 .thenAccept(location -> Bukkit.getScheduler().callSyncMethod(SoloServerCore.getInstance(), () -> {
-                    // 新規座標への移動
-                    player.teleport(location);
-                    player.setCompassTarget(location);
-
                     // イベントの発火
                     val moveToNewWorldEvent = new PlayerMoveToNewWorldEvent(player, sscPlayer.getSpawnLocationObject().getWorld(), location.getWorld());
                     Bukkit.getPluginManager().callEvent(moveToNewWorldEvent);
+
+                    // データの上書き
+                    try {
+                        playersTable.updateSpawnLocation(player.getUniqueId(), location);
+                    } catch (SQLException e) {
+                        SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to update the player data.", e);
+                        return null;
+                    }
+
+                    // 新規座標への移動
+                    player.teleport(location);
+                    player.setCompassTarget(location);
 
                     // ベッドスポーンの上書き
                     player.setBedSpawnLocation(null);
@@ -119,13 +127,6 @@ public class ReTeleportCommand implements CommandExecutor, TabCompleter {
                         player.setHealth(20D);
                         player.setFoodLevel(20);
                         player.setSaturation(20F);
-                    }
-
-                    // データの上書き
-                    try {
-                        playersTable.updateSpawnLocation(player.getUniqueId(), location);
-                    } catch (SQLException e) {
-                        SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to update the player data.", e);
                     }
 
                     // ログの出力
