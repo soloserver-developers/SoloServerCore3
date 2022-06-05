@@ -63,12 +63,10 @@ public class ReTeleportCommand implements CommandExecutor, TabCompleter {
                 val sscPlayer = SoloServerApi.getInstance().getSSCPlayer(player);
                 if (!(sscPlayer instanceof TempSSCPlayer)) {
                     if (!sscPlayer.getSpawnLocationObject().getWorld().equals(spawnWorld)) {
-                        sender.sendMessage(ChatColor.YELLOW + "[SSC] 新しいワールドへ移動します。\n" +
-                                "一度移動すると元のワールドに戻ることはできません。\n" +
-                                "本当によろしいですか？移動する場合は /reteleport confirm を実行して下さい。");
+                        sender.sendMessage(SoloServerCore.getMessage(player, "command.teleport.new-world.confirm"));
                         waitList.add(player);
                     } else {
-                        sender.sendMessage(ChatColor.RED + "[SSC] 新しいワールドが用意された場合のみ実行することができます。");
+                        sender.sendMessage(SoloServerCore.getMessage(player, "command.teleport.new-world.warn.notfound"));
                     }
                 }
             } else if ("confirm".equalsIgnoreCase(args[0])) {
@@ -93,7 +91,7 @@ public class ReTeleportCommand implements CommandExecutor, TabCompleter {
         // チーム情報を確認し所属している場合は脱退
         if (sscPlayer.getJoinedTeam() != null) {
             sscPlayer.getJoinedTeam().leaveTeam(player);
-            player.sendMessage(ChatColor.GREEN + "[Teams] チームから脱退しました。");
+            player.sendMessage(SoloServerCore.getMessage(player, "teams.leave"));
         }
 
         CompletableFuture.supplyAsync(AsyncSafeLocationUtil::generateNewRandomLocation)

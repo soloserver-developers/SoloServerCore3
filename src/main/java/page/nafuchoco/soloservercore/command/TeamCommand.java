@@ -26,7 +26,9 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import page.nafuchoco.soloservercore.MessageManager;
 import page.nafuchoco.soloservercore.SoloServerApi;
+import page.nafuchoco.soloservercore.SoloServerCore;
 import page.nafuchoco.soloservercore.data.PlayersTeam;
 import page.nafuchoco.soloservercore.data.TempSSCPlayer;
 import page.nafuchoco.soloservercore.database.PluginSettingsManager;
@@ -76,7 +78,7 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                             .collect(Collectors.joining("\n")));
                     sender.sendMessage(builder.toString());
                 } else {
-                    sender.sendMessage(ChatColor.YELLOW + "[Teams] 所属しているチームがありません！");
+                    sender.sendMessage(SoloServerCore.getMessage(player, "command.team.no-affiliation"));
                 }
             } else if (!sender.hasPermission("soloservercore.team." + args[0])) {
                 sender.sendMessage(ChatColor.RED + "You can't run this command because you don't have permission.");
@@ -86,11 +88,11 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                     if (sscPlayer.getJoinedTeam() != null) {
                         val team = sscPlayer.getJoinedTeam();
                         if (player.getUniqueId().equals(team.getOwner())) {
-                            sender.sendMessage(ChatColor.RED + "[Teams] 既にあなたがオーナーのチームを持っています！");
+                            sender.sendMessage(SoloServerCore.getMessage(player, "teams.create.warn.already"));
                             break;
                         } else {
                             team.leaveTeam(player);
-                            sender.sendMessage(ChatColor.GREEN + "[Teams] これまで入っていたチームから脱退しました。");
+                            sender.sendMessage(SoloServerCore.getMessage(player, "teams.leave"));
                         }
                     }
 
@@ -98,10 +100,9 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                     val createEvent = new PlayersTeamCreateEvent(new PlayersTeam(id, (player).getUniqueId()), sscPlayer);
                     Bukkit.getServer().getPluginManager().callEvent(createEvent);
                     if (!createEvent.isCancelled())
-                        sender.sendMessage(ChatColor.GREEN + "[Teams] あなたのチームが作成されました！\n" +
-                                "/team invite [player] で他のプレイヤーを招待しましょう！");
+                        sender.sendMessage(SoloServerCore.getMessage(player, "teams.create.created"));
                     else
-                        sender.sendMessage(ChatColor.RED + "チームの作成に失敗しました。");
+                        sender.sendMessage(SoloServerCore.getMessage(player, "teams.create.fail"));
                 }
                 break;
 
@@ -115,23 +116,20 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                                     .filter(Objects::nonNull)
                                     .forEach(target -> {
                                         if (target.equals(player)) {
-                                            sender.sendMessage(ChatColor.RED +
-                                                    "[Teams] 自分自身を招待することはできません！");
+                                            sender.sendMessage(SoloServerCore.getMessage(player, "teams.invite.warn.self"));
                                         } else if (player.getWorld().equals(target.getWorld())) {
                                             invited.put(target.getUniqueId(), playersTeam);
-                                            target.sendMessage(ChatColor.GREEN + "[Teams]" + player.getDisplayName() +
-                                                    " さんからチームに招待されました。\n" +
-                                                    "参加するには /team accept を実行してください。");
+                                            target.sendMessage(MessageManager.format(SoloServerCore.getMessage(target, "teams.invite.receive"),
+                                                    player.getDisplayName()));
                                         } else {
-                                            sender.sendMessage(ChatColor.RED + "[Teams] 招待するプレイヤーは同じワールドにいる必要があります。");
+                                            sender.sendMessage(SoloServerCore.getMessage(target, "teams.invite.warn.world"));
                                         }
                                     });
                         } else {
-                            sender.sendMessage(ChatColor.YELLOW + "[Teams] チームに招待するためには自分がオーナーのチームに所属している必要があります。\n" +
-                                    "チームを作成するには /team create を実行してください。");
+                            sender.sendMessage(SoloServerCore.getMessage(player, "teams.invite.warn.owner"));
                         }
                     } else {
-                        sender.sendMessage(ChatColor.YELLOW + "[Teams] 招待するプレイヤーを指定してください。");
+                        sender.sendMessage(SoloServerCore.getMessage(player, "teams.invite.warn.select"));
                     }
                     break;
 
@@ -141,12 +139,12 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                         // すでにチームに所属している場合は
                         if (sscPlayer.getJoinedTeam() != null) {
                             sscPlayer.getJoinedTeam().leaveTeam(player);
-                            sender.sendMessage(ChatColor.GREEN + "[Teams] これまで入っていたチームから脱退しました。");
+                            sender.sendMessage(SoloServerCore.getMessage(player, "teams.leave"));
                         }
 
                         invitedTeam.joinTeam(player);
                     } else {
-                        sender.sendMessage(ChatColor.YELLOW + "[Teams] あなたはまだ招待を受け取っていません！");
+                        sender.sendMessage(SoloServerCore.getMessage(player, "teams.invite.warn.notfound"));
                     }
                     break;
 
@@ -157,12 +155,10 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                                 && team.getOwner().equals(player.getUniqueId())
                                 && !team.getMembers().isEmpty()) {
                             invited.put(sscPlayer.getJoinedTeamId(), null);
-                            sender.sendMessage(ChatColor.YELLOW + "[Teams] あなたはチームオーナーです。");
-                            sender.sendMessage(ChatColor.YELLOW + "チームを解散すると他の所属プレイヤーのスポーンポイントが離散してしまいます。");
-                            sender.sendMessage(ChatColor.YELLOW + "本当に解散しますか？解散する場合は /team confirm を実行してください。");
+                            sender.sendMessage(SoloServerCore.getMessage(player, "teams.leave.confirm"));
                         } else {
                             team.leaveTeam(player);
-                            sender.sendMessage(ChatColor.GREEN + "[Teams] チームから脱退しました。");
+                            sender.sendMessage(SoloServerCore.getMessage(player, "teams.leave"));
                         }
 
                     }
@@ -173,7 +169,7 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                     if (sscPlayer.getJoinedTeam() != null && invited.remove(sscPlayer.getJoinedTeamId()) != null) {
                         val team = sscPlayer.getJoinedTeam();
                         team.leaveTeam(player);
-                        sender.sendMessage(ChatColor.GREEN + "[Teams] チームから脱退しました。");
+                        sender.sendMessage(SoloServerCore.getMessage(player, "teams.leave"));
                     }
                 }
                 break;
@@ -197,14 +193,14 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                                             transferredTeam);
                                     Bukkit.getServer().getPluginManager().callEvent(updateEvent);
                                 } else {
-                                    sender.sendMessage(ChatColor.YELLOW + "[Teams] オーナーを譲渡するためには対象がチームのメンバーである必要があります。");
+                                    sender.sendMessage(SoloServerCore.getMessage(player, "teams.transfer.warn.member"));
                                 }
                             }
                         } else {
-                            sender.sendMessage(ChatColor.YELLOW + "[Teams] オーナーを譲渡するためには自分がチームのオーナーである必要があります。");
+                            sender.sendMessage(SoloServerCore.getMessage(player, "teams.transfer.warn.owner"));
                         }
                     } else {
-                        sender.sendMessage(ChatColor.YELLOW + "[Teams] オーナーを譲渡するプレイヤーを指定してください。");
+                        sender.sendMessage(SoloServerCore.getMessage(player, "teams.transfer.warn.select"));
                     }
                     break;
 
@@ -215,9 +211,9 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                             targetTeam.updateTeamName(player, args[1]);
                         else
                             targetTeam.updateTeamName(player, null);
-                        sender.sendMessage(ChatColor.GREEN + "[Teams] チーム名を変更が変更されました。");
+                        sender.sendMessage(SoloServerCore.getMessage(player, "teams.name.changed"));
                     } else {
-                        sender.sendMessage(ChatColor.YELLOW + "[Teams] チーム名を変更するには自分がオーナーのチームに所属している必要があります。");
+                        sender.sendMessage(SoloServerCore.getMessage(player, "teams.name.warn.owner"));
                     }
                     break;
 

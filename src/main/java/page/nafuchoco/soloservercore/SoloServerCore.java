@@ -79,6 +79,13 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
         return instance;
     }
 
+    public static String getMessage(Player player, String index) {
+        if (player.hasPermission("mofucraft.english"))
+            return ChatColor.translateAlternateColorCodes('&', MessageManager.getMessage("en_US", index));
+        return ChatColor.translateAlternateColorCodes('&', MessageManager.getMessage(index));
+    }
+
+
     @Override
     public void onEnable() {
         // Plugin startup logic
@@ -304,9 +311,9 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                                 } catch (SQLException e) {
                                     getLogger().log(Level.WARNING, "Failed to update the player data.", e);
                                 }
-                                player.sendMessage(ChatColor.GREEN + "[SSC] 固定ホーム地点を設定しました。");
+                                player.sendMessage(getMessage(player, "command.home.fixed.set"));
                             } else {
-                                player.sendMessage(ChatColor.RED + "[SSC] 固定ホーム地点を設定するにはベッドスポーンの事前設定が必要です。");
+                                player.sendMessage(getMessage(player, "command.home.fixed.set.warn"));
                             }
                         } else if (args[0].equals("reset")) {
                             SoloServerApi.getInstance().getSSCPlayer(player).setFixedHomeLocation(player.getBedSpawnLocation());
@@ -316,7 +323,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                             } catch (SQLException e) {
                                 getLogger().log(Level.WARNING, "Failed to update the player data.", e);
                             }
-                            player.sendMessage(ChatColor.GREEN + "[SSC] 固定ホーム地点を解除しました。");
+                            player.sendMessage(getMessage(player, "command.home.fixed.reset"));
                         }
                     } else {
                         var location = SoloServerApi.getInstance().getSSCPlayer(player).getFixedHomeLocationObject();
@@ -335,7 +342,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                 if (sender instanceof Player player) {
                     val sscPlayer = SoloServerApi.getInstance().getSSCPlayer(player);
                     sscPlayer.setPeacefulMode(!sscPlayer.isPeacefulMode());
-                    player.sendMessage(ChatColor.GREEN + "[SSC] ピースフルモードを切り替えました。: " + sscPlayer.isPeacefulMode());
+                    player.sendMessage(MessageManager.format(getMessage(player, "command.peaceful.change"), sscPlayer.isPeacefulMode()));
                 }
                 break;
 
@@ -407,7 +414,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                 member.forEach(m -> {
                     var player = Bukkit.getPlayer(m);
                     if (player != null && !player.equals(event.getPlayer()))
-                        player.sendMessage(ChatColor.AQUA + "[Teams] " + event.getPlayer().getDisplayName() + "がログインしました。");
+                        player.sendMessage(MessageManager.format(getMessage(player, "teams.login"), player.getDisplayName()));
                 });
 
             if (joinedTeam != null) {
@@ -426,13 +433,8 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                 }
             }
 
-            if (!sscPlayer.getSpawnLocationObject().getWorld().getName().equals(SoloServerApi.getInstance().getSpawnWorld())) {
-                event.getPlayer().sendMessage(
-                        ChatColor.YELLOW + "[SSC] 新しいワールドが利用可能になりました！" +
-                                "新しいワールドに移動するには /reteleport を実行してください。\n" +
-                                "新しいワールドに移動すると前のワールドに戻れなくなり、チームから自動的に脱退します。"
-                );
-            }
+            if (!sscPlayer.getSpawnLocationObject().getWorld().getName().equals(SoloServerApi.getInstance().getSpawnWorld()))
+                event.getPlayer().sendMessage(getMessage(event.getPlayer(), "command.teleport.new-world"));
 
             return result;
         }));

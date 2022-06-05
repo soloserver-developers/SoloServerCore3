@@ -17,15 +17,15 @@
 package page.nafuchoco.soloservercore.listener;
 
 import lombok.val;
-import org.apache.commons.lang.text.ExtendedMessageFormat;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import page.nafuchoco.soloservercore.MessageManager;
 import page.nafuchoco.soloservercore.SoloServerApi;
+import page.nafuchoco.soloservercore.SoloServerCore;
 import page.nafuchoco.soloservercore.data.TempSSCPlayer;
 import page.nafuchoco.soloservercore.database.PluginSettingsManager;
 
@@ -52,13 +52,12 @@ public class PlayerBedEventListener implements Listener {
                         .filter(player -> !isAfk(player))
                         .filter(player -> !player.isSleeping())
                         .filter(player -> !player.equals(event.getPlayer()))
-                        .peek(player -> player.sendMessage(ChatColor.DARK_GRAY + "世界のどこかにいる誰かが貴方が眠りにつくのを待っています..."))
+                        .peek(player -> player.sendMessage(SoloServerCore.getMessage(player, "system.sleeping.waiting.you")))
                         .count();
                 if (count > 0) {
                     event.getBed().getWorld().getPlayers().forEach(
-                            player -> player.sendMessage(ChatColor.GRAY
-                                    + ExtendedMessageFormat.format("あと{0}人がベッドに入ると朝になります。", count)));
-                    event.getPlayer().sendMessage(ChatColor.DARK_GRAY + "世界のどこかにいるまだ起きている誰かが眠るのを待っています...");
+                            player -> player.sendMessage(MessageManager.format(SoloServerCore.getMessage(player, "system.sleeping.count"), count)));
+                    event.getPlayer().sendMessage(SoloServerCore.getMessage(event.getPlayer(), "system.sleeping.waiting"));
                 } else if (settingsManager.isUseAfkCount()
                         && event.getBed().getWorld().getPlayers().stream().anyMatch(this::isAfk)) {
                     event.getPlayer().getWorld().setTime(0);
@@ -81,8 +80,7 @@ public class PlayerBedEventListener implements Listener {
                     .filter(player -> !player.equals(event.getPlayer()))
                     .count();
             event.getBed().getWorld().getPlayers().forEach(
-                    player -> player.sendMessage(ChatColor.GRAY
-                            + ExtendedMessageFormat.format("あと{0}人がベッドに入ると朝になります。", count)));
+                    player -> player.sendMessage(MessageManager.format(SoloServerCore.getMessage(player, "system.sleeping.count"), count)));
         }
     }
 

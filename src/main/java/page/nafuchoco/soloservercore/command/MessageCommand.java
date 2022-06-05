@@ -29,6 +29,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import page.nafuchoco.soloservercore.SoloServerApi;
+import page.nafuchoco.soloservercore.SoloServerCore;
 import page.nafuchoco.soloservercore.data.PlayersTeam;
 import page.nafuchoco.soloservercore.data.TeamMessage;
 
@@ -52,10 +53,10 @@ public class MessageCommand implements CommandExecutor, TabCompleter {
                         TeamMessage.TeamMessageBuilder builder = new TeamMessage.TeamMessageBuilder(player.getUniqueId());
                         builder.setTargetTeam(joinedTeam);
                         makingMessage.put(player, builder);
-                        player.sendMessage(ChatColor.GREEN + "[Teams] メッセージの作成を開始しました。");
+                        player.sendMessage(SoloServerCore.getMessage(player, "command.message.create.start"));
                         sendMessageEditor(player);
                     } else {
-                        player.sendMessage(ChatColor.YELLOW + "[Teams] メッセージを作成するにはチームに所属している必要があります。");
+                        player.sendMessage(SoloServerCore.getMessage(player, "command.message.create.warn.team"));
                     }
                 }
                 break;
@@ -67,7 +68,7 @@ public class MessageCommand implements CommandExecutor, TabCompleter {
                             builder.setSubject(args[1]);
                             sendMessageEditor(player);
                         } else {
-                            player.sendMessage(ChatColor.YELLOW + "[Teams] 先にメッセージの作成を開始して下さい！");
+                            player.sendMessage(SoloServerCore.getMessage(player, "command.message.create.warn"));
                         }
                     }
                     break;
@@ -81,7 +82,7 @@ public class MessageCommand implements CommandExecutor, TabCompleter {
                                     builder.addMessageLine(args[2]);
                                     sendMessageEditor(player);
                                 } else {
-                                    player.sendMessage(ChatColor.YELLOW + "[Teams] 先にメッセージの作成を開始して下さい！");
+                                    player.sendMessage(SoloServerCore.getMessage(player, "command.message.create.warn"));
                                 }
                             }
                             case "remove" -> {
@@ -91,10 +92,10 @@ public class MessageCommand implements CommandExecutor, TabCompleter {
                                         builder.removeMessageLine(Integer.parseInt(args[2]));
                                         sendMessageEditor(player);
                                     } catch (NumberFormatException e) {
-                                        player.sendMessage(ChatColor.RED + "[Teams] 行数を数字で指定して下さい！");
+                                        player.sendMessage(SoloServerCore.getMessage(player, "command.message.linenumber"));
                                     }
                                 } else {
-                                    player.sendMessage(ChatColor.YELLOW + "[Teams] 先にメッセージの作成を開始して下さい！");
+                                    player.sendMessage(SoloServerCore.getMessage(player, "command.message.create.warn"));
                                 }
                             }
                             default -> {
@@ -106,7 +107,7 @@ public class MessageCommand implements CommandExecutor, TabCompleter {
                             builder.addMessageLine("");
                             sendMessageEditor(player);
                         } else {
-                            player.sendMessage(ChatColor.YELLOW + "[Teams] 先にメッセージの作成を開始して下さい！");
+                            player.sendMessage(SoloServerCore.getMessage(player, "command.message.create.warn"));
                         }
                     }
                     break;
@@ -117,9 +118,9 @@ public class MessageCommand implements CommandExecutor, TabCompleter {
                         TeamMessage teamMessage = builder.build();
                         SoloServerApi.getInstance().getPlayersTeam(teamMessage.getTargetTeam()).addTeamMessage(teamMessage);
                         makingMessage.remove(player);
-                        player.sendMessage(ChatColor.GREEN + "[Teams] メッセージを送信しました！");
+                        player.sendMessage(SoloServerCore.getMessage(player, "command.message.send"));
                     } else {
-                        player.sendMessage(ChatColor.YELLOW + "[Teams] 先にメッセージの作成を開始して下さい！");
+                        player.sendMessage(SoloServerCore.getMessage(player, "command.message.create.warn"));
                     }
                     break;
 
@@ -142,7 +143,7 @@ public class MessageCommand implements CommandExecutor, TabCompleter {
                     if (message != null)
                         sendMessageViewer(player, message);
                     else
-                        sender.sendMessage(ChatColor.YELLOW + "[Teams] 該当するメッセージが見つかりませんでした。");
+                        player.sendMessage(SoloServerCore.getMessage(player, "command.message.notfound"));
                 }
                 break;
 
@@ -155,9 +156,9 @@ public class MessageCommand implements CommandExecutor, TabCompleter {
                     if (message != null) {
                         if (message.getSenderPlayer().equals(player.getUniqueId())) {
                             joinedTeam.deleteTeamMessage(message);
-                            sender.sendMessage(ChatColor.GREEN + "[Teams] メッセージを削除しました。");
+                            player.sendMessage(SoloServerCore.getMessage(player, "command.message.delete.deleted"));
                         } else {
-                            sender.sendMessage(ChatColor.RED + "[Teams] メッセージは作者のみ削除することができます。");
+                            player.sendMessage(SoloServerCore.getMessage(player, "command.message.delete.warn"));
                         }
                     }
                 }
