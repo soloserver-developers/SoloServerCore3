@@ -4,7 +4,7 @@ SoloServerCore3は外部プラグインから受信可能なイベントが用�
 
 ### PlayersTeamEvent
 
-- PlayersTeamEvent: チームに変更が行われた場合に呼び出されます。
+- PlayersTeamEvent
     - **PlayersTeamCreateEvent**: プレイヤーがチームを作成した場合に呼び出されます。
     - **PlayersTeamJoinEvent**: プレイヤーがチームに参加した場合に呼び出されます。
     - **PlayersTeamLeaveEvent**: プレイヤーがチームから退出した場合に呼び出されます。
