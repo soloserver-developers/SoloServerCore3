@@ -55,8 +55,6 @@ public class PlayerBedEventListener implements Listener {
                         .peek(player -> player.sendMessage(SoloServerCore.getMessage(player, "system.sleeping.waiting.you")))
                         .count();
                 if (count > 0) {
-                    event.getBed().getWorld().getPlayers().forEach(
-                            player -> player.sendMessage(MessageManager.format(SoloServerCore.getMessage(player, "system.sleeping.count"), count)));
                     event.getPlayer().sendMessage(SoloServerCore.getMessage(event.getPlayer(), "system.sleeping.waiting"));
                 } else if (settingsManager.isUseAfkCount()
                         && event.getBed().getWorld().getPlayers().stream().anyMatch(this::isAfk)) {
