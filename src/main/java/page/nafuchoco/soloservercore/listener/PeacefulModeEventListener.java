@@ -39,7 +39,7 @@ public class PeacefulModeEventListener implements Listener {
             if (sscPlayer instanceof TempSSCPlayer) {
                 event.setCancelled(true);
             } else if (sscPlayer.isPeacefulMode()) {
-                if (event.getEntity() instanceof Monster
+                if ((event.getEntity() instanceof Monster || event.getEntity() instanceof Phantom)
                         && (event.getReason() == EntityTargetEvent.TargetReason.CLOSEST_PLAYER
                         || event.getReason() == EntityTargetEvent.TargetReason.TARGET_ATTACKED_ENTITY
                         || event.getReason() == EntityTargetEvent.TargetReason.TARGET_ATTACKED_NEARBY_ENTITY))
