@@ -73,7 +73,7 @@ repositories {
 dependencies {
     compileOnly 'org.jetbrains:annotations:23.0.0'
 
-    compileOnly 'io.papermc.paper:paper-api:1.18-R0.1-SNAPSHOT'
+    compileOnly 'io.papermc.paper:paper-api:1.19-R0.1-SNAPSHOT'
     implementation "io.papermc:paperlib:1.0.7"
     compileOnly 'net.coreprotect:coreprotect:21.2'
     compileOnly 'com.comphenix.protocol:ProtocolLib:4.8.0'
@@ -83,8 +83,8 @@ dependencies {
 
     implementation 'team.aura_dev.lib.slf4j-plugin.spigot:slf4j-plugin-spigot:1.2.0.39:1.7.25'
     implementation 'com.zaxxer:HikariCP:5.0.1'
-    implementation 'mysql:mysql-connector-java:8.0.29'
-    implementation 'org.mariadb.jdbc:mariadb-java-client:3.0.5'
+    implementation 'mysql:mysql-connector-java:8.0.30'
+    implementation 'org.mariadb.jdbc:mariadb-java-client:3.0.6'
 }
 
 processResources {
