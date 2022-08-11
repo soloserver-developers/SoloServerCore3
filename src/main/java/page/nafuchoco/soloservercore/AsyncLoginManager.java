@@ -62,11 +62,11 @@ public class AsyncLoginManager {
     }
 
 
-    public record LoginResult(ResultStatus status,
-                              String message) {
-    }
-
     public enum ResultStatus {
         JOINED, FIRST_JOINED, FAILED
+    }
+
+    public record LoginResult(ResultStatus status,
+                              String message) {
     }
 }

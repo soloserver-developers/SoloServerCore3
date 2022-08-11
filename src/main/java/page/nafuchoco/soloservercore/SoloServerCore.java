@@ -60,14 +60,12 @@ import java.util.stream.Collectors;
 
 public final class SoloServerCore extends JavaPlugin implements Listener {
     private static SoloServerCore instance;
-
+    private final Map<Player, CompletableFuture<AsyncLoginManager.LoginResult>> loggingInPlayers = new HashMap<>();
     private SoloServerCoreConfig config;
-
     private PluginSettingsTable pluginSettingsTable;
     private PlayersTable playersTable;
     private PlayersTeamsTable playersTeamsTable;
     private MessagesTable messagesTable;
-
     private PluginSettingsManager pluginSettingsManager;
     private ProtocolManager protocolManager;
     private DatabaseConnector connector;
@@ -84,7 +82,6 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
             return ChatColor.translateAlternateColorCodes('&', MessageManager.getMessage("en_US", index));
         return ChatColor.translateAlternateColorCodes('&', MessageManager.getMessage(index));
     }
-
 
     @Override
     public void onEnable() {
@@ -351,9 +348,6 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
         }
         return true;
     }
-
-
-    private final Map<Player, CompletableFuture<AsyncLoginManager.LoginResult>> loggingInPlayers = new HashMap<>();
 
     @EventHandler
     public void onPlayerLoginEvent(PlayerLoginEvent event) {

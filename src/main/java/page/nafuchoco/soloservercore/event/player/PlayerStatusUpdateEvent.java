@@ -37,17 +37,16 @@ public abstract class PlayerStatusUpdateEvent extends Event {
         this.player = player;
     }
 
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
     public SSCPlayer getPlayer() {
         return player;
     }
 
     public Player getBukkitPlayer() {
         return player.getPlayer();
-    }
-
-
-    public static HandlerList getHandlerList() {
-        return handlers;
     }
 
     @Override

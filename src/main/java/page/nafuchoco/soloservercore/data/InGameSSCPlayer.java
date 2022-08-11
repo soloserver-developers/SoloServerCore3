@@ -32,14 +32,12 @@ import java.util.UUID;
 public class InGameSSCPlayer implements SSCPlayer {
     private final UUID id;
     private final String spawnLocation;
+    private final Player player;
+    private final boolean firstJoined;
     private PlayersTeam joinedTeam;
     private String fixedHomeLocation;
-
     private boolean peacefulMode;
-
-    private final Player player;
     private long latestMoveTime;
-    private final boolean firstJoined;
 
     public InGameSSCPlayer(@NotNull UUID id,
                            @NotNull String spawnLocation,
@@ -116,9 +114,26 @@ public class InGameSSCPlayer implements SSCPlayer {
         return joinedTeam;
     }
 
+    public void setJoinedTeam(PlayersTeam joinedTeam) { // TODO: 2021/04/07 パブリックにしたくない。
+        this.joinedTeam = joinedTeam;
+    }
+
     @Override
     public @Nullable String getFixedHomeLocation() {
         return fixedHomeLocation;
+    }
+
+    public void setFixedHomeLocation(@Nullable Location fixedHomeLocation) {
+        if (fixedHomeLocation != null) { // TODO: 2021/12/13 イベント化する
+            val fixedHomeJson = new JsonObject();
+            fixedHomeJson.addProperty("World", fixedHomeLocation.getWorld().getName());
+            fixedHomeJson.addProperty("X", fixedHomeLocation.getBlockX());
+            fixedHomeJson.addProperty("Y", fixedHomeLocation.getBlockY());
+            fixedHomeJson.addProperty("Z", fixedHomeLocation.getBlockZ());
+            this.fixedHomeLocation = new Gson().toJson(fixedHomeJson);
+        } else {
+            this.fixedHomeLocation = null;
+        }
     }
 
     @Override
@@ -134,23 +149,6 @@ public class InGameSSCPlayer implements SSCPlayer {
 
     public boolean isFirstJoined() {
         return firstJoined;
-    }
-
-    public void setJoinedTeam(PlayersTeam joinedTeam) { // TODO: 2021/04/07 パブリックにしたくない。
-        this.joinedTeam = joinedTeam;
-    }
-
-    public void setFixedHomeLocation(@Nullable Location fixedHomeLocation) {
-        if (fixedHomeLocation != null) { // TODO: 2021/12/13 イベント化する
-            val fixedHomeJson = new JsonObject();
-            fixedHomeJson.addProperty("World", fixedHomeLocation.getWorld().getName());
-            fixedHomeJson.addProperty("X", fixedHomeLocation.getBlockX());
-            fixedHomeJson.addProperty("Y", fixedHomeLocation.getBlockY());
-            fixedHomeJson.addProperty("Z", fixedHomeLocation.getBlockZ());
-            this.fixedHomeLocation = new Gson().toJson(fixedHomeJson);
-        } else {
-            this.fixedHomeLocation = null;
-        }
     }
 
     public Player getPlayer() {

@@ -36,14 +36,14 @@ public final class SoloServerApi {
     private final Map<Player, InGameSSCPlayer> playerStore;
     private final Map<UUID, PlayersTeam> teamsStore;
 
-    public static SoloServerApi getInstance() {
-        return ApiInstanceHolder.INSTANCE;
-    }
-
     private SoloServerApi(SoloServerCore soloServerCore) {
         this.soloServerCore = soloServerCore;
         playerStore = new HashMap<>();
         teamsStore = new HashMap<>();
+    }
+
+    public static SoloServerApi getInstance() {
+        return ApiInstanceHolder.INSTANCE;
     }
 
     public String getSpawnWorld() {

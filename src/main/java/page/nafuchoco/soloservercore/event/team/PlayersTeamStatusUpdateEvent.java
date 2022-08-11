@@ -42,6 +42,10 @@ public class PlayersTeamStatusUpdateEvent extends PlayersTeamEvent {
         this.after = after;
     }
 
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
     public UpdatedState getState() {
         return state;
     }
@@ -52,10 +56,6 @@ public class PlayersTeamStatusUpdateEvent extends PlayersTeamEvent {
 
     public Object getAfter() {
         return after;
-    }
-
-    public static HandlerList getHandlerList() {
-        return handlers;
     }
 
     @Override

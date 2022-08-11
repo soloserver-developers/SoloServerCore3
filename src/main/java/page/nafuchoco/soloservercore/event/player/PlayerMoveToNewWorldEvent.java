@@ -33,16 +33,16 @@ public class PlayerMoveToNewWorldEvent extends PlayerStatusUpdateEvent {
         this.newWorld = newWorld;
     }
 
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
     public World getOldWorld() {
         return oldWorld;
     }
 
     public World getNewWorld() {
         return newWorld;
-    }
-
-    public static HandlerList getHandlerList() {
-        return handlers;
     }
 
     @Override

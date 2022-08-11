@@ -65,7 +65,7 @@ public class AsyncSafeLocationUtil {
             } catch (InterruptedException | ExecutionException e) {
                 SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Error!", e);
             }
-            
+
             do {
                 if (SoloServerApi.getInstance().isDebug())
                     SoloServerCore.getInstance().getLogger().log(Level.INFO, "[Debug] Searching Y: {0}", y);

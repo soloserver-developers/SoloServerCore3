@@ -72,27 +72,6 @@ public class PlayersTeam {
     }
 
     /**
-     * チームのメンバー一覧を返します。
-     *
-     * @return チームのメンバー一覧
-     */
-    @NotNull
-    public List<UUID> getMembers() {
-        return members;
-    }
-
-    /**
-     * 登録されているチームメッセージ一覧を返します。
-     *
-     * @return 登録されているチームメッセージ一覧
-     * @since v4.5
-     */
-    @NotNull
-    public List<TeamMessage> getMessages() {
-        return messages;
-    }
-
-    /**
      * チーム名を設定します。
      *
      * @param teamName チーム名
@@ -105,6 +84,16 @@ public class PlayersTeam {
     }
 
     /**
+     * チームのメンバー一覧を返します。
+     *
+     * @return チームのメンバー一覧
+     */
+    @NotNull
+    public List<UUID> getMembers() {
+        return members;
+    }
+
+    /**
      * チームメンバーの一覧を設定します。
      *
      * @param members メンバー一覧のList
@@ -114,6 +103,17 @@ public class PlayersTeam {
     @Deprecated
     public void setMembers(@NotNull List<UUID> members) {
         this.members = members;
+    }
+
+    /**
+     * 登録されているチームメッセージ一覧を返します。
+     *
+     * @return 登録されているチームメッセージ一覧
+     * @since v4.5
+     */
+    @NotNull
+    public List<TeamMessage> getMessages() {
+        return messages;
     }
 
     /**

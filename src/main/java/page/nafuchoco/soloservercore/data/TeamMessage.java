@@ -65,9 +65,9 @@ public class TeamMessage {
     public static class TeamMessageBuilder {
         private final UUID id;
         private final UUID senderPlayer;
+        private final List<String> message;
         private PlayersTeam targetTeam;
         private String subject;
-        private final List<String> message;
 
         public TeamMessageBuilder(UUID senderPlayer) {
             this.id = UUID.randomUUID();
@@ -87,22 +87,22 @@ public class TeamMessage {
             return targetTeam;
         }
 
-        public String getSubject() {
-            return subject;
-        }
-
-        public List<String> getMessage() {
-            return message;
-        }
-
         public TeamMessageBuilder setTargetTeam(PlayersTeam playersTeam) {
             targetTeam = playersTeam;
             return this;
         }
 
+        public String getSubject() {
+            return subject;
+        }
+
         public TeamMessageBuilder setSubject(String subject) {
             this.subject = subject;
             return this;
+        }
+
+        public List<String> getMessage() {
+            return message;
         }
 
         public TeamMessageBuilder addMessageLine(String messageLine) {

@@ -26,8 +26,8 @@ import page.nafuchoco.soloservercore.data.TeamMessage;
 
 public class PlayersTeamMessageDeleteEvent extends PlayersTeamEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
-    private boolean cancelled;
     private final TeamMessage teamMessage;
+    private boolean cancelled;
 
     public PlayersTeamMessageDeleteEvent(PlayersTeam playersTeam, Player player, TeamMessage message) {
         super(playersTeam, player);
@@ -39,12 +39,12 @@ public class PlayersTeamMessageDeleteEvent extends PlayersTeamEvent implements C
         teamMessage = message;
     }
 
-    public TeamMessage getDeleteMessage() {
-        return teamMessage;
-    }
-
     public static HandlerList getHandlerList() {
         return handlers;
+    }
+
+    public TeamMessage getDeleteMessage() {
+        return teamMessage;
     }
 
     @Override
