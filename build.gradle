@@ -17,6 +17,7 @@ java {
 }
 shadowJar {
     archiveFileName.set(rootProject.name + '.' + archiveExtension.get())
+    relocate "io.papermc.lib", "page.nafuchoco.soloservercore.paperlib"
 }
 
 task sourcesJar(type: Jar, dependsOn: 'classes') {
