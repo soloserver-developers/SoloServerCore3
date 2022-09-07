@@ -72,13 +72,13 @@ public class PlayerBedEventListener implements Listener {
     public void onPlayerBedLeaveEvent(PlayerBedLeaveEvent event) {
         if (!checkCooldown(event.getPlayer())
                 && settingsManager.isBroadcastBedCount()
-                && (event.getPlayer().getWorld().getTime() >= 12542 || event.getPlayer().getWorld().hasStorm())) {
+                && (event.getPlayer().getWorld().getTime() >= 12542 || event.getPlayer().getWorld().isThundering())) {
             val count = event.getBed().getWorld().getPlayers().stream()
                     .filter(player -> !player.isSleeping())
                     .filter(player -> !player.equals(event.getPlayer()))
                     .count();
             event.getBed().getWorld().getPlayers().forEach(
-                    player -> player.sendMessage(MessageManager.format(SoloServerCore.getMessage(player, "system.sleeping.count"), count)));
+                    player -> player.sendActionBar(MessageManager.format(SoloServerCore.getMessage(player, "system.sleeping.count"), count)));
         }
     }
 
