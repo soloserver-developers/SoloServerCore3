@@ -17,8 +17,6 @@
 package page.nafuchoco.soloservercore.listener;
 
 import lombok.val;
-import org.bukkit.entity.Monster;
-import org.bukkit.entity.Phantom;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
@@ -26,6 +24,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import page.nafuchoco.soloservercore.MobHelper;
 import page.nafuchoco.soloservercore.SoloServerApi;
 import page.nafuchoco.soloservercore.data.TempSSCPlayer;
 
@@ -33,13 +32,12 @@ public class PeacefulModeEventListener implements Listener {
 
     @EventHandler
     public void onEntityTargetEvent(EntityTargetEvent event) {
-        if (event.getTarget() instanceof Player player
-                && (event.getEntity() instanceof Monster || event.getEntity() instanceof Phantom)) {
+        if (event.getTarget() instanceof Player player) {
             val sscPlayer = SoloServerApi.getInstance().getSSCPlayer(player);
             if (sscPlayer instanceof TempSSCPlayer) {
                 event.setCancelled(true);
             } else if (sscPlayer.isPeacefulMode()) {
-                if ((event.getEntity() instanceof Monster || event.getEntity() instanceof Phantom)
+                if (MobHelper.isOffensive(event.getEntity())
                         && (event.getReason() == EntityTargetEvent.TargetReason.CLOSEST_PLAYER
                         || event.getReason() == EntityTargetEvent.TargetReason.TARGET_ATTACKED_ENTITY
                         || event.getReason() == EntityTargetEvent.TargetReason.TARGET_ATTACKED_NEARBY_ENTITY))
@@ -76,7 +74,7 @@ public class PeacefulModeEventListener implements Listener {
                     cancelled = true;
             }
         } else if (event.getDamager() instanceof Player player
-                && (event.getEntity() instanceof Monster || event.getEntity() instanceof Phantom)) { // プレイヤーによる攻撃に関する処理
+                && MobHelper.isHostile(event.getEntity())) { // プレイヤーによる攻撃に関する処理
             val sscPlayer = SoloServerApi.getInstance().getSSCPlayer(player);
             if (sscPlayer.isPeacefulMode() && !player.hasPermission("soloservercore.peaceful.bypass"))
                 cancelled = true;
