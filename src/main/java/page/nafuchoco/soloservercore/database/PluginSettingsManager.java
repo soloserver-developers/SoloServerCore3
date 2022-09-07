@@ -23,7 +23,7 @@ import java.sql.SQLException;
 
 public class PluginSettingsManager {
     private static final String[] settingsKeys =
-            new String[]{"checkBlock", "protectionPeriod", "teamSpawnCollect", "stockSpawnPoint", "broadcastBedCount", "useAfkCount", "afkTimeThreshold", "reteleportResetAll", "lastMigratedVersion"};
+            new String[]{"checkBlock", "protectionPeriod", "teamSpawnCollect", "broadcastBedCount", "useAfkCount", "afkTimeThreshold", "reteleportResetAll", "lastMigratedVersion"};
     // Default Value
     private static final boolean CHECK_BLOCK = true;
     private static final int PROTECTION_PERIOD = 259200;

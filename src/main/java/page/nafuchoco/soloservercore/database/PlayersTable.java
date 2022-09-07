@@ -162,7 +162,7 @@ public class PlayersTable extends DatabaseTable {
         }
     }
 
-    public void deletePlayer(@NotNull OfflineSSCPlayer sscPlayer) throws SQLException {
+    public void deletePlayer(@NotNull SSCPlayer sscPlayer) throws SQLException {
         try (var connection = getConnector().getConnection();
              var ps = connection.prepareStatement(
                      "DELETE FROM " + getTablename() + " WHERE id = ?"

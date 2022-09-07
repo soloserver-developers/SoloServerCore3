@@ -14,7 +14,6 @@ SoloServerCore3は外部プラグインから受信可能なイベントが用�
 ### PlayersEvent
 
 - PlayerStatusUpdateEvent:
-- PlayerMoveToNewWorldEvent: プレイヤーが新しいワールドに移動した場合に呼び出されます。
 - PlayerPeacefulModeChangeEvent:
 
 ## 注意事項

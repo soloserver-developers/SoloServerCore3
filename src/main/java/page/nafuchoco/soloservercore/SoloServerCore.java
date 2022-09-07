@@ -43,7 +43,6 @@ import page.nafuchoco.soloservercore.command.*;
 import page.nafuchoco.soloservercore.data.MoveTimeUpdater;
 import page.nafuchoco.soloservercore.data.TempSSCPlayer;
 import page.nafuchoco.soloservercore.database.*;
-import page.nafuchoco.soloservercore.event.player.PlayerMoveToNewWorldEvent;
 import page.nafuchoco.soloservercore.event.player.PlayerPeacefulModeChangeEvent;
 import page.nafuchoco.soloservercore.listener.*;
 import page.nafuchoco.soloservercore.listener.internal.PlayersTeamEventListener;
@@ -428,7 +427,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
             }
 
             if (!sscPlayer.getSpawnLocationObject().getWorld().getName().equals(SoloServerApi.getInstance().getSpawnWorld()))
-                event.getPlayer().sendMessage(getMessage(event.getPlayer(), "command.teleport.new-world"));
+                event.getPlayer().sendMessage(getMessage(event.getPlayer(), "system.world.new"));
 
             return result;
         }));
@@ -447,10 +446,6 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
         return config;
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onPlayerMoveToNewWorldEvent(PlayerMoveToNewWorldEvent event) {
-        SoloServerApi.getInstance().dropStoreData(event.getBukkitPlayer());
-    }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerPeacefulModeChangeEvent(PlayerPeacefulModeChangeEvent event) {

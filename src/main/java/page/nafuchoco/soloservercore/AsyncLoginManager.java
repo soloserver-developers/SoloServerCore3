@@ -19,6 +19,7 @@ package page.nafuchoco.soloservercore;
 import lombok.val;
 import org.bukkit.entity.Player;
 import page.nafuchoco.soloservercore.data.InGameSSCPlayer;
+import page.nafuchoco.soloservercore.data.SSCPlayer;
 
 import java.sql.SQLException;
 import java.util.concurrent.CompletableFuture;
@@ -28,12 +29,45 @@ public class AsyncLoginManager {
 
     public static CompletableFuture<LoginResult> login(Player player) {
         return CompletableFuture.supplyAsync(() -> {
-            LoginResult result;
-            if (SoloServerCore.getInstance().getPlayersTable().getPlayerData(player.getUniqueId()) == null) {
+            LoginResult result = null;
+            SSCPlayer sscPlayer = SoloServerCore.getInstance().getPlayersTable().getPlayerData(player.getUniqueId());
+
+            if (sscPlayer != null) {
+                if (sscPlayer.getSpawnLocationObject().getWorld() != null) {
+                    result = new LoginResult(ResultStatus.JOINED, "");
+                } else {
+                    // 旧プレイヤーデータの削除
+                    try {
+                        SoloServerCore.getInstance().getPlayersTable().deletePlayer(sscPlayer);
+                    } catch (SQLException e) {
+                        SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to delete player data.", e);
+                    }
+
+                    // チーム情報を確認し所属している場合は脱退
+                    if (sscPlayer.getJoinedTeam() != null)
+                        sscPlayer.getJoinedTeam().leaveTeam(player);
+
+                    if (SoloServerCore.getInstance().getPluginSettingsManager().isReteleportResetAll()) {
+                        player.getInventory().clear();
+                        player.getEnderChest().clear();
+                        player.setLevel(0);
+                        player.setExp(0F);
+                        player.getActivePotionEffects().forEach(e -> player.removePotionEffect(e.getType()));
+                        player.setFireTicks(0);
+                        player.setHealth(20D);
+                        player.setFoodLevel(20);
+                        player.setSaturation(20F);
+                    }
+
+                    player.sendMessage(SoloServerCore.getMessage(player, "system.world.deleted"));
+                }
+            }
+
+            if (result == null) {
                 val location = AsyncSafeLocationUtil.generateNewRandomLocation();
 
                 if (location != null) {
-                    val sscPlayer = new InGameSSCPlayer(player.getUniqueId(),
+                    val newPlayerData = new InGameSSCPlayer(player.getUniqueId(),
                             location,
                             null,
                             player,
@@ -41,7 +75,7 @@ public class AsyncLoginManager {
                             null,
                             false);
                     try {
-                        SoloServerApi.getInstance().registerSSCPlayer(sscPlayer);
+                        SoloServerApi.getInstance().registerSSCPlayer(newPlayerData);
                         result = new LoginResult(ResultStatus.FIRST_JOINED, "");
                     } catch (SQLException | NullPointerException exception) {
                         SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to save the player data.\n" +
@@ -54,8 +88,6 @@ public class AsyncLoginManager {
 
                     result = new LoginResult(ResultStatus.FAILED, "System is in preparation.");
                 }
-            } else {
-                result = new LoginResult(ResultStatus.JOINED, "");
             }
             return result;
         });
