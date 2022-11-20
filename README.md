@@ -1,4 +1,6 @@
 # SoloServerCore 3
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fsoloserver-developers%2FSoloServerCore3.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fsoloserver-developers%2FSoloServerCore3?ref=badge_shield)
+
 
 SoloServerCoreはマルチプレイなのにシングルプレイのようなあべこべ体験ができる、Spigot向けプラグインです。  
 より強力で魅力的になって帰ってきたSoloServerCore3はプレイヤーに新たな体験を提供します。
@@ -116,3 +118,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ```
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fsoloserver-developers%2FSoloServerCore3.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fsoloserver-developers%2FSoloServerCore3?ref=badge_large)
