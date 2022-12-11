@@ -71,6 +71,12 @@ public class PlayersTeam {
         return teamName;
     }
 
+    /**
+     * チームの表示名を返します。
+     *
+     * @return チームの表示名
+     * @since v6.0
+     */
     @NotNull
     public String getTeamDisplayName() {
         return teamName == null ? getId().toString().split("-")[0] : teamName;
