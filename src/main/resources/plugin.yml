@@ -1,6 +1,6 @@
 name: SoloServerCore
 version: @version@
-main: page.nafuchoco.soloservercore.SoloServerCore
+main: dev.nafusoft.soloservercore.SoloServerCore
 api-version: 1.16
 prefix: SSC
 depend: [ CoreProtect ]
@@ -40,6 +40,10 @@ commands:
   messageboard:
     description: Message Board.
     aliases: [ board ]
+
+  teamchest:
+    description: Open Team Chest.
+    aliases: [ chest ]
 
 permissions:
   soloservercore.*:
