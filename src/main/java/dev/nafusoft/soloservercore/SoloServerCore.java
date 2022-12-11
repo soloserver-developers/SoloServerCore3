@@ -268,6 +268,8 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+        teamChestManager.saveAllOpenedChest();
+        
         if (connector != null)
             connector.close();
     }

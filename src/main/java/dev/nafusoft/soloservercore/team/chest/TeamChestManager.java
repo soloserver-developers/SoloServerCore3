@@ -31,29 +31,36 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 
 public class TeamChestManager implements Listener {
     private final ChestsTable chestsTable;
+    private final Map<PlayersTeam, TeamChest> teamChests = new HashMap<>();
 
     public TeamChestManager(ChestsTable chestsTable) {
         this.chestsTable = chestsTable;
     }
 
     public TeamChest getTeamChest(PlayersTeam team) throws PlayerDataSynchronizingException {
-        TeamChest teamChest;
+        TeamChest teamChest = teamChests.get(team);
 
-        try {
-            byte[] inventoryBytes = chestsTable.getTeamChestInventory(team);
-            if (inventoryBytes == null) {
-                teamChest = new TeamChest(team);
-            } else {
-                teamChest = new TeamChest(team, InventoryEncoder.decodeInventory(inventoryBytes, true));
+        if (teamChest == null) {
+            try {
+                byte[] inventoryBytes = chestsTable.getTeamChestInventory(team);
+                if (inventoryBytes == null) {
+                    teamChest = new TeamChest(team);
+                } else {
+                    teamChest = new TeamChest(team, InventoryEncoder.decodeInventory(inventoryBytes, true));
+                }
+            } catch (SQLException e) {
+                throw new PlayerDataSynchronizingException("An error occurred while fetching inventory data.", e);
+            } catch (ItemProcessingException e) {
+                throw new PlayerDataSynchronizingException("An error occurred while processing inventory data.", e);
             }
-        } catch (SQLException e) {
-            throw new PlayerDataSynchronizingException("An error occurred while fetching inventory data.", e);
-        } catch (ItemProcessingException e) {
-            throw new PlayerDataSynchronizingException("An error occurred while processing inventory data.", e);
+
+            teamChests.put(team, teamChest);
         }
 
         return teamChest;
@@ -61,6 +68,21 @@ public class TeamChestManager implements Listener {
 
     public void deleteTeamChest(PlayersTeam team) throws SQLException {
         chestsTable.deleteTeamChest(team);
+        teamChests.remove(team);
+    }
+
+    public void saveAllOpenedChest() {
+        teamChests.values().stream()
+                .filter(teamChest -> teamChest.getChestState() == ChestState.OPEN)
+                .forEach(chest -> {
+                    chest.getInventory().close();
+                    try {
+                        byte[] inventoryBytes = InventoryEncoder.encodeInventory(chest.getInventory(), true);
+                        chestsTable.saveTeamChestInventory(chest.getOwnedTeam(), inventoryBytes);
+                    } catch (ItemProcessingException | SQLException e) {
+                        SoloServerCore.getInstance().getLogger().log(Level.WARNING, "An error occurred while saving team chest inventory.", e);
+                    }
+                });
     }
 
 
