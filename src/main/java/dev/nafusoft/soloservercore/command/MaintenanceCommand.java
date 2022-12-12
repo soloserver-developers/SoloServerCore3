@@ -53,7 +53,7 @@ public class MaintenanceCommand implements CommandExecutor, TabCompleter {
         } else if (args.length < 2) {
             sender.sendMessage(ChatColor.RED + "Insufficient arguments to execute the command.");
         } else switch (args[0]) {
-            case "clear":
+            case "clear" -> {
                 try {
                     val playerId = UUID.fromString(args[1]);
                     val target = soloServerApi.getOfflineSSCPlayer(playerId);
@@ -89,9 +89,8 @@ public class MaintenanceCommand implements CommandExecutor, TabCompleter {
                 } catch (IllegalArgumentException e) {
                     sender.sendMessage(ChatColor.RED + "You must specify the exact UUID of the player whose data you want to delete.");
                 }
-                break;
-
-            case "show":
+            }
+            case "show" -> {
                 val offlinePlayer = Bukkit.getOfflinePlayer(args[1]);
                 if (offlinePlayer.hasPlayedBefore()) {
                     val player = soloServerApi.getOfflineSSCPlayer(offlinePlayer.getUniqueId());
@@ -108,10 +107,7 @@ public class MaintenanceCommand implements CommandExecutor, TabCompleter {
                 } else {
                     sender.sendMessage("[SSC] This player has never played on this server.");
                 }
-                break;
-
-            default:
-                break;
+            }
         }
         return false;
     }

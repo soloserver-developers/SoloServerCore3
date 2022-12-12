@@ -81,7 +81,7 @@ public class BlockEventListener implements Listener {
                         // Action Team Member Check
                         for (val uuid : members) {
                             val member = Bukkit.getOfflinePlayer(uuid).getName();
-                            if (member.equals(actionPlayer))
+                            if (actionPlayer.equals(member))
                                 return true;
                         }
                     }

@@ -269,7 +269,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
     public void onDisable() {
         // Plugin shutdown logic
         teamChestManager.saveAllOpenedChest();
-        
+
         if (connector != null)
             connector.close();
     }
@@ -282,7 +282,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                 && SoloServerApi.getInstance().getSSCPlayer(player) instanceof TempSSCPlayer) {
             return true;
         } else switch (command.getName()) {
-            case "status":
+            case "status" -> {
                 sender.sendMessage(ChatColor.AQUA + "======== SoloServerCore System Information ========");
                 sender.sendMessage("Plugin Version: " + getDescription().getVersion());
                 sender.sendMessage("");
@@ -294,17 +294,15 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                 sender.sendMessage("AFK_TIME_THRESHOLD: " + pluginSettingsManager.getAfkTimeThreshold());
                 sender.sendMessage("RETELEPORT_RESET_ALL: " + pluginSettingsManager.isReteleportResetAll());
                 sender.sendMessage("LAST_MIGRATED_VERSION: " + pluginSettingsManager.getLastMigratedVersion());
-                break;
-
-            case "spawn":
+            }
+            case "spawn" -> {
                 if (sender instanceof Player player) {
                     player.teleport(SoloServerApi.getInstance().getPlayerSpawn(player));
                 } else {
                     Bukkit.getLogger().info("This command must be executed in-game.");
                 }
-                break;
-
-            case "home":
+            }
+            case "home" -> {
                 if (sender instanceof Player player) {
                     if (args.length >= 1) {
                         if (args[0].equals("fixed")) {
@@ -342,18 +340,17 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                 } else {
                     Bukkit.getLogger().info("This command must be executed in-game.");
                 }
-                break;
-
-            case "peaceful":
+            }
+            case "peaceful" -> {
                 if (sender instanceof Player player) {
                     val sscPlayer = SoloServerApi.getInstance().getSSCPlayer(player);
                     sscPlayer.setPeacefulMode(!sscPlayer.isPeacefulMode());
                     player.sendMessage(MessageManager.format(getMessage(player, "command.peaceful.change"), sscPlayer.isPeacefulMode()));
                 }
-                break;
-
-            default:
+            }
+            default -> {
                 return false;
+            }
         }
         return true;
     }

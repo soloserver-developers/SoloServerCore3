@@ -32,7 +32,7 @@ public class PluginSettingsManager {
     private static final boolean USE_AFK_COUNT = false;
     private static final int AFK_TIME_THRESHOLD = 30;
     private static final boolean RETELEPORT_RESET_ALL = false;
-    private static final int LAST_MIGRATED_VERSION = 350;
+    private static final int LAST_MIGRATED_VERSION = 600;
     private final PluginSettingsTable settingsTable;
 
     public PluginSettingsManager(PluginSettingsTable settingsTable) {
@@ -51,7 +51,7 @@ public class PluginSettingsManager {
             return Boolean.parseBoolean(value);
     }
 
-    public void setCheckBlock(@NotNull boolean checkBlock) throws SQLException {
+    public void setCheckBlock(boolean checkBlock) throws SQLException {
         settingsTable.setPluginSetting("checkBlock", String.valueOf(checkBlock));
     }
 
@@ -63,7 +63,7 @@ public class PluginSettingsManager {
             return Integer.parseInt(value);
     }
 
-    public void setProtectionPeriod(@NotNull int protectionPeriod) throws SQLException {
+    public void setProtectionPeriod(int protectionPeriod) throws SQLException {
         settingsTable.setPluginSetting("protectionPeriod", String.valueOf(protectionPeriod));
     }
 
@@ -75,7 +75,7 @@ public class PluginSettingsManager {
             return Boolean.parseBoolean(value);
     }
 
-    public void setTeamSpawnCollect(@NotNull boolean teamSpawnCollect) throws SQLException {
+    public void setTeamSpawnCollect(boolean teamSpawnCollect) throws SQLException {
         settingsTable.setPluginSetting("teamSpawnCollect", String.valueOf(teamSpawnCollect));
     }
 
@@ -87,7 +87,7 @@ public class PluginSettingsManager {
             return Boolean.parseBoolean(value);
     }
 
-    public void setBroadcastBedCount(@NotNull boolean broadcastBedCount) throws SQLException {
+    public void setBroadcastBedCount(boolean broadcastBedCount) throws SQLException {
         settingsTable.setPluginSetting("broadcastBedCount", String.valueOf(broadcastBedCount));
     }
 
@@ -99,7 +99,7 @@ public class PluginSettingsManager {
             return Boolean.parseBoolean(value);
     }
 
-    public void setUseAfkCount(@NotNull boolean useAfkCount) throws SQLException {
+    public void setUseAfkCount(boolean useAfkCount) throws SQLException {
         settingsTable.setPluginSetting("useAfkCount", String.valueOf(useAfkCount));
     }
 
@@ -111,7 +111,7 @@ public class PluginSettingsManager {
             return Integer.parseInt(value);
     }
 
-    public void setAfkTimeThreshold(@NotNull int afkTimeThreshold) throws SQLException {
+    public void setAfkTimeThreshold(int afkTimeThreshold) throws SQLException {
         settingsTable.setPluginSetting("afkTimeThreshold", String.valueOf(afkTimeThreshold));
     }
 
@@ -123,7 +123,7 @@ public class PluginSettingsManager {
             return Boolean.parseBoolean(value);
     }
 
-    public void setReteleportResetAll(@NotNull boolean reteleportResetAll) throws SQLException {
+    public void setReteleportResetAll(boolean reteleportResetAll) throws SQLException {
         settingsTable.setPluginSetting("reteleportResetAll", String.valueOf(reteleportResetAll));
     }
 

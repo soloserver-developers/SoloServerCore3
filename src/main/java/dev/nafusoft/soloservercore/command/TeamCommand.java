@@ -83,7 +83,7 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
             } else if (!sender.hasPermission("soloservercore.team." + args[0])) {
                 sender.sendMessage(ChatColor.RED + "You can't run this command because you don't have permission.");
             } else switch (args[0]) {
-                case "create": {
+                case "create" -> {
                     // すでにチームに所属している場合は
                     if (sscPlayer.getJoinedTeam() != null) {
                         val team = sscPlayer.getJoinedTeam();
@@ -104,9 +104,7 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                     else
                         sender.sendMessage(SoloServerCore.getMessage(player, "teams.create.fail"));
                 }
-                break;
-
-                case "invite":
+                case "invite" -> {
                     if (args.length >= 2) {
                         args = Arrays.copyOfRange(args, 1, args.length);
                         val playersTeam = soloServerApi.getPlayersTeam(player);
@@ -131,9 +129,8 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                     } else {
                         sender.sendMessage(SoloServerCore.getMessage(player, "teams.invite.warn.select"));
                     }
-                    break;
-
-                case "accept":
+                }
+                case "accept" -> {
                     val invitedTeam = invited.remove((player).getUniqueId());
                     if (invitedTeam != null) {
                         // すでにチームに所属している場合は
@@ -146,9 +143,8 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                     } else {
                         sender.sendMessage(SoloServerCore.getMessage(player, "teams.invite.warn.notfound"));
                     }
-                    break;
-
-                case "leave": {
+                }
+                case "leave" -> {
                     if (sscPlayer.getJoinedTeam() != null) {
                         val team = sscPlayer.getJoinedTeam();
                         if (settingsManager.isTeamSpawnCollect()
@@ -163,18 +159,14 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
 
                     }
                 }
-                break;
-
-                case "confirm": {
+                case "confirm" -> {
                     if (sscPlayer.getJoinedTeam() != null && invited.remove(sscPlayer.getJoinedTeamId()) != null) {
                         val team = sscPlayer.getJoinedTeam();
                         team.leaveTeam(player);
                         sender.sendMessage(SoloServerCore.getMessage(player, "teams.leave"));
                     }
                 }
-                break;
-
-                case "transfer":
+                case "transfer" -> {
                     if (args.length >= 2) {
                         val originalTeam = soloServerApi.getPlayersTeam(player);
                         if (originalTeam != null) {
@@ -202,9 +194,8 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                     } else {
                         sender.sendMessage(SoloServerCore.getMessage(player, "teams.transfer.warn.select"));
                     }
-                    break;
-
-                case "name":
+                }
+                case "name" -> {
                     val targetTeam = soloServerApi.getPlayersTeam(player);
                     if (targetTeam != null) {
                         if (args.length >= 2)
@@ -215,10 +206,7 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                     } else {
                         sender.sendMessage(SoloServerCore.getMessage(player, "teams.name.warn.owner"));
                     }
-                    break;
-
-                default:
-                    break;
+                }
             }
         } else {
             sender.sendMessage("[Teams] This command must be executed in-game.");

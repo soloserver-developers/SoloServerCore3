@@ -47,7 +47,7 @@ public class MessageCommand implements CommandExecutor, TabCompleter {
             } else if (!sender.hasPermission("messageboard." + args[0])) {
                 sender.sendMessage(ChatColor.RED + "You can't run this command because you don't have permission.");
             } else switch (args[0]) {
-                case "create": {
+                case "create" -> {
                     val joinedTeam = soloServerApi.getPlayersTeam(player);
                     if (joinedTeam != null) {
                         TeamMessage.TeamMessageBuilder builder = new TeamMessage.TeamMessageBuilder(player.getUniqueId());
@@ -59,9 +59,7 @@ public class MessageCommand implements CommandExecutor, TabCompleter {
                         player.sendMessage(SoloServerCore.getMessage(player, "command.message.create.warn.team"));
                     }
                 }
-                break;
-
-                case "subject":
+                case "subject" -> {
                     if (args.length >= 2) {
                         TeamMessage.TeamMessageBuilder builder = makingMessage.get(player);
                         if (builder != null) {
@@ -71,9 +69,8 @@ public class MessageCommand implements CommandExecutor, TabCompleter {
                             player.sendMessage(SoloServerCore.getMessage(player, "command.message.create.warn"));
                         }
                     }
-                    break;
-
-                case "message":
+                }
+                case "message" -> {
                     if (args.length >= 3) {
                         switch (args[1]) {
                             case "add" -> {
@@ -110,9 +107,8 @@ public class MessageCommand implements CommandExecutor, TabCompleter {
                             player.sendMessage(SoloServerCore.getMessage(player, "command.message.create.warn"));
                         }
                     }
-                    break;
-
-                case "send":
+                }
+                case "send" -> {
                     TeamMessage.TeamMessageBuilder builder = makingMessage.get(player);
                     if (builder != null) {
                         TeamMessage teamMessage = builder.build();
@@ -122,18 +118,15 @@ public class MessageCommand implements CommandExecutor, TabCompleter {
                     } else {
                         player.sendMessage(SoloServerCore.getMessage(player, "command.message.create.warn"));
                     }
-                    break;
-
-                case "check": {
+                }
+                case "check" -> {
                     PlayersTeam joinedTeam = soloServerApi.getPlayersTeam(player);
                     if (joinedTeam != null) {
                         List<TeamMessage> messages = joinedTeam.getMessages();
                         sendMessageList(player, messages);
                     }
                 }
-                break;
-
-                case "read": {
+                case "read" -> {
                     PlayersTeam joinedTeam = soloServerApi.getPlayersTeam(player);
 
                     TeamMessage message =
@@ -145,9 +138,7 @@ public class MessageCommand implements CommandExecutor, TabCompleter {
                     else
                         player.sendMessage(SoloServerCore.getMessage(player, "command.message.notfound"));
                 }
-                break;
-
-                case "delete": {
+                case "delete" -> {
                     PlayersTeam joinedTeam = soloServerApi.getPlayersTeam(player);
                     TeamMessage message =
                             joinedTeam.getMessages().stream().
@@ -162,10 +153,8 @@ public class MessageCommand implements CommandExecutor, TabCompleter {
                         }
                     }
                 }
-                break;
-
-                default:
-                    break;
+                default -> {
+                }
             }
         } else {
             sender.sendMessage(ChatColor.RED + "This command must be executed in-game.");

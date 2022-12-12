@@ -96,6 +96,7 @@ public class ReTeleportCommand implements CommandExecutor, TabCompleter {
                 } catch (SQLException e) {
                     SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to delete the player data.", e);
                 }
+                // TODO: 2022/12/12 非同期で先行して座標を生成するようにしたい。
             }
         } else {
             Bukkit.getLogger().info("This command must be executed in-game.");
