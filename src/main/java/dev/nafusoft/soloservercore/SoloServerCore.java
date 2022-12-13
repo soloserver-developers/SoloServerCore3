@@ -406,7 +406,8 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                 if (!player.equals(event.getPlayer()) && !member.contains(player.getUniqueId())) {
                     if (!event.getPlayer().hasPermission("soloservercore.invisible.bypass"))
                         event.getPlayer().hidePlayer(SoloServerCore.getInstance(), player);
-                    player.hidePlayer(SoloServerCore.getInstance(), event.getPlayer());
+                    if (!player.hasPermission("soloservercore.invisible.bypass"))
+                        player.hidePlayer(SoloServerCore.getInstance(), event.getPlayer());
                 }
             });
 
