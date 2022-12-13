@@ -22,7 +22,6 @@ import dev.nafusoft.soloservercore.data.TempSSCPlayer;
 import dev.nafusoft.soloservercore.database.PlayersTable;
 import dev.nafusoft.soloservercore.database.PluginSettingsManager;
 import lombok.val;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -99,7 +98,7 @@ public class ReTeleportCommand implements CommandExecutor, TabCompleter {
                 // TODO: 2022/12/12 非同期で先行して座標を生成するようにしたい。
             }
         } else {
-            Bukkit.getLogger().info("This command must be executed in-game.");
+            sender.sendMessage("This command must be executed in-game.");
         }
         return true;
     }

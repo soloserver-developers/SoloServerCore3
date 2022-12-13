@@ -299,7 +299,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                 if (sender instanceof Player player) {
                     player.teleport(SoloServerApi.getInstance().getPlayerSpawn(player));
                 } else {
-                    Bukkit.getLogger().info("This command must be executed in-game.");
+                    sender.sendMessage("This command must be executed in-game.");
                 }
             }
             case "home" -> {
@@ -338,7 +338,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                         player.teleport(location);
                     }
                 } else {
-                    Bukkit.getLogger().info("This command must be executed in-game.");
+                    sender.sendMessage("This command must be executed in-game.");
                 }
             }
             case "peaceful" -> {
