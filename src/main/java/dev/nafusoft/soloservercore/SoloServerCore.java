@@ -235,8 +235,6 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                         };
 
                         scripts.forEach(script -> {
-                            if (SoloServerApi.getInstance().isDebug())
-                                getLogger().info("Migration...: " + script);
                             try (Connection connection = connector.getConnection();
                                  PreparedStatement ps = connection.prepareStatement(
                                          script.replace("%TABLENAME%", databaseTable.getTablename())

@@ -50,10 +50,6 @@ public final class SoloServerApi {
         return soloServerCore.getCoreConfig().getInitConfig().getSpawnWorld();
     }
 
-    public boolean isDebug() {
-        return soloServerCore.getCoreConfig().isDebug();
-    }
-
     /**
      * @return SoloServerCoreに登録されているDB情報
      * @since v4.4

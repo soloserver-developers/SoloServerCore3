@@ -56,9 +56,6 @@ public class AsyncSafeLocationUtil {
             z = secureRandom.nextInt(generateRange * 2) - generateRange;
             y = 120;
 
-            if (SoloServerApi.getInstance().isDebug())
-                SoloServerCore.getInstance().getLogger().info("[Debug] Start Search: " + spawnWorld.getName() + ", " + x + ", " + z);
-
             Chunk chunk = null;
             try {
                 chunk = PaperLib.getChunkAtAsync(spawnWorld, x, z, true).get();
@@ -67,21 +64,13 @@ public class AsyncSafeLocationUtil {
             }
 
             do {
-                if (SoloServerApi.getInstance().isDebug())
-                    SoloServerCore.getInstance().getLogger().log(Level.INFO, "[Debug] Searching Y: {0}", y);
-
                 if (!isUnsafe(spawnWorld, x, y, z))
                     location = new Location(chunk.getWorld(), x, y + 1, z);
 
                 y--;
-                if (y <= 60) {
-                    if (SoloServerApi.getInstance().isDebug())
-                        SoloServerCore.getInstance().getLogger().info("[Debug] Safe location were not found.");
+                if (y <= 60)
                     break;
-                }
             } while (location == null);
-            if (SoloServerApi.getInstance().isDebug())
-                SoloServerCore.getInstance().getLogger().log(Level.INFO, "[Debug] While Ended. Y: {0}", y);
         } while (location == null);
 
         return location;
@@ -92,23 +81,15 @@ public class AsyncSafeLocationUtil {
     }
 
     public static boolean isDamagingBlock(World world, int x, int y, int z) {
-        if (SoloServerApi.getInstance().isDebug())
-            SoloServerCore.getInstance().getLogger().log(Level.INFO, "[Debug] Damage Block Checking...:");
         val block = world.getBlockAt(x, y, z);
         boolean result = block.getType().equals(Material.AIR)
                 || DAMAGING_TYPES.contains(block.getType())
                 || FLUID_TYPES.contains(block.getType());
-        if (SoloServerApi.getInstance().isDebug())
-            SoloServerCore.getInstance().getLogger().log(Level.INFO, "[Debug] Damage Block Check result.: {0}", result);
         return result;
     }
 
     public static boolean isAboveAir(World world, int x, int y, int z) {
-        if (SoloServerApi.getInstance().isDebug())
-            SoloServerCore.getInstance().getLogger().log(Level.INFO, "[Debug] Air Checking...:");
         boolean result = world.getBlockAt(x, y + 2, z).getType().equals(Material.AIR);
-        if (SoloServerApi.getInstance().isDebug())
-            SoloServerCore.getInstance().getLogger().log(Level.INFO, "[Debug] Air Check result.: {0}", result);
         return result;
     }
 }
