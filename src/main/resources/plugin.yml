@@ -65,6 +65,7 @@ permissions:
       soloservercore.team.confirm: true
       soloservercore.team.transfer: true
       soloservercore.team.name: true
+      soloservercore.team.chest: true
       soloservercore.protect.bypass: true
       soloservercore.reteleport: true
       soloservercore.maintenance: true
@@ -86,6 +87,7 @@ permissions:
       soloservercore.team.confirm: true
       soloservercore.team.transfer: true
       soloservercore.team.name: true
+      soloservercore.team.chest: true
       messageboard.create: true
       messageboard.subject: true
       messageboard.message: true

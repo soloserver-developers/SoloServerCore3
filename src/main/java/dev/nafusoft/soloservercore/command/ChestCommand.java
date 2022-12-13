@@ -40,7 +40,7 @@ public class ChestCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
-        if (sender instanceof Player player) {
+        if (sender instanceof Player player && sender.hasPermission("soloservercore.team.chest")) {
             PlayersTeam joinedTeam = SoloServerApi.getInstance().getPlayersTeam(player);
             if (joinedTeam != null) {
                 try {
