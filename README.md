@@ -12,9 +12,9 @@ SoloServerCoreはマルチプレイなのにシングルプレイのようなあ
 
 - サーバーリストのログインプレイヤーを表示しない機能
 - 世界のどこかで眠りにつくのを待っている人が居ることをお知らせする機能
-- 簡易的なチームプレイ機能
-- ブロックの変更をチェックして他プレイヤーの設置物だった場合に変更をキャンセルする機能
-- ランダムスポーンポイントの座標を事前に生成しログイン時の待ち時間を短縮
+- チームプレイ機能（チームメンバの可視化、スポーン座標の共有、共有ストレージの追加）
+- 他プレイヤーの設置物の破壊をキャンセルする機能
+- ランダムスポーンポイントの座標を非同期で生成しログイン時の待ち時間を短縮
 - スポーンワールドが変更された際に新ワールドに移動する機能
 - (開発者向け) 受信可能なイベントが幾つか実装されました。 [CustomEvents](./CustomEvent.md)
 
@@ -102,7 +102,7 @@ public final class SoloServerCoreExtensions extends JavaPlugin {
 This plugin is published under Apache License 2.0.
 
 ```
-Copyright 2020 NAFU_at.
+Copyright 2022 Nafu Satsuki
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
