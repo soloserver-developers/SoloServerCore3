@@ -19,6 +19,7 @@ package dev.nafusoft.soloservercore;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import dev.nafusoft.soloservercore.command.*;
+import dev.nafusoft.soloservercore.data.InGameSSCPlayer;
 import dev.nafusoft.soloservercore.data.MoveTimeUpdater;
 import dev.nafusoft.soloservercore.data.TempSSCPlayer;
 import dev.nafusoft.soloservercore.database.*;
@@ -53,14 +54,16 @@ import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 
 public final class SoloServerCore extends JavaPlugin implements Listener {
     private static SoloServerCore instance;
-    private final Map<Player, CompletableFuture<AsyncLoginManager.LoginResult>> loggingInPlayers = new HashMap<>();
     private SoloServerCoreConfig config;
     private DatabaseConnector connector;
     private PluginSettingsTable pluginSettingsTable;
@@ -155,18 +158,12 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
         // Command Register
         val settingsCommand = new SettingsCommand(pluginSettingsManager);
         val teamCommand = new TeamCommand(pluginSettingsManager);
-        val reTeleportCommand = new ReTeleportCommand(
-                pluginSettingsManager,
-                playersTable,
-                Bukkit.getWorld(config.getInitConfig().getSpawnWorld()));
         val maintenanceCommand = new MaintenanceCommand(playersTable, playersTeamsTable, pluginSettingsManager);
         val messageCommand = new MessageCommand();
         getCommand("settings").setExecutor(settingsCommand);
         getCommand("settings").setTabCompleter(settingsCommand);
         getCommand("team").setExecutor(teamCommand);
         getCommand("team").setTabCompleter(teamCommand);
-        getCommand("reteleport").setExecutor(reTeleportCommand);
-        getCommand("reteleport").setTabCompleter(reTeleportCommand);
         getCommand("maintenance").setExecutor(maintenanceCommand);
         getCommand("messageboard").setExecutor(messageCommand);
         getCommand("messageboard").setTabCompleter(messageCommand);
@@ -343,6 +340,63 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                     player.sendMessage(MessageManager.format(getMessage(player, "command.peaceful.change"), sscPlayer.isPeacefulMode()));
                 }
             }
+
+            case "reteleport" -> {
+                if (sender instanceof Player player) {
+                    if (!sender.hasPermission("soloservercore.reteleport")) {
+                        sender.sendMessage(ChatColor.RED + "You can't run this command because you don't have permission.");
+                    } else if (args.length == 0) {
+                        val sscPlayer = SoloServerApi.getInstance().getSSCPlayer(player);
+                        if (!(sscPlayer instanceof TempSSCPlayer)) {
+                            if (!sscPlayer.getSpawnLocationObject().getWorld().equals(Bukkit.getWorld(config.getInitConfig().getSpawnWorld()))) {
+                                sender.sendMessage(SoloServerCore.getMessage(player, "command.teleport.new-world.confirm"));
+                            } else {
+                                sender.sendMessage(SoloServerCore.getMessage(player, "command.teleport.new-world.warn.notfound"));
+                            }
+                        }
+                    } else if ("confirm".equalsIgnoreCase(args[0])) {
+                        val sscPlayer = SoloServerApi.getInstance().getOfflineSSCPlayer(player.getUniqueId());
+
+                        // チーム情報を確認し所属している場合は脱退
+                        if (sscPlayer.getJoinedTeam() != null) {
+                            sscPlayer.getJoinedTeam().leaveTeam(player);
+                            player.sendMessage(SoloServerCore.getMessage(player, "teams.leave"));
+                        }
+
+                        // ベッドスポーンの上書き
+                        player.setBedSpawnLocation(null);
+
+                        // プレイヤーの初期化
+                        if (getPluginSettingsManager().isReteleportResetAll()) {
+                            player.getInventory().clear();
+                            player.getEnderChest().clear();
+                            player.setLevel(0);
+                            player.setExp(0F);
+                            player.getActivePotionEffects().forEach(e -> player.removePotionEffect(e.getType()));
+                            player.setFireTicks(0);
+                            player.setHealth(20D);
+                            player.setFoodLevel(20);
+                            player.setSaturation(20F);
+                        }
+
+                        // プレイヤーを切断
+                        player.kickPlayer(SoloServerCore.getMessage(player, "command.teleport.new-world.in-process"));
+
+                        // 旧プレイヤーデータの削除
+                        try {
+                            playersTable.deletePlayer(sscPlayer);
+                        } catch (SQLException e) {
+                            SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to delete the player data.", e);
+                        }
+
+                        SoloServerApi.getInstance().registerTempPlayer(new TempSSCPlayer(player));
+                        AsyncLoginManager.login(player);
+                    }
+                } else {
+                    sender.sendMessage("This command must be executed in-game.");
+                }
+            }
+
             default -> {
                 return false;
             }
@@ -353,15 +407,16 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerLoginEvent(PlayerLoginEvent event) {
         SoloServerApi.getInstance().registerTempPlayer(new TempSSCPlayer(event.getPlayer()));
-        loggingInPlayers.put(event.getPlayer(), AsyncLoginManager.login(event.getPlayer()));
+        AsyncLoginManager.login(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerJoinEvent(PlayerJoinEvent event) {
         event.setJoinMessage("");
 
-        CompletableFuture<AsyncLoginManager.LoginResult> future = loggingInPlayers.remove(event.getPlayer());
+        CompletableFuture<AsyncLoginManager.LoginResult> future = AsyncLoginManager.getLoginResult(event.getPlayer());
         future.thenAccept(result -> Bukkit.getScheduler().callSyncMethod(this, () -> {
+            getLogger().info("Login result: " + result);
             if (result.status() == AsyncLoginManager.ResultStatus.FAILED) {
                 event.getPlayer().kickPlayer(result.message());
                 return result;
@@ -370,12 +425,29 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
             if (result.status() != AsyncLoginManager.ResultStatus.FIRST_JOINED)
                 SoloServerApi.getInstance().dropStoreData(event.getPlayer());
 
-            val sscPlayer = SoloServerApi.getInstance().getSSCPlayer(event.getPlayer());
+            var sscPlayer = SoloServerApi.getInstance().getSSCPlayer(event.getPlayer());
             if (result.status() == AsyncLoginManager.ResultStatus.FIRST_JOINED) {
+                SoloServerApi.getInstance().dropStoreData(event.getPlayer());
+                sscPlayer = new InGameSSCPlayer(event.getPlayer().getUniqueId(),
+                        sscPlayer.getSpawnLocationObject(),
+                        null,
+                        event.getPlayer(),
+                        true,
+                        null,
+                        false);
+
+                try {
+                    SoloServerApi.getInstance().registerSSCPlayer(sscPlayer);
+                } catch (SQLException | NullPointerException exception) {
+                    SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to save the player data.\n" +
+                            "New data will be regenerated next time.", exception);
+                }
+
                 // MVとの競合に対する対策
+                InGameSSCPlayer finalSscPlayer = sscPlayer;
                 Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(SoloServerCore.getInstance(),
                         () -> {
-                            val location = sscPlayer.getSpawnLocationObject();
+                            val location = finalSscPlayer.getSpawnLocationObject();
                             event.getPlayer().teleport(location);
                             Object[] perms = {event.getPlayer().getName(),
                                     location.getBlockX(),
@@ -383,6 +455,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                                     location.getBlockZ()};
                             SoloServerCore.getInstance().getLogger().log(Level.INFO,
                                     "{0} has been successfully teleported to {1}, {2}, {3}", perms);
+                            event.getPlayer().sendMessage(SoloServerCore.getMessage(event.getPlayer(), "system.world.moved"));
                         }, 10L);
                 event.getPlayer().setCompassTarget(sscPlayer.getSpawnLocationObject());
             }

@@ -19,10 +19,12 @@ package dev.nafusoft.soloservercore.data;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import lombok.val;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 public class TempSSCPlayer extends InGameSSCPlayer {
+    private Location generatedLocation;
 
     public TempSSCPlayer(@NotNull Player player) {
         super(player.getUniqueId(), getDefaultSpawnLocation(player), null, player, false, null, false);
@@ -41,5 +43,29 @@ public class TempSSCPlayer extends InGameSSCPlayer {
         locationJson.addProperty("Y", location.getBlockY());
         locationJson.addProperty("Z", location.getBlockZ());
         return new Gson().toJson(locationJson);
+    }
+
+    public void setGeneratedLocation(Location generatedLocation) {
+        this.generatedLocation = generatedLocation;
+    }
+
+    @Override
+    public @NotNull String getSpawnLocation() {
+        if (generatedLocation != null) {
+            val locationJson = new JsonObject();
+            locationJson.addProperty("World", generatedLocation.getWorld().getName());
+            locationJson.addProperty("X", generatedLocation.getBlockX());
+            locationJson.addProperty("Y", generatedLocation.getBlockY());
+            locationJson.addProperty("Z", generatedLocation.getBlockZ());
+            return new Gson().toJson(locationJson);
+        }
+        return super.getSpawnLocation();
+    }
+
+    @Override
+    public @NotNull Location getSpawnLocationObject() {
+        if (generatedLocation != null)
+            return generatedLocation;
+        return super.getSpawnLocationObject();
     }
 }

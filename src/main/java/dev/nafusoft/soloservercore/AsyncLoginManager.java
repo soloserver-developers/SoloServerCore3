@@ -16,19 +16,23 @@
 
 package dev.nafusoft.soloservercore;
 
-import dev.nafusoft.soloservercore.data.InGameSSCPlayer;
 import dev.nafusoft.soloservercore.data.SSCPlayer;
+import dev.nafusoft.soloservercore.data.TempSSCPlayer;
 import lombok.val;
 import org.bukkit.entity.Player;
 
 import java.sql.SQLException;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
 public class AsyncLoginManager {
+    private static final Map<UUID, CompletableFuture<LoginResult>> loggingInPlayers = new ConcurrentHashMap<>();
 
-    public static CompletableFuture<LoginResult> login(Player player) {
-        return CompletableFuture.supplyAsync(() -> {
+    public static void login(Player player) {
+        loggingInPlayers.putIfAbsent(player.getUniqueId(), CompletableFuture.supplyAsync(() -> {
             LoginResult result = null;
             SSCPlayer sscPlayer = SoloServerCore.getInstance().getPlayersTable().getPlayerData(player.getUniqueId());
 
@@ -58,8 +62,6 @@ public class AsyncLoginManager {
                         player.setFoodLevel(20);
                         player.setSaturation(20F);
                     }
-
-                    player.sendMessage(SoloServerCore.getMessage(player, "system.world.deleted"));
                 }
             }
 
@@ -67,21 +69,12 @@ public class AsyncLoginManager {
                 val location = AsyncSafeLocationUtil.generateNewRandomLocation();
 
                 if (location != null) {
-                    val newPlayerData = new InGameSSCPlayer(player.getUniqueId(),
-                            location,
-                            null,
-                            player,
-                            true,
-                            null,
-                            false);
                     try {
-                        SoloServerApi.getInstance().registerSSCPlayer(newPlayerData);
+                        SoloServerCore.getInstance().getLogger().info("Generated new location for " + player.getName() + ": " + location);
+                        ((TempSSCPlayer) SoloServerApi.getInstance().getSSCPlayer(player)).setGeneratedLocation(location);
                         result = new LoginResult(ResultStatus.FIRST_JOINED, "");
-                    } catch (SQLException | NullPointerException exception) {
-                        SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to save the player data.\n" +
-                                "New data will be regenerated next time.", exception);
-
-                        result = new LoginResult(ResultStatus.FAILED, "The login process was interrupted due to a system problem.");
+                    } catch (Exception e) {
+                        SoloServerCore.getInstance().getLogger().log(Level.WARNING, "Failed to generate new location.", e);
                     }
                 } else {
                     SoloServerCore.getInstance().getLogger().log(Level.WARNING, "There is no stock of teleport coordinates. Please execute regeneration.");
@@ -90,7 +83,13 @@ public class AsyncLoginManager {
                 }
             }
             return result;
-        });
+        }));
+    }
+
+    public static CompletableFuture<LoginResult> getLoginResult(Player player) {
+        val future = loggingInPlayers.remove(player.getUniqueId());
+        SoloServerCore.getInstance().getLogger().info("Login result for " + player.getName() + ": " + future);
+        return future;
     }
 
 

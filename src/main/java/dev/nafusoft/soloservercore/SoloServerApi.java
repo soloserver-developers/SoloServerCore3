@@ -33,7 +33,7 @@ import java.util.UUID;
 
 public final class SoloServerApi {
     private final SoloServerCore soloServerCore;
-    private final Map<Player, InGameSSCPlayer> playerStore;
+    private final Map<UUID, InGameSSCPlayer> playerStore;
     private final Map<UUID, PlayersTeam> teamsStore;
 
     private SoloServerApi(SoloServerCore soloServerCore) {
@@ -66,13 +66,13 @@ public final class SoloServerApi {
      */
     @NotNull
     public InGameSSCPlayer getSSCPlayer(@NotNull Player player) {
-        var sscPlayer = playerStore.get(player);
+        var sscPlayer = playerStore.get(player.getUniqueId());
         if (sscPlayer == null) {
             val id = player.getUniqueId();
             val offlineSSCPlayer = getOfflineSSCPlayer(id);
             assert offlineSSCPlayer != null; // TODO: 2022/09/07 Fix this.
             sscPlayer = new InGameSSCPlayer(offlineSSCPlayer, player, false);
-            playerStore.put(player, sscPlayer);
+            playerStore.put(player.getUniqueId(), sscPlayer);
         }
         return sscPlayer;
     }
@@ -181,15 +181,15 @@ public final class SoloServerApi {
 
     void registerSSCPlayer(InGameSSCPlayer sscPlayer) throws SQLException {
         soloServerCore.getPlayersTable().registerPlayer(sscPlayer);
-        playerStore.put(sscPlayer.getPlayer(), sscPlayer);
+        playerStore.put(sscPlayer.getPlayer().getUniqueId(), sscPlayer);
     }
 
     void registerTempPlayer(TempSSCPlayer tempSSCPlayer) {
-        playerStore.put(tempSSCPlayer.getPlayer(), tempSSCPlayer);
+        playerStore.putIfAbsent(tempSSCPlayer.getPlayer().getUniqueId(), tempSSCPlayer);
     }
 
     void dropStoreData(Player player) {
-        playerStore.remove(player);
+        playerStore.remove(player.getUniqueId());
     }
 
     private static class ApiInstanceHolder {
