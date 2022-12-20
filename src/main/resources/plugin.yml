@@ -1,7 +1,7 @@
 name: SoloServerCore
 version: @version@
 main: dev.nafusoft.soloservercore.SoloServerCore
-api-version: 1.16
+api-version: 1.18
 prefix: SSC
 depend: [ CoreProtect ]
 softdepend: [ ProtocolLib ]
