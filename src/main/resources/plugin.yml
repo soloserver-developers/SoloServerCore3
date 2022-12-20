@@ -16,9 +16,6 @@ commands:
   team:
     description: Manage Players Team.
 
-  status:
-    description: Show SoloServerCore Status.
-
   charge:
     description: Recharge randon spawn points.
 
@@ -51,7 +48,6 @@ permissions:
     children:
       soloservercore.invisible.bypass: true
       soloservercore.chat.bypass: true
-      soloservercore.status: true
       soloservercore.charge: true
       soloservercore.settings: true
       soloservercore.spawn: true

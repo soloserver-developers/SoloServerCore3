@@ -159,7 +159,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                 pluginSettingsManager,
                 playersTable,
                 Bukkit.getWorld(config.getInitConfig().getSpawnWorld()));
-        val maintenanceCommand = new MaintenanceCommand(playersTable, playersTeamsTable);
+        val maintenanceCommand = new MaintenanceCommand(playersTable, playersTeamsTable, pluginSettingsManager);
         val messageCommand = new MessageCommand();
         getCommand("settings").setExecutor(settingsCommand);
         getCommand("settings").setTabCompleter(settingsCommand);
@@ -288,19 +288,6 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                 && SoloServerApi.getInstance().getSSCPlayer(player) instanceof TempSSCPlayer) {
             return true;
         } else switch (command.getName()) {
-            case "status" -> {
-                sender.sendMessage(ChatColor.AQUA + "======== SoloServerCore System Information ========");
-                sender.sendMessage("Plugin Version: " + getDescription().getVersion());
-                sender.sendMessage("");
-                sender.sendMessage("CHECK_BLOCK: " + pluginSettingsManager.isCheckBlock());
-                sender.sendMessage("PROTECTION_PERIOD: " + pluginSettingsManager.getProtectionPeriod());
-                sender.sendMessage("TEAM_SPAWN_COLLECT: " + pluginSettingsManager.isTeamSpawnCollect());
-                sender.sendMessage("BROADCAST_BED_COUNT: " + pluginSettingsManager.isBroadcastBedCount());
-                sender.sendMessage("USE_AFK_COUNT: " + pluginSettingsManager.isUseAfkCount());
-                sender.sendMessage("AFK_TIME_THRESHOLD: " + pluginSettingsManager.getAfkTimeThreshold());
-                sender.sendMessage("RETELEPORT_RESET_ALL: " + pluginSettingsManager.isReteleportResetAll());
-                sender.sendMessage("LAST_MIGRATED_VERSION: " + pluginSettingsManager.getLastMigratedVersion());
-            }
             case "spawn" -> {
                 if (sender instanceof Player player) {
                     player.teleport(SoloServerApi.getInstance().getPlayerSpawn(player));
@@ -308,6 +295,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                     sender.sendMessage("This command must be executed in-game.");
                 }
             }
+
             case "home" -> {
                 if (sender instanceof Player player) {
                     if (args.length >= 1) {
@@ -347,6 +335,7 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                     sender.sendMessage("This command must be executed in-game.");
                 }
             }
+
             case "peaceful" -> {
                 if (sender instanceof Player player) {
                     val sscPlayer = SoloServerApi.getInstance().getSSCPlayer(player);

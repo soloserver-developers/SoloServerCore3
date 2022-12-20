@@ -20,6 +20,7 @@ import dev.nafusoft.soloservercore.SoloServerApi;
 import dev.nafusoft.soloservercore.SoloServerCore;
 import dev.nafusoft.soloservercore.database.PlayersTable;
 import dev.nafusoft.soloservercore.database.PlayersTeamsTable;
+import dev.nafusoft.soloservercore.database.PluginSettingsManager;
 import lombok.val;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -31,6 +32,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -38,10 +40,12 @@ import java.util.logging.Level;
 public class MaintenanceCommand implements CommandExecutor, TabCompleter {
     private final PlayersTable playersTable;
     private final PlayersTeamsTable teamsTable;
+    private final PluginSettingsManager settingsManager;
 
-    public MaintenanceCommand(PlayersTable playersTable, PlayersTeamsTable teamsTable) {
+    public MaintenanceCommand(PlayersTable playersTable, PlayersTeamsTable teamsTable, PluginSettingsManager settingsManager) {
         this.playersTable = playersTable;
         this.teamsTable = teamsTable;
+        this.settingsManager = settingsManager;
     }
 
     @Override
@@ -53,6 +57,20 @@ public class MaintenanceCommand implements CommandExecutor, TabCompleter {
         } else if (args.length < 2) {
             sender.sendMessage(ChatColor.RED + "Insufficient arguments to execute the command.");
         } else switch (args[0]) {
+            case "status" -> {
+                sender.sendMessage(ChatColor.AQUA + "======== SoloServerCore System Information ========");
+                sender.sendMessage("Plugin Version: " + SoloServerCore.getInstance().getDescription().getVersion());
+                sender.sendMessage("");
+                sender.sendMessage("CHECK_BLOCK: " + settingsManager.isCheckBlock());
+                sender.sendMessage("PROTECTION_PERIOD: " + settingsManager.getProtectionPeriod());
+                sender.sendMessage("TEAM_SPAWN_COLLECT: " + settingsManager.isTeamSpawnCollect());
+                sender.sendMessage("BROADCAST_BED_COUNT: " + settingsManager.isBroadcastBedCount());
+                sender.sendMessage("USE_AFK_COUNT: " + settingsManager.isUseAfkCount());
+                sender.sendMessage("AFK_TIME_THRESHOLD: " + settingsManager.getAfkTimeThreshold());
+                sender.sendMessage("RETELEPORT_RESET_ALL: " + settingsManager.isReteleportResetAll());
+                sender.sendMessage("LAST_MIGRATED_VERSION: " + settingsManager.getLastMigratedVersion());
+            }
+
             case "clear" -> {
                 try {
                     val playerId = UUID.fromString(args[1]);
@@ -90,6 +108,7 @@ public class MaintenanceCommand implements CommandExecutor, TabCompleter {
                     sender.sendMessage(ChatColor.RED + "You must specify the exact UUID of the player whose data you want to delete.");
                 }
             }
+
             case "show" -> {
                 val offlinePlayer = Bukkit.getOfflinePlayer(args[1]);
                 if (offlinePlayer.hasPlayedBefore()) {
@@ -115,6 +134,6 @@ public class MaintenanceCommand implements CommandExecutor, TabCompleter {
     @Nullable
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
-        return null;
+        return Arrays.asList("status", "clear", "show");
     }
 }
