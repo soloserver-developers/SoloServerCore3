@@ -56,7 +56,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
+import java.util.regex.Pattern;
 
 public final class SoloServerCore extends JavaPlugin implements Listener {
     private static SoloServerCore instance;
@@ -102,7 +102,8 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
                 getCoreConfig().getInitConfig().getAddress() + ":" + getCoreConfig().getInitConfig().getPort(),
                 getCoreConfig().getInitConfig().getDatabase(),
                 getCoreConfig().getInitConfig().getUsername(),
-                getCoreConfig().getInitConfig().getPassword());
+                getCoreConfig().getInitConfig().getPassword(),
+                getCoreConfig().getInitConfig().getTablePrefix());
         pluginSettingsTable = new PluginSettingsTable("settings", connector);
         playersTable = new PlayersTable("players", connector);
         playersTeamsTable = new PlayersTeamsTable("teams", connector);
@@ -173,11 +174,17 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
     }
 
     private void migrateDatabase() {
+        val versionPattern =
+                Pattern.compile("^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)" +
+                        "(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)" +
+                        "(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))" +
+                        "?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$");
+
         // 初起動は除外する
         var doMigrate = true;
         val lastMigratedVersion = pluginSettingsManager.getLastMigratedVersion();
         getLogger().log(Level.INFO, "Starting database migrate check... Now database version: {0}", lastMigratedVersion);
-        if (lastMigratedVersion == 350) {
+        if (lastMigratedVersion.equals("0.0.0")) {
             try {
                 if (playersTable.getPlayers().isEmpty()) {
                     doMigrate = false;
@@ -192,73 +199,74 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
             // Migrationコンフィグの読み込み
             val migrateConfig =
                     YamlConfiguration.loadConfiguration(new InputStreamReader(getResource("migrate.yml")));
-            val versions = migrateConfig.getMapList("migrate").stream()
-                    .map(map -> (String) map.get("version"))
-                    .map(v -> Integer.parseInt(v.replace(".", "")))
-                    .distinct()
-                    .sorted()
-                    .collect(Collectors.toList());
+            int latest;
+            val matcher = versionPattern.matcher(lastMigratedVersion);
+            if (matcher.matches()) {
+                val major = Integer.parseInt(matcher.group(1));
+                val minor = Integer.parseInt(matcher.group(2));
+                val patch = Integer.parseInt(matcher.group(3));
+                latest = major * 10000 + minor * 100 + patch;
+            } else {
+                latest = 0;
+            }
 
-            // 更新がない場合実行しない
-            val s = getDescription().getVersion().split("-");
-            if (versions.stream().max(Comparator.naturalOrder()).get() <= lastMigratedVersion)
-                doMigrate = false;
+            val migration = migrateConfig.getMapList("migrate").stream()
+                    .filter(map -> {
+                        val version = (String) map.get("version");
+                        val matcher1 = versionPattern.matcher(version);
+                        if (matcher1.matches()) {
+                            val major = Integer.parseInt(matcher1.group(1));
+                            val minor = Integer.parseInt(matcher1.group(2));
+                            val patch = Integer.parseInt(matcher1.group(3));
+                            return latest < major * 10000 + minor * 100 + patch;
+                        } else {
+                            return false;
+                        }
+                    })
+                    .sorted(Comparator.comparingInt(m -> {
+                        val matcher2 = versionPattern.matcher((String) m.get("version"));
+                        if (matcher2.matches()) {
+                            val major = Integer.parseInt(matcher2.group(1));
+                            val minor = Integer.parseInt(matcher2.group(2));
+                            val patch = Integer.parseInt(matcher2.group(3));
+                            return major * 10000 + minor * 100 + patch;
+                        }
+                        return 0;
+                    }))
+                    .distinct()
+                    .toList();
+
+            doMigrate = migration.size() > 0;
 
             if (doMigrate)
-                getLogger().info("Find migration script, Start migration.");
-
-            // processリストの生成
-            int index = 0;
-            while (versions.size() > index) {
-                if (versions.get(index) > lastMigratedVersion)
-                    break;
-                index++;
-            }
-            val processList = index == 0 ? versions : versions.subList(index, versions.size());
-            doMigrate = doMigrate && !processList.isEmpty();
-
-            if (doMigrate) {
-                getLogger().info("The database structure has been updated. Start the migration process.");
-                processList.forEach(process -> {
-                    List<Map<?, ?>> versionProcessMap = migrateConfig.getMapList("migrate").stream()
-                            .filter(map -> Integer.parseInt(((String) map.get("version")).replace(".", "")) == process).toList();
-                    versionProcessMap.forEach(processMap -> {
-                        String database = (String) processMap.get("database");
-                        List<String> scripts = (List<String>) processMap.get("scripts");
-                        DatabaseTable databaseTable = switch (database) { // TODO: 2022/12/12 自動化しようぜ。
-                            case "teams" -> playersTeamsTable;
-                            case "players" -> playersTable;
-                            case "settings" -> pluginSettingsTable;
-                            case "messages" -> messagesTable;
-                            case "chests" -> chestsTable;
-                            default -> null;
-                        };
-
-                        scripts.forEach(script -> {
-                            try (Connection connection = connector.getConnection();
-                                 PreparedStatement ps = connection.prepareStatement(
-                                         script.replace("%TABLENAME%", databaseTable.getTablename())
-                                 )) {
-                                ps.execute();
-                            } catch (SQLException e) {
-                                getLogger().log(Level.WARNING, "An error has occurred during the migration process.", e);
-                            }
-                        });
-                    });
+                getLogger().info("""
+                        Find migration script, Start migration.
+                        The database structure has been updated. Start the migration process.
+                        """);
+            migration.stream().map(m -> (List<String>) m.get("scripts")).forEach(process -> {
+                process.forEach(script -> {
+                    try (Connection connection = connector.getConnection();
+                         PreparedStatement ps = connection.prepareStatement(
+                                 script.replace("%PREFIX%", connector.getPrefix())
+                         )) {
+                        ps.execute();
+                    } catch (SQLException e) {
+                        getLogger().log(Level.WARNING, "An error has occurred during the migration process.", e);
+                    }
                 });
+            });
 
-                try {
-                    pluginSettingsManager.setLastMigratedVersion(s[0]);
-                    getLogger().info("Migration process is completed.");
-                } catch (SQLException e) {
-                    getLogger().log(Level.WARNING,
-                            """
-                                    The migration process was completed successfully, 
-                                    but the results could not be saved. 
-                                    An error may be displayed the next time you start the program.
-                                    """,
-                            e);
-                }
+            try {
+                pluginSettingsManager.setLastMigratedVersion(getDescription().getVersion());
+                getLogger().info("Migration process is completed.");
+            } catch (SQLException e) {
+                getLogger().log(Level.WARNING,
+                        """
+                                The migration process was completed successfully, 
+                                but the results could not be saved. 
+                                An error may be displayed the next time you start the program.
+                                """,
+                        e);
             }
         }
     }
@@ -448,11 +456,6 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
             Bukkit.getOnlinePlayers().forEach(player -> player.showPlayer(this, event.getPlayer()));
     }
 
-    public SoloServerCoreConfig getCoreConfig() {
-        return config;
-    }
-
-
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerPeacefulModeChangeEvent(PlayerPeacefulModeChangeEvent event) {
         try {
@@ -474,8 +477,16 @@ public final class SoloServerCore extends JavaPlugin implements Listener {
     }
 
 
+    public SoloServerCoreConfig getCoreConfig() {
+        return config;
+    }
+
     PluginSettingsManager getPluginSettingsManager() {
         return pluginSettingsManager;
+    }
+
+    DatabaseConnector getConnector() {
+        return connector;
     }
 
     PlayersTable getPlayersTable() {

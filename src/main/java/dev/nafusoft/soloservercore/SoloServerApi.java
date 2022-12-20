@@ -55,11 +55,7 @@ public final class SoloServerApi {
      * @since v4.4
      */
     public DatabaseConnector getDatabaseConnector() {
-        return new DatabaseConnector(soloServerCore.getCoreConfig().getInitConfig().getDatabaseType(),
-                soloServerCore.getCoreConfig().getInitConfig().getAddress() + ":" + soloServerCore.getCoreConfig().getInitConfig().getPort(),
-                soloServerCore.getCoreConfig().getInitConfig().getDatabase(),
-                soloServerCore.getCoreConfig().getInitConfig().getUsername(),
-                soloServerCore.getCoreConfig().getInitConfig().getPassword());
+        return soloServerCore.getConnector();
     }
 
     /**

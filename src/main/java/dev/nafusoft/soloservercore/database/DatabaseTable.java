@@ -22,12 +22,11 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public abstract class DatabaseTable {
-    private static final String PREFIX = SoloServerCore.getInstance().getCoreConfig().getInitConfig().getTablePrefix();
     private final String tablename;
     private final DatabaseConnector connector;
 
     public DatabaseTable(String tablename, DatabaseConnector connector) {
-        this.tablename = PREFIX + tablename;
+        this.tablename = connector.getPrefix() + tablename;
         this.connector = connector;
     }
 

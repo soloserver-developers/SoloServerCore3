@@ -1,29 +1,16 @@
 migrate:
   - version: 3.6.0
-    database: teams
     scripts:
-      - "ALTER TABLE %TABLENAME% ADD team_name VARCHAR(16)"
+      - "ALTER TABLE %PREFIX%teams ADD team_name VARCHAR(16)"
   - version: 4.0.0
-    database: players
     scripts:
-      - "ALTER TABLE %TABLENAME% DROP player_name"
-  - version: 4.0.0
-    database: players
-    scripts:
-      - "ALTER TABLE %TABLENAME% DROP last_joined"
-  - version: 4.0.0
-    database: settings
-    scripts:
-      - "ALTER TABLE %TABLENAME% DROP INDEX settings_index"
-  - version: 4.0.0
-    database: settings
-    scripts:
-      - "ALTER TABLE %TABLENAME% ADD PRIMARY KEY (settings_name)"
+      - "ALTER TABLE %PREFIX%players DROP player_name"
+      - "ALTER TABLE %PREFIX%players DROP last_joined"
+      - "ALTER TABLE %PREFIX%settings DROP INDEX settings_index"
+      - "ALTER TABLE %PREFIX%settings ADD PRIMARY KEY (settings_name)"
   - version: 4.5.0
-    database: players
     scripts:
-      - "ALTER TABLE %TABLENAME% ADD fixed_home TEXT"
+      - "ALTER TABLE %PREFIX%players ADD fixed_home TEXT"
   - version: 5.0.0
-    database: players
     scripts:
-      - "ALTER TABLE %TABLENAME% ADD peaceful_mode BOOL"
+      - "ALTER TABLE %PREFIX%players ADD peaceful_mode BOOL"

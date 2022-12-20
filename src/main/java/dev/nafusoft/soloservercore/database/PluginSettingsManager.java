@@ -32,7 +32,7 @@ public class PluginSettingsManager {
     private static final boolean USE_AFK_COUNT = false;
     private static final int AFK_TIME_THRESHOLD = 30;
     private static final boolean RETELEPORT_RESET_ALL = false;
-    private static final int LAST_MIGRATED_VERSION = 600;
+    private static final String LAST_MIGRATED_VERSION = "0.0.0";
     private final PluginSettingsTable settingsTable;
 
     public PluginSettingsManager(PluginSettingsTable settingsTable) {
@@ -127,16 +127,11 @@ public class PluginSettingsManager {
         settingsTable.setPluginSetting("reteleportResetAll", String.valueOf(reteleportResetAll));
     }
 
-    public int getLastMigratedVersion() {
+    public String getLastMigratedVersion() {
         val value = settingsTable.getPluginSetting("lastMigratedVersion");
-        var result = LAST_MIGRATED_VERSION;
-        try {
-            if (value != null)
-                result = Integer.parseInt(value.replaceAll("\\.", ""));
-        } catch (NumberFormatException e) {
-            // nothing
-        }
-        return result;
+        if (value == null)
+            return LAST_MIGRATED_VERSION;
+        return value;
     }
 
     public void setLastMigratedVersion(@NotNull String lastMigratedVersion) throws SQLException {

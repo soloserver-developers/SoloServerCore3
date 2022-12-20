@@ -26,14 +26,20 @@ import java.sql.SQLException;
 
 public class DatabaseConnector {
     private final HikariDataSource dataSource;
+    private final String prefix;
 
-    public DatabaseConnector(SoloServerCoreConfig.DatabaseType databaseType, String address, String database, String username, String password) {
+    public DatabaseConnector(SoloServerCoreConfig.DatabaseType databaseType, String address, String database, String username, String password, String prefix) {
         val hconfig = new HikariConfig();
         hconfig.setDriverClassName(databaseType.getJdbcClass());
         hconfig.setJdbcUrl(databaseType.getAddressPrefix() + address + "/" + database);
         hconfig.addDataSourceProperty("user", username);
         hconfig.addDataSourceProperty("password", password);
         dataSource = new HikariDataSource(hconfig);
+        this.prefix = prefix;
+    }
+
+    public String getPrefix() {
+        return prefix;
     }
 
     public Connection getConnection() throws SQLException {
