@@ -72,7 +72,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'org.jetbrains:annotations:23.0.0'
+    compileOnly 'org.jetbrains:annotations:24.0.0'
 
     compileOnly 'io.papermc.paper:paper-api:1.19-R0.1-SNAPSHOT'
     implementation "io.papermc:paperlib:1.0.7"
