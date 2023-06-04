@@ -16,8 +16,6 @@
 
 package dev.nafusoft.soloservercore.database;
 
-import dev.nafusoft.soloservercore.SoloServerCore;
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 

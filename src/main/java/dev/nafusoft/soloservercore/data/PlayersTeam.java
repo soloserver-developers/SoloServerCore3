@@ -72,17 +72,6 @@ public class PlayersTeam {
     }
 
     /**
-     * チームの表示名を返します。
-     *
-     * @return チームの表示名
-     * @since v6.0
-     */
-    @NotNull
-    public String getTeamDisplayName() {
-        return teamName == null ? getId().toString().split("-")[0] : teamName;
-    }
-
-    /**
      * チーム名を設定します。
      *
      * @param teamName チーム名
@@ -92,6 +81,17 @@ public class PlayersTeam {
     @Deprecated
     public void setTeamName(@Nullable String teamName) {
         this.teamName = teamName;
+    }
+
+    /**
+     * チームの表示名を返します。
+     *
+     * @return チームの表示名
+     * @since v6.0
+     */
+    @NotNull
+    public String getTeamDisplayName() {
+        return teamName == null ? getId().toString().split("-")[0] : teamName;
     }
 
     /**
